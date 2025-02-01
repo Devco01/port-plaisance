@@ -68,25 +68,21 @@ const auth = require('../middleware/auth');
  *                 type: string
  */
 router.post('/register', async (req, res) => {
-    console.log('\n🔵 POST /register - Début de la requête');
-    console.log('Body reçu:', {
-        email: req.body.email,
-        nom: req.body.nom,
-        prenom: req.body.prenom,
-        // Ne pas logger le password
-    });
-
-    const { email, password, nom, prenom } = req.body;
-    console.log('Début inscription:', { email, nom, prenom }); // Ne pas logger le password
-
     try {
-        let user = await User.findOne({ email });
-        console.log('Recherche utilisateur existant:', user ? 'trouvé' : 'non trouvé');
+        const { email, password, nom, prenom } = req.body;
 
-        if (user) {
-            return res.status(400).json({ msg: 'Utilisateur déjà existant' });
+        // Vérification que tous les champs sont présents
+        if (!email || !password || !nom || !prenom) {
+            return res.status(400).json({ msg: 'Tous les champs sont requis' });
         }
 
+        // Vérification si l'utilisateur existe déjà
+        let user = await User.findOne({ email });
+        if (user) {
+            return res.status(400).json({ msg: 'Un utilisateur avec cet email existe déjà' });
+        }
+
+        // Création du nouvel utilisateur
         user = new User({
             email,
             password,
@@ -94,41 +90,31 @@ router.post('/register', async (req, res) => {
             prenom
         });
 
+        // Hashage du mot de passe
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
 
         await user.save();
-        console.log('Utilisateur sauvegardé, ID:', user._id);
 
+        // Création du token JWT
         const payload = {
-            id: user._id,
-            email: user.email,
-            nom: user.nom,
-            prenom: user.prenom
-        };
-        console.log('Payload du token:', payload);
-
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-        console.log('Token généré:', token.substring(0, 20) + '...');
-
-        // Modification ici : utilisons json() au lieu de send()
-        res.status(201).json({ 
-            token,
             user: {
-                id: user._id,
-                email: user.email,
-                nom: user.nom,
-                prenom: user.prenom
+                id: user.id
             }
-        });
-        console.log('Réponse envoyée avec succès');
+        };
 
-    } catch (error) {
-        console.error('Erreur lors de l inscription:', error);
-        res.status(500).json({ 
-            msg: 'Erreur du serveur',
-            error: error.message 
-        });
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET || 'mysecrettoken',
+            { expiresIn: '5h' },
+            (err, token) => {
+                if (err) throw err;
+                res.json({ token });
+            }
+        );
+    } catch (err) {
+        console.error('Erreur lors de l\'inscription:', err);
+        res.status(500).send('Erreur serveur');
     }
 });
 
@@ -175,7 +161,11 @@ router.post('/login', async (req, res) => {
             prenom: user.prenom
         };
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(
+            payload, 
+            process.env.JWT_SECRET || 'PortRussell2024SecretKey',
+            { expiresIn: '1h' }
+        );
         res.json({ token });
     } catch (error) {
         console.error(error);
