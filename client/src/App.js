@@ -2,9 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
+import Navbar from './components/Navbar';
 import Login from './components/login';
 import Register from './components/register';
 import Dashboard from './components/dashboard';
+import Home from './components/Home';
+import CatwaysCRUD from './components/crud/CatwaysCRUD';
+import ReservationsCRUD from './components/crud/ReservationsCRUD';
+import UsersCRUD from './components/crud/UsersCRUD';
 
 // Création du thème
 const theme = createTheme({
@@ -32,7 +37,9 @@ function App() {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <Router>
+                <Navbar />
                 <Routes>
+                    <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/dashboard" element={
@@ -40,7 +47,21 @@ function App() {
                             <Dashboard />
                         </PrivateRoute>
                     } />
-                    <Route path="/" element={<Navigate to="/login" />} />
+                    <Route path="/catways" element={
+                        <PrivateRoute>
+                            <CatwaysCRUD />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/reservations" element={
+                        <PrivateRoute>
+                            <ReservationsCRUD />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/users" element={
+                        <PrivateRoute>
+                            <UsersCRUD />
+                        </PrivateRoute>
+                    } />
                 </Routes>
             </Router>
         </ThemeProvider>

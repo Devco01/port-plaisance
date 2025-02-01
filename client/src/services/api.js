@@ -40,4 +40,47 @@ export const getReservations = async () => {
     return response.data;
 };
 
+// Méthodes CRUD pour les catways
+export const createCatway = async (catwayData) => {
+    const response = await api.post('/catways', catwayData);
+    return response.data;
+};
+
+export const updateCatway = async (id, catwayData) => {
+    const response = await api.put(`/catways/${id}`, catwayData);
+    return response.data;
+};
+
+export const deleteCatway = async (id) => {
+    const response = await api.delete(`/catways/${id}`);
+    return response.data;
+};
+
+// Méthodes CRUD pour les réservations
+export const updateReservation = async (id, reservationData) => {
+    const response = await api.put(`/reservations/${id}`, reservationData);
+    return response.data;
+};
+
+export const deleteReservation = async (id) => {
+    const response = await api.delete(`/reservations/${id}`);
+    return response.data;
+};
+
+// Méthodes CRUD pour les utilisateurs
+export const getUsers = async () => {
+    const response = await api.get('/users');
+    return response.data;
+};
+
+export const updateUser = async (id, userData) => {
+    const response = await api.put(`/users/${id}`, userData);
+    return response.data;
+};
+
+export const deleteUser = async (id) => {
+    const response = await api.delete(`/users/${id}`);
+    return response.data;
+};
+
 export default api;
