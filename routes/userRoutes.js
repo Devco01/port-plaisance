@@ -68,19 +68,25 @@ const auth = require('../middleware/auth');
  *                 type: string
  */
 router.post('/register', async (req, res) => {
-    console.log('Données reçues:', req.body);
+    console.log('\n🔵 POST /register - Début de la requête');
+    console.log('Body reçu:', {
+        email: req.body.email,
+        nom: req.body.nom,
+        prenom: req.body.prenom,
+        // Ne pas logger le password
+    });
+
     const { email, password, nom, prenom } = req.body;
+    console.log('Début inscription:', { email, nom, prenom }); // Ne pas logger le password
 
     try {
-        // Vérifier si l'utilisateur existe déjà
         let user = await User.findOne({ email });
-        console.log('Utilisateur existant:', user);
-        
+        console.log('Recherche utilisateur existant:', user ? 'trouvé' : 'non trouvé');
+
         if (user) {
             return res.status(400).json({ msg: 'Utilisateur déjà existant' });
         }
 
-        // Créer un nouvel utilisateur
         user = new User({
             email,
             password,
@@ -88,18 +94,37 @@ router.post('/register', async (req, res) => {
             prenom
         });
 
-        console.log('Nouvel utilisateur avant sauvegarde:', user);
-
-        // Hacher le mot de passe
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
 
         await user.save();
-        console.log('Utilisateur sauvegardé avec succès');
+        console.log('Utilisateur sauvegardé, ID:', user._id);
 
-        res.status(201).json({ msg: 'Utilisateur créé avec succès' });
+        const payload = {
+            id: user._id,
+            email: user.email,
+            nom: user.nom,
+            prenom: user.prenom
+        };
+        console.log('Payload du token:', payload);
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        console.log('Token généré:', token.substring(0, 20) + '...');
+
+        // Modification ici : utilisons json() au lieu de send()
+        res.status(201).json({ 
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+                nom: user.nom,
+                prenom: user.prenom
+            }
+        });
+        console.log('Réponse envoyée avec succès');
+
     } catch (error) {
-        console.error('Erreur complète:', error);
+        console.error('Erreur lors de l inscription:', error);
         res.status(500).json({ 
             msg: 'Erreur du serveur',
             error: error.message 
@@ -132,20 +157,25 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Vérifier si l'utilisateur existe
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ msg: 'Identifiants invalides' });
         }
 
-        // Vérifier le mot de passe
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ msg: 'Identifiants invalides' });
         }
 
-        // Créer et retourner un token JWT
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        // Créer le token avec toutes les informations nécessaires
+        const payload = {
+            id: user._id,
+            email: user.email,
+            nom: user.nom,
+            prenom: user.prenom
+        };
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ token });
     } catch (error) {
         console.error(error);
@@ -169,7 +199,35 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-// Exemple d'utilisation du middleware
+/**
+ * @swagger
+ * /users/me:
+ *   get:
+ *     summary: Récupérer les informations de l'utilisateur connecté
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Informations de l'utilisateur récupérées avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 nom:
+ *                   type: string
+ *                 prenom:
+ *                   type: string
+ *       401:
+ *         description: Non autorisé
+ *       500:
+ *         description: Erreur serveur
+ */
 router.get('/me', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
