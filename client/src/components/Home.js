@@ -1,53 +1,45 @@
 import React from 'react';
-import { Container, Typography, Paper, Box, Button } from '@mui/material';
+import { Container, Typography, Button, Box, Paper } from '@mui/material';
 import { Link } from 'react-router-dom';
-import Login from './login';
+import { useNavigate } from 'react-router-dom';
+import Login from './Login';
 
 const Home = () => {
+    const navigate = useNavigate();
+    const token = localStorage.getItem('token');
+
+    if (token) {
+        navigate('/dashboard');
+        return null;
+    }
+
     return (
         <Container>
-            <Box sx={{ mt: 4, mb: 4 }}>
-                <Typography variant="h3" gutterBottom>
-                    Port de Plaisance
+            <Box sx={{ mt: 8, mb: 4 }}>
+                <Typography variant="h3" component="h1" gutterBottom>
+                    Port de Plaisance de Russell
                 </Typography>
-                <Paper sx={{ p: 3, mb: 4 }}>
-                    <Typography variant="h5" gutterBottom>
-                        Bienvenue sur notre application de gestion portuaire
-                    </Typography>
-                    <Typography paragraph>
-                        Notre application vous permet de gérer facilement vos réservations de catways dans le port de plaisance.
-                        Vous pouvez consulter les disponibilités, effectuer des réservations et gérer vos emplacements en quelques clics.
-                    </Typography>
-                    <Typography paragraph>
-                        Fonctionnalités principales :
-                    </Typography>
-                    <ul>
-                        <Typography component="li">Réservation de catways</Typography>
-                        <Typography component="li">Gestion des emplacements</Typography>
-                        <Typography component="li">Suivi des réservations</Typography>
-                        <Typography component="li">Interface d'administration</Typography>
-                    </ul>
-                </Paper>
+                <Typography variant="h5" component="h2" gutterBottom>
+                    Bienvenue sur l'application de gestion des réservations
+                </Typography>
+            </Box>
 
-                <Box sx={{ mb: 4 }}>
-                    <Button
-                        component="a"
-                        href="/api-docs"
-                        target="_blank"
-                        variant="contained"
-                        color="secondary"
-                        sx={{ mr: 2 }}
-                    >
-                        Documentation API
-                    </Button>
-                </Box>
+            <Paper sx={{ p: 4 }}>
+                <Login />
+            </Paper>
 
-                <Paper sx={{ p: 3 }}>
-                    <Typography variant="h5" gutterBottom>
-                        Connexion
-                    </Typography>
-                    <Login />
-                </Paper>
+            <Box sx={{ mt: 4, textAlign: 'center' }}>
+                <Typography variant="body1" gutterBottom>
+                    Pas encore de compte ?
+                </Typography>
+                <Button 
+                    component={Link} 
+                    to="/register" 
+                    variant="contained" 
+                    color="secondary"
+                >
+                    S'inscrire
+                </Button>
             </Box>
         </Container>
     );
