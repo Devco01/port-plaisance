@@ -1,15 +1,16 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
-import Navbar from './components/Navbar';
-import Login from './components/Login';
-import Register from './components/Register';
-import Dashboard from './components/Dashboard';
-import Home from './components/Home';
-import CatwaysCRUD from './components/CatwaysCRUD';
-import ReservationsCRUD from './components/ReservationsCRUD';
-import UsersCRUD from './components/UsersCRUD';
+import Navbar from './components/layout/Navbar';
+import LoginForm from './components/auth/LoginForm';
+import Register from './components/auth/Register';
+import Dashboard from './components/dashboard/Dashboard';
+import Home from './components/layout/Home';
+import CatwaysCRUD from './components/crud/CatwaysCRUD';
+import ReservationsCRUD from './components/crud/ReservationsCRUD';
+import UsersCRUD from './components/crud/UsersCRUD';
+import PrivateRoute from './components/auth/PrivateRoute';
 
 // Création du thème
 const theme = createTheme({
@@ -23,10 +24,21 @@ const theme = createTheme({
     },
 });
 
-// Composant de protection des routes
-const PrivateRoute = ({ children }) => {
+// Layout component qui gère l'affichage conditionnel de la Navbar
+const Layout = ({ children }) => {
+    const location = useLocation();
     const token = localStorage.getItem('token');
-    return token ? children : <Navigate to="/login" />;
+    const publicRoutes = ['/', '/register', '/login'];
+    
+    // Afficher la Navbar seulement si on a un token ET qu'on n'est pas sur une route publique
+    const showNavbar = token && !publicRoutes.includes(location.pathname);
+
+    return (
+        <>
+            {showNavbar && <Navbar />}
+            {children}
+        </>
+    );
 };
 
 function App() {
@@ -34,32 +46,33 @@ function App() {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <Router>
-                <Navbar />
-                <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/dashboard" element={
-                        <PrivateRoute>
-                            <Dashboard />
-                        </PrivateRoute>
-                    } />
-                    <Route path="/catways" element={
-                        <PrivateRoute>
-                            <CatwaysCRUD />
-                        </PrivateRoute>
-                    } />
-                    <Route path="/reservations" element={
-                        <PrivateRoute>
-                            <ReservationsCRUD />
-                        </PrivateRoute>
-                    } />
-                    <Route path="/users" element={
-                        <PrivateRoute>
-                            <UsersCRUD />
-                        </PrivateRoute>
-                    } />
-                    <Route path="/" element={<Home />} />
-                </Routes>
+                <Layout>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/login" element={<LoginForm />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/dashboard" element={
+                            <PrivateRoute>
+                                <Dashboard />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/catways" element={
+                            <PrivateRoute>
+                                <CatwaysCRUD />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/reservations" element={
+                            <PrivateRoute>
+                                <ReservationsCRUD />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/users" element={
+                            <PrivateRoute>
+                                <UsersCRUD />
+                            </PrivateRoute>
+                        } />
+                    </Routes>
+                </Layout>
             </Router>
         </ThemeProvider>
     );
