@@ -1,3 +1,4 @@
+import config from '../../config/config';
 import React, { useState, useEffect } from 'react';
 import {
     Container, Typography, Paper, Table, TableBody, TableCell,
@@ -5,7 +6,6 @@ import {
     DialogTitle, DialogContent, DialogActions, TextField,
     FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
-import { getCatways, createCatway, updateCatway, deleteCatway } from '../../services/api';
 
 const CatwaysCRUD = () => {
     const [catways, setCatways] = useState([]);
@@ -23,7 +23,13 @@ const CatwaysCRUD = () => {
 
     const fetchCatways = async () => {
         try {
-            const data = await getCatways();
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${config.apiUrl}/api/catways`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
             setCatways(data);
         } catch (error) {
             console.error('Erreur lors de la récupération des catways:', error);
@@ -55,15 +61,30 @@ const CatwaysCRUD = () => {
         setEditMode(false);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         try {
-            if (editMode) {
-                await updateCatway(currentCatway._id, currentCatway);
+            const token = localStorage.getItem('token');
+            console.log('Données du catway à créer:', currentCatway);
+            const response = await fetch(`${config.apiUrl}/api/catways`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(currentCatway)
+            });
+
+            const data = await response.json();
+            console.log('Réponse du serveur:', data);
+
+            if (response.ok) {
+                await fetchCatways();
+                handleClose();
             } else {
-                await createCatway(currentCatway);
+                console.error('Erreur lors de la sauvegarde:', data);
+                alert('Erreur lors de la sauvegarde: ' + (data.message || response.statusText));
             }
-            fetchCatways();
-            handleClose();
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             alert('Erreur lors de la sauvegarde: ' + error.message);
@@ -73,8 +94,19 @@ const CatwaysCRUD = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce catway ?')) {
             try {
-                await deleteCatway(id);
-                fetchCatways();
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${config.apiUrl}/api/catways/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    await fetchCatways();
+                } else {
+                    console.error('Erreur lors de la suppression:', response.statusText);
+                    alert('Erreur lors de la suppression: ' + response.statusText);
+                }
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
                 alert('Erreur lors de la suppression: ' + error.message);

@@ -1,10 +1,10 @@
+import config from '../../config/config';
 import React, { useState, useEffect } from 'react';
 import {
     Container, Typography, Paper, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Button, Dialog,
     DialogTitle, DialogContent, DialogActions, TextField
 } from '@mui/material';
-import { getReservations, createReservation, updateReservation, deleteReservation } from '../../services/api';
 
 const ReservationsCRUD = () => {
     const [reservations, setReservations] = useState([]);
@@ -22,7 +22,15 @@ const ReservationsCRUD = () => {
 
     const fetchReservations = async () => {
         try {
-            const data = await getReservations();
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${config.apiUrl}/api/reservations`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            console.log('Réservations récupérées:', data);
             setReservations(data);
         } catch (error) {
             console.error('Erreur lors de la récupération des réservations:', error);
@@ -60,10 +68,27 @@ const ReservationsCRUD = () => {
 
     const handleSubmit = async () => {
         try {
+            const token = localStorage.getItem('token');
             if (editMode) {
-                await updateReservation(currentReservation._id, currentReservation);
+                const response = await fetch(`${config.apiUrl}/api/reservations/${currentReservation._id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(currentReservation)
+                });
+                if (!response.ok) throw new Error('Erreur lors de la mise à jour');
             } else {
-                await createReservation(currentReservation);
+                const response = await fetch(`${config.apiUrl}/api/reservations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(currentReservation)
+                });
+                if (!response.ok) throw new Error('Erreur lors de la création');
             }
             fetchReservations();
             handleClose();
@@ -76,7 +101,14 @@ const ReservationsCRUD = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
             try {
-                await deleteReservation(id);
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${config.apiUrl}/api/reservations/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (!response.ok) throw new Error('Erreur lors de la suppression');
                 fetchReservations();
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);

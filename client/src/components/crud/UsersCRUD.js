@@ -4,7 +4,7 @@ import {
     TableContainer, TableHead, TableRow, Button, Dialog,
     DialogTitle, DialogContent, DialogActions, TextField
 } from '@mui/material';
-import { getUsers, register, updateUser, deleteUser } from '../../services/api';
+import config from '../../config/config';
 
 const UsersCRUD = () => {
     const [users, setUsers] = useState([]);
@@ -23,7 +23,15 @@ const UsersCRUD = () => {
 
     const fetchUsers = async () => {
         try {
-            const data = await getUsers();
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${config.apiUrl}/api/users`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            console.log('Users récupérés:', data);
             setUsers(data);
         } catch (error) {
             console.error('Erreur lors de la récupération des utilisateurs:', error);
@@ -62,10 +70,26 @@ const UsersCRUD = () => {
 
     const handleSubmit = async () => {
         try {
+            const token = localStorage.getItem('token');
             if (editMode) {
-                await updateUser(currentUser._id, currentUser);
+                const response = await fetch(`${config.apiUrl}/api/users/${currentUser.email}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(currentUser)
+                });
+                if (!response.ok) throw new Error('Erreur lors de la mise à jour');
             } else {
-                await register(currentUser);
+                const response = await fetch(`${config.apiUrl}/api/users/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(currentUser)
+                });
+                if (!response.ok) throw new Error('Erreur lors de la création');
             }
             fetchUsers();
             handleClose();
@@ -75,10 +99,17 @@ const UsersCRUD = () => {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (email) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
             try {
-                await deleteUser(id);
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${config.apiUrl}/api/users/${email}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (!response.ok) throw new Error('Erreur lors de la suppression');
                 fetchUsers();
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
@@ -125,7 +156,7 @@ const UsersCRUD = () => {
                                         Modifier
                                     </Button>
                                     <Button
-                                        onClick={() => handleDelete(user._id)}
+                                        onClick={() => handleDelete(user.email)}
                                         color="error"
                                     >
                                         Supprimer
