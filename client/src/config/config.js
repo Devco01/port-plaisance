@@ -1,5 +1,7 @@
 const config = {
-    apiUrl: process.env.REACT_APP_API_URL || 'https://port-plaisance.onrender.com/api'
+    apiUrl: process.env.NODE_ENV === 'production'
+        ? 'https://port-plaisance.onrender.com/api'
+        : 'http://localhost:8000/api'
 };
 
 // Log de la configuration en développement
