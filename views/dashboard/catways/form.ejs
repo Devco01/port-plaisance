@@ -1,0 +1,98 @@
+<%- include('../../partials/header') %>
+<%- include('../../partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">
+                        <%= catway ? 'Modifier le catway' : 'Nouveau catway' %>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <% if (typeof error !== 'undefined') { %>
+                        <div class="alert alert-danger">
+                            <%= error %>
+                        </div>
+                    <% } %>
+
+                    <form method="POST" action="<%= catway ? `/dashboard/catways/${catway.catwayNumber}` : '/dashboard/catways' %>">
+                        <!-- Numéro du catway -->
+                        <div class="mb-3">
+                            <label for="catwayNumber" class="form-label">Numéro du catway *</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="catwayNumber" 
+                                   name="catwayNumber"
+                                   value="<%= catway ? catway.catwayNumber : '' %>"
+                                   pattern="[A-Z]+[0-9]+"
+                                   title="Une ou plusieurs lettres majuscules suivies de chiffres"
+                                   <%= catway ? 'readonly' : 'required' %>>
+                            <div class="form-text">Format: lettres majuscules suivies de chiffres (ex: A1, B12, AA1)</div>
+                        </div>
+
+                        <!-- Type de catway -->
+                        <div class="mb-3">
+                            <label for="catwayType" class="form-label">Type *</label>
+                            <select class="form-select" 
+                                    id="catwayType" 
+                                    name="catwayType"
+                                    <%= catway ? 'disabled' : 'required' %>>
+                                <option value="">Sélectionner un type</option>
+                                <option value="long" <%= catway && catway.catwayType === 'long' ? 'selected' : '' %>>
+                                    Long (jusqu'à 20m)
+                                </option>
+                                <option value="short" <%= catway && catway.catwayType === 'short' ? 'selected' : '' %>>
+                                    Court (jusqu'à 12m)
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- État du catway -->
+                        <div class="mb-3">
+                            <label for="catwayState" class="form-label">État *</label>
+                            <select class="form-select" 
+                                    id="catwayState" 
+                                    name="catwayState"
+                                    required>
+                                <option value="disponible" <%= catway && catway.catwayState === 'disponible' ? 'selected' : '' %>>
+                                    Disponible
+                                </option>
+                                <option value="occupé" <%= catway && catway.catwayState === 'occupé' ? 'selected' : '' %>>
+                                    Occupé
+                                </option>
+                                <option value="maintenance" <%= catway && catway.catwayState === 'maintenance' ? 'selected' : '' %>>
+                                    En maintenance
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="/dashboard/catways" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 
+                                <%= catway ? 'Enregistrer les modifications' : 'Créer le catway' %>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mise à jour automatique de la longueur maximale en fonction du type
+document.getElementById('catwayType')?.addEventListener('change', function() {
+    const maxLengthInput = document.getElementById('maxBoatLength');
+    if (maxLengthInput) {
+        maxLengthInput.value = this.value === 'long' ? 20 : 12;
+    }
+});
+</script>
+
+<%- include('../../partials/footer') %> 

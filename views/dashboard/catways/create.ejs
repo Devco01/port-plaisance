@@ -1,0 +1,139 @@
+<%- include('../../layouts/dashboard', { title: 'Nouveau Catway' }) %>
+
+<div class="catway-form">
+    <div class="card">
+        <div class="card-header">
+            <h2>Nouveau Catway</h2>
+            <a href="/dashboard/catways" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
+
+        <form action="/dashboard/catways" method="POST" class="form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="catwayNumber">Numéro *</label>
+                    <input 
+                        type="text" 
+                        id="catwayNumber" 
+                        name="catwayNumber" 
+                        value="<%= locals.catway?.catwayNumber || '' %>"
+                        required
+                        pattern="[A-Z0-9]+"
+                        title="Lettres majuscules et chiffres uniquement"
+                    >
+                    <small>Ex: A1, B2, C3...</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="catwayType">Type *</label>
+                    <select id="catwayType" name="catwayType" required>
+                        <option value="">Sélectionner un type</option>
+                        <option value="long" <%= locals.catway?.catwayType === 'long' ? 'selected' : '' %>>Long</option>
+                        <option value="short" <%= locals.catway?.catwayType === 'short' ? 'selected' : '' %>>Court</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="catwayState">État *</label>
+                    <select id="catwayState" name="catwayState" required>
+                        <option value="">Sélectionner un état</option>
+                        <option value="disponible" <%= locals.catway?.catwayState === 'disponible' ? 'selected' : '' %>>Disponible</option>
+                        <option value="maintenance" <%= locals.catway?.catwayState === 'maintenance' ? 'selected' : '' %>>Maintenance</option>
+                        <option value="hors-service" <%= locals.catway?.catwayState === 'hors-service' ? 'selected' : '' %>>Hors service</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="description">Description</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        rows="3"
+                    ><%= locals.catway?.description || '' %></textarea>
+                    <small>Description optionnelle de l'état ou des particularités du catway</small>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Créer le catway
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                    <i class="fas fa-undo"></i> Réinitialiser
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.catway-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+</style> 

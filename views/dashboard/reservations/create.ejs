@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nouvelle réservation - Port Russell</title>
+</head>
+<body>
+    <nav>
+        <a href="/dashboard">Tableau de bord</a>
+        <a href="/dashboard/reservations">Retour aux réservations</a>
+    </nav>
+
+    <h1>Nouvelle réservation</h1>
+
+    <% if (locals.error) { %>
+        <div style="color: red;">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <div class="reservation-form">
+        <div class="card">
+            <div class="card-header">
+                <h2>Nouvelle Réservation</h2>
+                <a href="/dashboard/reservations" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+
+            <form action="/dashboard/reservations" method="POST" class="form" id="reservationForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="catwayNumber">Catway *</label>
+                        <select id="catwayNumber" name="catwayNumber" required onchange="updateAvailableDates()">
+                            <option value="">Sélectionner un catway</option>
+                            <% availableCatways.forEach(function(catway) { %>
+                                <option 
+                                    value="<%= catway.catwayNumber %>"
+                                    data-type="<%= catway.catwayType %>"
+                                    <%= locals.reservation?.catwayNumber === catway.catwayNumber ? 'selected' : '' %>
+                                >
+                                    <%= catway.catwayNumber %> (<%= catway.catwayType === 'long' ? 'Long' : 'Court' %>)
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientName">Nom du client *</label>
+                        <input 
+                            type="text" 
+                            id="clientName" 
+                            name="clientName" 
+                            value="<%= locals.reservation?.clientName || '' %>"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="boatName">Nom du bateau *</label>
+                        <input 
+                            type="text" 
+                            id="boatName" 
+                            name="boatName" 
+                            value="<%= locals.reservation?.boatName || '' %>"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="boatLength">Longueur du bateau (m) *</label>
+                        <input 
+                            type="number" 
+                            id="boatLength" 
+                            name="boatLength" 
+                            min="1"
+                            step="0.1"
+                            value="<%= locals.reservation?.boatLength || '' %>"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startDate">Date de début *</label>
+                        <input 
+                            type="date" 
+                            id="startDate" 
+                            name="startDate" 
+                            value="<%= locals.reservation?.startDate ? formatInputDate(reservation.startDate) : '' %>"
+                            min="<%= formatInputDate(new Date()) %>"
+                            required
+                            onchange="updateEndDateMin()"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endDate">Date de fin *</label>
+                        <input 
+                            type="date" 
+                            id="endDate" 
+                            name="endDate" 
+                            value="<%= locals.reservation?.endDate ? formatInputDate(reservation.endDate) : '' %>"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="notes">Notes</label>
+                        <textarea 
+                            id="notes" 
+                            name="notes" 
+                            rows="3"
+                        ><%= locals.reservation?.notes || '' %></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Créer la réservation
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Réinitialiser
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    function updateEndDateMin() {
+        const startDate = document.getElementById('startDate').value;
+        document.getElementById('endDate').min = startDate;
+    }
+
+    function updateAvailableDates() {
+        const catwaySelect = document.getElementById('catwayNumber');
+        const selectedOption = catwaySelect.options[catwaySelect.selectedIndex];
+        const boatLengthInput = document.getElementById('boatLength');
+        
+        if (selectedOption.dataset.type === 'short') {
+            boatLengthInput.max = '10';
+        } else {
+            boatLengthInput.max = '20';
+        }
+    }
+
+    document.getElementById('reservationForm').addEventListener('submit', function(e) {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        const catwaySelect = document.getElementById('catwayNumber');
+        const boatLength = parseFloat(document.getElementById('boatLength').value);
+        const selectedOption = catwaySelect.options[catwaySelect.selectedIndex];
+
+        if (endDate <= startDate) {
+            e.preventDefault();
+            alert('La date de fin doit être postérieure à la date de début');
+            return;
+        }
+
+        if (selectedOption.dataset.type === 'short' && boatLength > 10) {
+            e.preventDefault();
+            alert('Un catway court ne peut accueillir que des bateaux jusqu\'à 10m');
+            return;
+        }
+
+        if (selectedOption.dataset.type === 'long' && boatLength > 20) {
+            e.preventDefault();
+            alert('Un catway long ne peut accueillir que des bateaux jusqu\'à 20m');
+            return;
+        }
+    });
+    </script>
+
+    <style>
+    .reservation-form {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Réutilisation des styles du formulaire catway */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* Styles spécifiques aux champs de date */
+    input[type="date"] {
+        font-family: inherit;
+    }
+
+    /* Styles pour les messages de validation */
+    .validation-message {
+        color: var(--danger-color);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    </style>
+</body>
+</html> 
