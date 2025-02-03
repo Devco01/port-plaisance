@@ -1,0 +1,17 @@
+[
+    {
+        "catwayNumber": "1",
+        "catwayType": "long",
+        "catwayState": "Bon état"
+    },
+    {
+        "catwayNumber": "2",
+        "catwayType": "short",
+        "catwayState": "Nécessite une inspection"
+    },
+    {
+        "catwayNumber": "3",
+        "catwayType": "long",
+        "catwayState": "Disponible"
+    }
+] 

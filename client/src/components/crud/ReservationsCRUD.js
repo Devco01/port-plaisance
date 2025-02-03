@@ -1,17 +1,19 @@
+import config from '../../config/config';
 import React, { useState, useEffect } from 'react';
 import {
     Container, Typography, Paper, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Button, Dialog,
     DialogTitle, DialogContent, DialogActions, TextField
 } from '@mui/material';
-import { getReservations, createReservation, updateReservation, deleteReservation } from '../../services/api';
 
 const ReservationsCRUD = () => {
     const [reservations, setReservations] = useState([]);
     const [open, setOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [currentReservation, setCurrentReservation] = useState({
-        catwayId: '',
+        catwayNumber: '',
+        clientName: '',
+        boatName: '',
         startDate: '',
         endDate: ''
     });
@@ -22,8 +24,36 @@ const ReservationsCRUD = () => {
 
     const fetchReservations = async () => {
         try {
-            const data = await getReservations();
-            setReservations(data);
+            const token = localStorage.getItem('token');
+            // D'abord, récupérer tous les catways
+            const catwaysResponse = await fetch(`${config.apiUrl}/api/catways`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const catways = await catwaysResponse.json();
+            console.log('Catways récupérés:', catways);
+
+            // Ensuite, récupérer les réservations pour chaque catway
+            const allReservations = [];
+            for (const catway of catways) {
+                console.log('Récupération réservations pour catway:', catway.catwayNumber);
+                const response = await fetch(`${config.apiUrl}/api/catways/${catway.catwayNumber}/reservations`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const reservations = await response.json();
+                console.log('Réservations reçues:', reservations);
+                reservations.forEach(res => {
+                    res.catwayNumber = catway.catwayNumber;
+                });
+                allReservations.push(...reservations);
+            }
+            console.log('Toutes les réservations:', allReservations);
+            setReservations(allReservations);
         } catch (error) {
             console.error('Erreur lors de la récupération des réservations:', error);
         }
@@ -39,7 +69,9 @@ const ReservationsCRUD = () => {
             setEditMode(true);
         } else {
             setCurrentReservation({
-                catwayId: '',
+                catwayNumber: '',
+                clientName: '',
+                boatName: '',
                 startDate: '',
                 endDate: ''
             });
@@ -51,7 +83,9 @@ const ReservationsCRUD = () => {
     const handleClose = () => {
         setOpen(false);
         setCurrentReservation({
-            catwayId: '',
+            catwayNumber: '',
+            clientName: '',
+            boatName: '',
             startDate: '',
             endDate: ''
         });
@@ -60,10 +94,50 @@ const ReservationsCRUD = () => {
 
     const handleSubmit = async () => {
         try {
+            const token = localStorage.getItem('token');
             if (editMode) {
-                await updateReservation(currentReservation._id, currentReservation);
+                const response = await fetch(`${config.apiUrl}/api/catways/${currentReservation.catwayNumber}/reservations/${currentReservation._id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(currentReservation)
+                });
+                if (!response.ok) throw new Error('Erreur lors de la mise à jour');
             } else {
-                await createReservation(currentReservation);
+                // Vérifier que le catway existe d'abord
+                const catwayResponse = await fetch(`${config.apiUrl}/api/catways`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const catways = await catwayResponse.json();
+                const catway = catways.find(c => c.catwayNumber === currentReservation.catwayNumber);
+
+                if (!catway) {
+                    throw new Error('Numéro de catway invalide');
+                }
+
+                const response = await fetch(`${config.apiUrl}/api/catways/${currentReservation.catwayNumber}/reservations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        catwayNumber: currentReservation.catwayNumber,
+                        clientName: currentReservation.clientName,
+                        boatName: currentReservation.boatName,
+                        startDate: currentReservation.startDate,
+                        endDate: currentReservation.endDate
+                    })
+                });
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Erreur lors de la création');
+                }
             }
             fetchReservations();
             handleClose();
@@ -76,7 +150,15 @@ const ReservationsCRUD = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
             try {
-                await deleteReservation(id);
+                const token = localStorage.getItem('token');
+                const reservation = reservations.find(r => r._id === id);
+                const response = await fetch(`${config.apiUrl}/api/catways/${reservation.catwayNumber}/reservations/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (!response.ok) throw new Error('Erreur lors de la suppression');
                 fetchReservations();
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
@@ -103,6 +185,8 @@ const ReservationsCRUD = () => {
                     <TableHead>
                         <TableRow>
                             <TableCell>Catway</TableCell>
+                            <TableCell>Client</TableCell>
+                            <TableCell>Bateau</TableCell>
                             <TableCell>Date de début</TableCell>
                             <TableCell>Date de fin</TableCell>
                             <TableCell>Actions</TableCell>
@@ -111,7 +195,9 @@ const ReservationsCRUD = () => {
                     <TableBody>
                         {reservations.map((reservation) => (
                             <TableRow key={reservation._id}>
-                                <TableCell>{reservation.catway?.catwayNumber}</TableCell>
+                                <TableCell>{reservation.catwayNumber}</TableCell>
+                                <TableCell>{reservation.clientName}</TableCell>
+                                <TableCell>{reservation.boatName}</TableCell>
                                 <TableCell>
                                     {new Date(reservation.startDate).toLocaleDateString()}
                                 </TableCell>
@@ -146,12 +232,34 @@ const ReservationsCRUD = () => {
                 <DialogContent>
                     <TextField
                         margin="dense"
-                        label="ID du Catway"
+                        label="Numéro de Catway"
                         fullWidth
-                        value={currentReservation.catwayId}
+                        value={currentReservation.catwayNumber}
                         onChange={(e) => setCurrentReservation({
                             ...currentReservation,
-                            catwayId: e.target.value
+                            catwayNumber: e.target.value
+                        })}
+                        sx={{ mb: 2 }}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Nom du client"
+                        fullWidth
+                        value={currentReservation.clientName}
+                        onChange={(e) => setCurrentReservation({
+                            ...currentReservation,
+                            clientName: e.target.value
+                        })}
+                        sx={{ mb: 2 }}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Nom du bateau"
+                        fullWidth
+                        value={currentReservation.boatName}
+                        onChange={(e) => setCurrentReservation({
+                            ...currentReservation,
+                            boatName: e.target.value
                         })}
                         sx={{ mb: 2 }}
                     />

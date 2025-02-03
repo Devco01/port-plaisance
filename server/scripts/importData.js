@@ -1,38 +1,47 @@
+require('dotenv').config();
+console.log('ImportData - URL MongoDB:', process.env.MONGODB_URL);
 const mongoose = require('mongoose');
+const Catway = require('../models/catway');
+const User = require('../models/user');
 const fs = require('fs').promises;
 const path = require('path');
-const Catway = require('../models/catway');
+const bcrypt = require('bcrypt');
 const Reservation = require('../models/reservation');
-require('dotenv').config();
 
-const importData = async () => {
+async function importData() {
     try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
+        // Connexion à MongoDB
+        const mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
+        await mongoose.connect(mongoURI);
+        console.log('Connecté à MongoDB');
 
-        // Importer les catways
+        // Créer l'admin par défaut
+        let admin = await User.findOne({ email: 'admin@portplaisance.fr' });
+        if (!admin) {
+            admin = new User({
+                email: 'admin@portplaisance.fr',
+                username: 'admin',
+                password: await bcrypt.hash('PortAdmin2024!', 10),
+                role: 'admin'
+            });
+            await admin.save();
+            console.log('✅ Admin créé');
+        }
+
+        // Importer les données
         const catwaysData = JSON.parse(
             await fs.readFile(path.join(__dirname, '../../data/catways.json'), 'utf-8')
         );
-        await Catway.deleteMany({}); // Nettoyer la collection
+        await Catway.deleteMany({});
         await Catway.insertMany(catwaysData);
-        console.log('Catways importés avec succès');
+        console.log('✅ Catways importés');
 
-        // Importer les réservations
-        const reservationsData = JSON.parse(
-            await fs.readFile(path.join(__dirname, '../../data/reservations.json'), 'utf-8')
-        );
-        await Reservation.deleteMany({}); // Nettoyer la collection
-        await Reservation.insertMany(reservationsData);
-        console.log('Réservations importées avec succès');
-
+        console.log('✅ Import terminé');
+        process.exit(0);
     } catch (error) {
-        console.error('Erreur lors de l\'importation des données:', error);
-    } finally {
-        await mongoose.disconnect();
+        console.error('❌ Erreur:', error);
+        process.exit(1);
     }
-};
+}
 
 importData(); 

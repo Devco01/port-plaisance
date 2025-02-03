@@ -3,9 +3,9 @@ import {
     Container, Typography, Paper, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Button, Dialog,
     DialogTitle, DialogContent, DialogActions, TextField,
-    FormControl, InputLabel, Select, MenuItem
+    MenuItem
 } from '@mui/material';
-import { getCatways, createCatway, updateCatway, deleteCatway } from '../../services/api';
+import config from '../../config/config';
 
 const CatwaysCRUD = () => {
     const [catways, setCatways] = useState([]);
@@ -13,8 +13,8 @@ const CatwaysCRUD = () => {
     const [editMode, setEditMode] = useState(false);
     const [currentCatway, setCurrentCatway] = useState({
         catwayNumber: '',
-        catwayType: 'small',
-        catwayState: 'disponible'
+        catwayType: 'long',
+        catwayState: 'Bon état'
     });
 
     useEffect(() => {
@@ -23,7 +23,13 @@ const CatwaysCRUD = () => {
 
     const fetchCatways = async () => {
         try {
-            const data = await getCatways();
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${config.apiUrl}/api/catways`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
             setCatways(data);
         } catch (error) {
             console.error('Erreur lors de la récupération des catways:', error);
@@ -37,8 +43,8 @@ const CatwaysCRUD = () => {
         } else {
             setCurrentCatway({
                 catwayNumber: '',
-                catwayType: 'small',
-                catwayState: 'disponible'
+                catwayType: 'long',
+                catwayState: 'Bon état'
             });
             setEditMode(false);
         }
@@ -49,21 +55,45 @@ const CatwaysCRUD = () => {
         setOpen(false);
         setCurrentCatway({
             catwayNumber: '',
-            catwayType: 'small',
-            catwayState: 'disponible'
+            catwayType: 'long',
+            catwayState: 'Bon état'
         });
         setEditMode(false);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         try {
-            if (editMode) {
-                await updateCatway(currentCatway._id, currentCatway);
+            const token = localStorage.getItem('token');
+            const url = editMode 
+                ? `${config.apiUrl}/api/catways/${currentCatway._id}`
+                : `${config.apiUrl}/api/catways`;
+            
+            const method = editMode ? 'PUT' : 'POST';
+            
+            // En mode édition, n'envoyer que l'état
+            const body = editMode 
+                ? { catwayState: currentCatway.catwayState }
+                : currentCatway;
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                await fetchCatways();
+                handleClose();
             } else {
-                await createCatway(currentCatway);
+                console.error('Erreur lors de la sauvegarde:', data);
+                alert('Erreur lors de la sauvegarde: ' + (data.message || response.statusText));
             }
-            fetchCatways();
-            handleClose();
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             alert('Erreur lors de la sauvegarde: ' + error.message);
@@ -73,8 +103,19 @@ const CatwaysCRUD = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce catway ?')) {
             try {
-                await deleteCatway(id);
-                fetchCatways();
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${config.apiUrl}/api/catways/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    await fetchCatways();
+                } else {
+                    console.error('Erreur lors de la suppression:', response.statusText);
+                    alert('Erreur lors de la suppression: ' + response.statusText);
+                }
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
                 alert('Erreur lors de la suppression: ' + error.message);
@@ -137,47 +178,46 @@ const CatwaysCRUD = () => {
                     {editMode ? 'Modifier le Catway' : 'Ajouter un Catway'}
                 </DialogTitle>
                 <DialogContent>
+                    {!editMode && (
+                        <>
+                            <TextField
+                                margin="dense"
+                                label="Numéro"
+                                fullWidth
+                                value={currentCatway.catwayNumber}
+                                onChange={(e) => setCurrentCatway({
+                                    ...currentCatway,
+                                    catwayNumber: e.target.value
+                                })}
+                                sx={{ mb: 2 }}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Type"
+                                select
+                                fullWidth
+                                value={currentCatway.catwayType}
+                                onChange={(e) => setCurrentCatway({
+                                    ...currentCatway,
+                                    catwayType: e.target.value
+                                })}
+                                sx={{ mb: 2 }}
+                            >
+                                <MenuItem value="long">Long</MenuItem>
+                                <MenuItem value="short">Court</MenuItem>
+                            </TextField>
+                        </>
+                    )}
                     <TextField
                         margin="dense"
-                        label="Numéro"
+                        label="État"
                         fullWidth
-                        value={currentCatway.catwayNumber}
+                        value={currentCatway.catwayState}
                         onChange={(e) => setCurrentCatway({
                             ...currentCatway,
-                            catwayNumber: e.target.value
+                            catwayState: e.target.value
                         })}
-                        sx={{ mb: 2 }}
                     />
-                    <FormControl fullWidth sx={{ mb: 2 }}>
-                        <InputLabel>Type</InputLabel>
-                        <Select
-                            value={currentCatway.catwayType}
-                            label="Type"
-                            onChange={(e) => setCurrentCatway({
-                                ...currentCatway,
-                                catwayType: e.target.value
-                            })}
-                        >
-                            <MenuItem value="small">Petit</MenuItem>
-                            <MenuItem value="medium">Moyen</MenuItem>
-                            <MenuItem value="large">Grand</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl fullWidth>
-                        <InputLabel>État</InputLabel>
-                        <Select
-                            value={currentCatway.catwayState}
-                            label="État"
-                            onChange={(e) => setCurrentCatway({
-                                ...currentCatway,
-                                catwayState: e.target.value
-                            })}
-                        >
-                            <MenuItem value="disponible">Disponible</MenuItem>
-                            <MenuItem value="occupé">Occupé</MenuItem>
-                            <MenuItem value="maintenance">En maintenance</MenuItem>
-                        </Select>
-                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Annuler</Button>

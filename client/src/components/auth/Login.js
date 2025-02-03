@@ -1,3 +1,4 @@
+<<<<<<< HEAD:client/src/components/auth/Login.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
@@ -66,3 +67,6 @@ const Login = () => {
 };
 
 export default Login;
+=======
+ 
+>>>>>>> 9e1db78a25cb06c03b52345848bd5bfc84fe2764:client/src/components/login.js

@@ -15,15 +15,8 @@ const connectDB = async () => {
         );
         console.log(`Tentative de connexion à MongoDB via ${process.env.MONGODB_URL ? 'MONGODB_URL' : 'MONGODB_URI'}:`, maskedURI);
 
-        // Options de connexion
-        const options = {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 5000
-        };
-
         // Tenter la connexion
-        await mongoose.connect(mongoURI, options);
+        await mongoose.connect(mongoURI);
         console.log('✅ Connecté à MongoDB');
     } catch (error) {
         console.error('❌ Erreur de connexion MongoDB:', error.message);

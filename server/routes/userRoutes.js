@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const User = require('../models/user');
+const auth = require('../middleware/auth');
+const isAdmin = require('../middleware/isAdmin');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const auth = require('../middleware/auth');
-const config = require('../config/config');
-const isAdmin = require('../middleware/isAdmin');
 
 /**
  * @swagger
@@ -45,7 +44,7 @@ const isAdmin = require('../middleware/isAdmin');
  *     summary: Liste tous les utilisateurs (admin seulement)
  *     tags: [Users]
  */
-router.get('/', auth.requireAuth, auth.requireAdmin, async (req, res) => {
+router.get('/', auth, isAdmin, async (req, res) => {
     try {
         const users = await User.find().select('-password');
         res.json(users);
@@ -61,7 +60,7 @@ router.get('/', auth.requireAuth, auth.requireAdmin, async (req, res) => {
  *     summary: Récupère les détails d'un utilisateur
  *     tags: [Users]
  */
-router.get('/:email', auth.requireAuth, async (req, res) => {
+router.get('/:email', auth, async (req, res) => {
     try {
         // Vérifier si l'utilisateur est admin ou demande ses propres infos
         if (req.user.role !== 'admin' && req.user.email !== req.params.email) {
@@ -86,7 +85,7 @@ router.get('/:email', auth.requireAuth, async (req, res) => {
  *     summary: Crée un nouvel utilisateur (admin seulement)
  *     tags: [Users]
  */
-router.post('/', auth.requireAuth, auth.requireAdmin, async (req, res) => {
+router.post('/', auth, isAdmin, async (req, res) => {
     try {
         // Vérifier si l'email existe déjà
         const existingUser = await User.findOne({ email: req.body.email });
@@ -122,7 +121,7 @@ router.post('/', auth.requireAuth, auth.requireAdmin, async (req, res) => {
  *     summary: Modifie un utilisateur
  *     tags: [Users]
  */
-router.put('/:email', auth.requireAuth, async (req, res) => {
+router.put('/:email', auth, async (req, res) => {
     try {
         // Vérifier les droits d'accès
         if (req.user.role !== 'admin' && req.user.email !== req.params.email) {
@@ -167,7 +166,7 @@ router.put('/:email', auth.requireAuth, async (req, res) => {
  *     summary: Supprime un utilisateur (admin seulement)
  *     tags: [Users]
  */
-router.delete('/:email', auth.requireAuth, auth.requireAdmin, async (req, res) => {
+router.delete('/:email', auth, isAdmin, async (req, res) => {
     try {
         const user = await User.findOne({ email: req.params.email });
         if (!user) {
@@ -187,5 +186,3 @@ router.delete('/:email', auth.requireAuth, auth.requireAdmin, async (req, res) =
 });
 
 module.exports = router;
-
-

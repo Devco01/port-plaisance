@@ -1,121 +1,49 @@
-# Port Russell - API de gestion des catways
+# Port de Plaisance - Application de Gestion
 
-Application web de gestion des réservations de catways pour le port de plaisance Russell.
+## Description
+Application de gestion complète pour un port de plaisance permettant :
+- Gestion des catways (ajout, modification, suppression)
+- Gestion des réservations (planification, modification, annulation)
+- Gestion des utilisateurs (administration, droits d'accès)
+- Interface administrateur et utilisateur
 
-## 🚀 Démo
+## Démo
+L'application est déployée sur Render : [https://port-plaisance.onrender.com](https://port-plaisance.onrender.com)
 
-L'application est déployée sur Render : [https://port-russell-api.onrender.com](https://port-russell-api.onrender.com)
+## Installation et Configuration
 
-Identifiants de démonstration :
-- Email : admin@port-russell.com
-- Mot de passe : Admin123!
-
-## 📋 Fonctionnalités
-
-- Authentification sécurisée (JWT)
-- Gestion des catways (création, modification, suppression)
-- Gestion des réservations
-- Gestion des utilisateurs
-- Interface d'administration
-- API REST documentée
-
-## 🛠 Technologies utilisées
-
-- Node.js
-- Express
+### Prérequis
+- Node.js (v14 ou supérieur)
 - MongoDB
-- EJS
-- JWT
-- Swagger
+- npm ou yarn
 
-## 💻 Installation locale
+### Installation
+1. Cloner le projet
+2. Installer les dépendances (npm install)
+3. Configurer les variables d'environnement (.env)
+4. Démarrer l'application (npm run dev)
 
-1. Cloner le dépôt :
-```bash
-git clone https://github.com/votre-username/port-russell-api.git
-cd port-russell-api
+### Variables d'environnement
+Copier `.env.example` vers `.env` et configurer :
+- MONGODB_URI : URL de connexion MongoDB
+- JWT_SECRET : Clé secrète pour les tokens
+- PORT : Port du serveur (3001 par défaut)
+
+## Utilisation
+
+### Compte Administrateur
+```
+Email: admin@portplaisance.fr
+Mot de passe: PortAdmin2024!
 ```
 
-2. Installer les dépendances :
-```bash
-npm install
-```
+### URLs principales
+- Application : http://localhost:3000
+- API : http://localhost:3001
+- Documentation API : http://localhost:3001/api-docs
 
-3. Configurer les variables d'environnement :
-```bash
-cp .env.example .env
-# Éditer le fichier .env avec vos configurations
-```
-
-4. Initialiser la base de données :
-```bash
-npm run seed
-```
-
-5. Démarrer l'application :
-```bash
-npm run dev
-```
-
-## 🧪 Tests
-
-Lancer les tests :
-```bash
-npm test
-```
-
-Avec couverture de code :
-```bash
-npm run test:coverage
-```
-
-## 📚 Documentation API
-
-La documentation de l'API est disponible à l'adresse : [https://port-russell-api.onrender.com/api-docs](https://port-russell-api.onrender.com/api-docs)
-
-### Points d'entrée principaux
-
-#### Catways
-- `GET /api/catways` - Liste des catways
-- `GET /api/catways/:id` - Détails d'un catway
-- `POST /api/catways` - Créer un catway
-- `PUT /api/catways/:id` - Modifier un catway
-- `DELETE /api/catways/:id` - Supprimer un catway
-
-#### Réservations
-- `GET /api/catways/:id/reservations` - Liste des réservations d'un catway
-- `POST /api/catways/:id/reservations` - Créer une réservation
-- `PUT /api/catways/:id/reservations/:idReservation` - Modifier une réservation
-- `DELETE /api/catways/:id/reservations/:idReservation` - Supprimer une réservation
-
-#### Utilisateurs
-- `GET /api/users` - Liste des utilisateurs
-- `GET /api/users/:email` - Détails d'un utilisateur
-- `POST /api/users` - Créer un utilisateur
-- `PUT /api/users/:email` - Modifier un utilisateur
-- `DELETE /api/users/:email` - Supprimer un utilisateur
-
-## 🔒 Sécurité
-
-- Authentification JWT
-- Mots de passe hashés avec bcrypt
-- Protection CSRF
-- Headers de sécurité avec Helmet
-- Validation des données
-- Rate limiting
-
-## 🌐 Déploiement
-
-L'application est déployée sur Render.
-
-## 📝 Licence
-
-MIT
-
-## 👥 Auteur
-
-[Votre nom]
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request.
+## Scripts disponibles
+- `npm run dev:server` : Démarre le serveur en développement
+- `npm run dev:client` : Démarre le client React
+- `npm run start` : Démarre en production
+- `npm run build` : Build l'application

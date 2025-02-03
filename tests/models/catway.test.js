@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+<<<<<<< HEAD
 const Catway = require('../../server/models/catway');
 
 describe('Catway Model', () => {
@@ -7,12 +8,20 @@ describe('Catway Model', () => {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
+=======
+const Catway = require('../models/catway');
+
+describe('Catway Model Test', () => {
+    beforeAll(async () => {
+        await mongoose.connect(global.__MONGO_URI__);
+>>>>>>> 9e1db78a25cb06c03b52345848bd5bfc84fe2764
     });
 
     afterAll(async () => {
         await mongoose.connection.close();
     });
 
+<<<<<<< HEAD
     beforeEach(async () => {
         await Catway.deleteMany({});
     });
@@ -111,5 +120,32 @@ describe('Catway Model', () => {
 
             await expect(catway.save()).rejects.toThrow();
         });
+=======
+    it('should validate a valid catway', async () => {
+        const validCatway = {
+            catwayNumber: '123',
+            catwayType: 'long',
+            catwayState: 'disponible'
+        };
+        const catway = new Catway(validCatway);
+        const saved = await catway.save();
+        expect(saved._id).toBeDefined();
+    });
+
+    it('should fail for duplicate catwayNumber', async () => {
+        const catway1 = new Catway({
+            catwayNumber: '123',
+            catwayType: 'long',
+            catwayState: 'disponible'
+        });
+        await catway1.save();
+
+        const catway2 = new Catway({
+            catwayNumber: '123',
+            catwayType: 'short',
+            catwayState: 'disponible'
+        });
+        await expect(catway2.save()).rejects.toThrow();
+>>>>>>> 9e1db78a25cb06c03b52345848bd5bfc84fe2764
     });
 }); 
