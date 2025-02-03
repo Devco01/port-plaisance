@@ -1,30 +1,43 @@
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+var mongoose = require('mongoose');
+var MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer;
 
-let mongod;
+var mongod = null;
+
+var connect = function() {
+    return MongoMemoryServer.create()
+        .then(function(server) {
+            mongod = server;
+            var mongoUri = mongod.getUri();
+            return mongoose.connect(mongoUri, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+        });
+};
+
+var closeDatabase = function() {
+    return mongoose.connection.dropDatabase()
+        .then(function() {
+            return mongoose.connection.close();
+        })
+        .then(function() {
+            if (mongod) {
+                return mongod.stop();
+            }
+        });
+};
+
+var clearDatabase = function() {
+    var collections = mongoose.connection.collections;
+    return Promise.all(
+        Object.values(collections).map(function(collection) {
+            return collection.deleteMany();
+        })
+    );
+};
 
 module.exports = {
-    connect: async () => {
-        mongod = await MongoMemoryServer.create();
-        const uri = mongod.getUri();
-        await mongoose.connect(uri);
-    },
-
-    closeDatabase: async () => {
-        if (mongoose.connection.readyState !== 0) {
-            await mongoose.connection.close();
-        }
-        if (mongod) {
-            await mongod.stop();
-            mongod = null;
-        }
-    },
-
-    clearDatabase: async () => {
-        const collections = mongoose.connection.collections;
-        for (const key in collections) {
-            const collection = collections[key];
-            await collection.deleteMany();
-        }
-    }
+    connect: connect,
+    closeDatabase: closeDatabase,
+    clearDatabase: clearDatabase
 }; 

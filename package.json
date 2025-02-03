@@ -4,7 +4,8 @@
   "description": "API de gestion des réservations de catways pour le port de plaisance Russell",
   "main": "server/app.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --setupFiles dotenv/config",
+    "test:watch": "jest --watch --setupFiles dotenv/config",
     "test:models": "jest tests/models",
     "test:auth": "jest tests/auth",
     "test:crud": "jest tests/crud",

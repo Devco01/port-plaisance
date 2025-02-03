@@ -1,10 +1,22 @@
-beforeEach(async () => {
-    const collections = await mongoose.connection.db.collections();
-    for (let collection of collections) {
-        await collection.deleteMany({});
-    }
+var mongoose = require('mongoose');
+
+beforeEach(function(done) {
+    mongoose.connection.db.collections()
+        .then(function(collections) {
+            return Promise.all(
+                collections.map(function(collection) {
+                    return collection.deleteMany({});
+                })
+            );
+        })
+        .then(function() {
+            done();
+        });
 });
 
-afterAll(async () => {
-    await mongoose.connection.close();
+afterAll(function(done) {
+    mongoose.connection.close()
+        .then(function() {
+            done();
+        });
 }); 

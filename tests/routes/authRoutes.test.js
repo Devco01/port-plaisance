@@ -1,12 +1,11 @@
-const request = require('supertest');
-const mongoose = require('mongoose');
-const app = require('../../server/app');
-const User = require('../../server/models/User');
-const bcrypt = require('bcrypt');
+var request = require('supertest');
+var mongoose = require('mongoose');
+var app = require('../../server/app');
+var User = require('../../server/models/user');
+var bcrypt = require('bcrypt');
 
-describe('Auth Routes', () => {
-    const testUser = {
-        username: 'testuser',
+describe('Auth Routes', function() {
+    var testUser = {
         email: 'test@test.com',
         password: 'Test123!',
         nom: 'Test',
@@ -14,62 +13,80 @@ describe('Auth Routes', () => {
         role: 'user'
     };
 
-    beforeAll(async () => {
-        await mongoose.connect(global.__MONGO_URI__, {
+    beforeAll(function(done) {
+        mongoose.connect(global.__MONGO_URI__, {
             useNewUrlParser: true,
             useUnifiedTopology: true
-        });
+        })
+            .then(function() { done(); });
     });
 
-    afterAll(async () => {
-        await mongoose.connection.close();
+    afterAll(function(done) {
+        mongoose.connection.close()
+            .then(function() { done(); });
     });
 
-    beforeEach(async () => {
-        await User.deleteMany({});
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(testUser.password, salt);
-        await User.create({ ...testUser, password: hashedPassword });
+    beforeEach(function(done) {
+        User.deleteMany({})
+            .then(function() {
+                return bcrypt.genSalt(10);
+            })
+            .then(function(salt) {
+                return bcrypt.hash(testUser.password, salt);
+            })
+            .then(function(hashedPassword) {
+                var userData = Object.assign({}, testUser, { password: hashedPassword });
+                return User.create(userData);
+            })
+            .then(function() { done(); });
     });
 
-    describe('POST /login', () => {
-        test('devrait authentifier un utilisateur avec des identifiants valides', async () => {
-            const res = await request(app)
-                .post('/login')
+    describe('POST /api/auth/login', function() {
+        it('devrait authentifier un utilisateur avec des identifiants valides', function(done) {
+            request(app)
+                .post('/api/auth/login')
                 .send({
                     email: testUser.email,
                     password: testUser.password
+                })
+                .expect(200)
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    expect(res.body.token).toBeDefined();
+                    expect(res.body.user.email).toBe(testUser.email);
+                    expect(res.body.user.password).toBeUndefined();
+                    done();
                 });
-
-            expect(res.status).toBe(200);
-            expect(res.body.user).toBeDefined();
-            expect(res.body.user.email).toBe(testUser.email);
-            expect(res.body.user.password).toBeUndefined();
-            expect(res.headers['set-cookie']).toBeDefined();
         });
 
-        test('devrait rejeter un email incorrect', async () => {
-            const res = await request(app)
-                .post('/login')
+        it('devrait rejeter un email incorrect', function(done) {
+            request(app)
+                .post('/api/auth/login')
                 .send({
                     email: 'wrong@test.com',
                     password: testUser.password
+                })
+                .expect(401)
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    expect(res.body.message).toContain('incorrect');
+                    done();
                 });
-
-            expect(res.status).toBe(401);
-            expect(res.body.message).toContain('incorrect');
         });
 
-        test('devrait rejeter un mot de passe incorrect', async () => {
-            const res = await request(app)
-                .post('/login')
+        it('devrait rejeter un mot de passe incorrect', function(done) {
+            request(app)
+                .post('/api/auth/login')
                 .send({
                     email: testUser.email,
                     password: 'WrongPass123!'
+                })
+                .expect(401)
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    expect(res.body.message).toContain('incorrect');
+                    done();
                 });
-
-            expect(res.status).toBe(401);
-            expect(res.body.message).toContain('incorrect');
         });
     });
 

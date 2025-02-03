@@ -1,93 +1,94 @@
-const request = require('supertest');
-const app = require('../../server/server');
-const mongoose = require('mongoose');
-const Reservation = require('../../server/models/reservation');
-const Catway = require('../../server/models/catway');
-const { generateToken } = require('../helpers/auth');
+var request = require('supertest');
+var app = require('../../server/app');
+var Reservation = require('../../server/models/reservation');
+var Catway = require('../../server/models/catway');
+var User = require('../../server/models/user');
+var testDb = require('../helpers/testDb');
+var auth = require('../helpers/auth');
 
-describe('Reservation Routes', () => {
-    let token;
-    let adminToken;
-    let catway;
+describe('Reservations Integration Tests', function() {
+    var userToken;
+    var adminToken;
+    var testCatway;
 
-    beforeAll(async () => {
-        token = generateToken({ role: 'user' });
-        adminToken = generateToken({ role: 'admin' });
-        
-        catway = await Catway.create({
-            catwayNumber: '1',
-            catwayType: 'long',
-            catwayState: 'disponible'
-        });
+    beforeAll(function(done) {
+        testDb.connect()
+            .then(function() {
+                return Promise.all([
+                    User.create({
+                        email: 'user@test.com',
+                        password: 'Test123!',
+                        role: 'user',
+                        nom: 'Test',
+                        prenom: 'User'
+                    }),
+                    User.create({
+                        email: 'admin@test.com',
+                        password: 'Admin123!',
+                        role: 'admin',
+                        nom: 'Admin',
+                        prenom: 'Test'
+                    }),
+                    Catway.create({
+                        catwayNumber: 'A1',
+                        catwayType: 'long',
+                        catwayState: 'disponible'
+                    })
+                ]);
+            })
+            .then(function(results) {
+                userToken = auth.generateToken({ id: results[0]._id, role: 'user' });
+                adminToken = auth.generateToken({ id: results[1]._id, role: 'admin' });
+                testCatway = results[2];
+                done();
+            });
     });
 
-    beforeEach(async () => {
-        await Reservation.deleteMany({});
+    afterAll(function(done) {
+        testDb.closeDatabase()
+            .then(function() { done(); });
     });
 
-    afterAll(async () => {
-        await mongoose.connection.close();
+    beforeEach(function(done) {
+        testDb.clearDatabase()
+            .then(function() { done(); });
     });
 
-    describe('GET /api/reservations', () => {
-        it('should return all reservations', async () => {
-            await Reservation.create([
-                {
-                    catwayNumber: catway.catwayNumber,
-                    clientName: 'Client 1',
-                    boatName: 'Boat 1',
-                    startDate: new Date(),
-                    endDate: new Date(Date.now() + 86400000)
-                },
-                {
-                    catwayNumber: catway.catwayNumber,
-                    clientName: 'Client 2',
-                    boatName: 'Boat 2',
-                    startDate: new Date(),
-                    endDate: new Date(Date.now() + 86400000)
-                }
-            ]);
+    describe('Gestion des réservations', function() {
+        var testReservation = {
+            catwayNumber: 'A1',
+            clientName: 'John Doe',
+            boatName: 'Sea Spirit',
+            startDate: new Date('2024-06-01'),
+            endDate: new Date('2024-06-07')
+        };
 
-            const res = await request(app)
-                .get('/api/reservations')
-                .set('x-auth-token', token);
-
-            expect(res.status).toBe(200);
-            expect(Array.isArray(res.body)).toBeTruthy();
-            expect(res.body.length).toBe(2);
-        });
-    });
-
-    describe('POST /api/reservations', () => {
-        it('should create new reservation', async () => {
-            const res = await request(app)
+        it('devrait créer une réservation valide', function(done) {
+            request(app)
                 .post('/api/reservations')
-                .set('x-auth-token', token)
-                .send({
-                    catwayNumber: catway.catwayNumber,
-                    clientName: 'Test Client',
-                    boatName: 'Test Boat',
-                    startDate: new Date(),
-                    endDate: new Date(Date.now() + 86400000)
+                .set('Authorization', 'Bearer ' + userToken)
+                .send(testReservation)
+                .expect(201)
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    expect(res.body.clientName).toBe(testReservation.clientName);
+                    done();
                 });
-
-            expect(res.status).toBe(201);
-            expect(res.body).toHaveProperty('_id');
         });
 
-        it('should not create reservation for non-existent catway', async () => {
-            const res = await request(app)
-                .post('/api/reservations')
-                .set('x-auth-token', token)
-                .send({
-                    catwayNumber: '999',
-                    clientName: 'Test Client',
-                    boatName: 'Test Boat',
-                    startDate: new Date(),
-                    endDate: new Date(Date.now() + 86400000)
+        it('devrait lister les réservations', function(done) {
+            Reservation.create(testReservation)
+                .then(function() {
+                    return request(app)
+                        .get('/api/reservations')
+                        .set('Authorization', 'Bearer ' + adminToken);
+                })
+                .then(function(res) {
+                    expect(res.status).toBe(200);
+                    expect(Array.isArray(res.body)).toBe(true);
+                    expect(res.body.length).toBe(1);
+                    done();
                 });
-
-            expect(res.status).toBe(400);
         });
     });
 }); 

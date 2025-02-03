@@ -1,46 +1,62 @@
-const mongoose = require('mongoose');
-const User = require('../models/User');
+var mongoose = require('mongoose');
+var User = require('../../server/models/user');
 
-describe('User Model Test', () => {
-    beforeAll(async () => {
-        await mongoose.connect(global.__MONGO_URI__);
+describe('User Model Test', function() {
+    beforeAll(function(done) {
+        mongoose.connect(global.__MONGO_URI__)
+            .then(function() { done(); });
     });
 
-    afterAll(async () => {
-        await mongoose.connection.close();
+    afterAll(function(done) {
+        mongoose.connection.close()
+            .then(function() { done(); });
     });
 
-    it('should validate a valid user', async () => {
-        const validUser = {
+    it('should validate a valid user', function(done) {
+        var validUser = {
             email: 'test@test.com',
             password: 'password123',
             nom: 'Doe',
             prenom: 'John'
         };
-        const user = new User(validUser);
-        const saved = await user.save();
-        expect(saved._id).toBeDefined();
+
+        var user = new User(validUser);
+        user.save()
+            .then(function(saved) {
+                expect(saved._id).toBeDefined();
+                done();
+            });
     });
 
-    it('should fail validation for invalid email', async () => {
-        const userWithInvalidEmail = {
+    it('should fail validation for invalid email', function(done) {
+        var userWithInvalidEmail = {
             email: 'invalid-email',
             password: 'password123',
             nom: 'Doe',
             prenom: 'John'
         };
-        const user = new User(userWithInvalidEmail);
-        await expect(user.save()).rejects.toThrow();
+
+        var user = new User(userWithInvalidEmail);
+        user.save()
+            .catch(function(error) {
+                expect(error).toBeDefined();
+                done();
+            });
     });
 
-    it('should fail validation for short password', async () => {
-        const userWithShortPassword = {
+    it('should fail validation for short password', function(done) {
+        var userWithShortPassword = {
             email: 'test@test.com',
             password: '123',
             nom: 'Doe',
             prenom: 'John'
         };
-        const user = new User(userWithShortPassword);
-        await expect(user.save()).rejects.toThrow();
+
+        var user = new User(userWithShortPassword);
+        user.save()
+            .catch(function(error) {
+                expect(error).toBeDefined();
+                done();
+            });
     });
 }); 

@@ -1,63 +1,61 @@
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+var mongoose = require('mongoose');
+var MongoMemoryServer = require('mongodb-memory-server');
 
-let mongoServer;
 
-module.exports = async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
+var mongoServer;
 
-    await mongoose.connect(mongoUri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    });
+module.exports = function() {
+    return MongoMemoryServer.create()
+        .then(function(server) {
+            mongoServer = server;
+            var mongoUri = mongoServer.getUri();
+            return mongoose.connect(mongoUri, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+        })
+        .then(function() {
+            // Configuration globale pour les tests
+            global.__MONGO_URI__ = mongoServer.getUri();
+            global.__MONGO_SERVER__ = mongoServer;
 
-    // Configuration globale pour les tests
-    global.__MONGO_URI__ = mongoUri;
-    global.__MONGO_SERVER__ = mongoServer;
+            // Helpers pour les tests
+            global.createTestUser = function(User, userData) {
+                userData = userData || {};
+                var defaultUser = {
+                    email: 'test@example.com',
+                    password: 'Test123!',
+                    role: 'user',
+                    nom: 'Test',
+                    prenom: 'User',
+                    active: true
+                };
 
-    // Helpers pour les tests
-    global.createTestUser = async (User, userData = {}) => {
-        const defaultUser = {
-            username: 'testuser',
-            email: 'test@example.com',
-            password: 'Test123!',
-            role: 'user',
-            active: true
-        };
+                return new User(Object.assign({}, defaultUser, userData)).save();
+            };
 
-        return await new User({
-            ...defaultUser,
-            ...userData
-        }).save();
-    };
+            global.createTestCatway = function(Catway, catwayData) {
+                catwayData = catwayData || {};
+                var defaultCatway = {
+                    catwayNumber: 'A1',
+                    catwayType: 'long',
+                    catwayState: 'disponible'
+                };
 
-    global.createTestCatway = async (Catway, catwayData = {}) => {
-        const defaultCatway = {
-            catwayNumber: 'A1',
-            catwayType: 'long',
-            catwayState: 'disponible'
-        };
+                return new Catway(Object.assign({}, defaultCatway, catwayData)).save();
+            };
 
-        return await new Catway({
-            ...defaultCatway,
-            ...catwayData
-        }).save();
-    };
+            global.createTestReservation = function(Reservation, reservationData) {
+                reservationData = reservationData || {};
+                var defaultReservation = {
+                    catwayNumber: 'A1',
+                    clientName: 'John Doe',
+                    boatName: 'Sea Spirit',
+                    startDate: new Date('2024-06-01'),
+                    endDate: new Date('2024-06-07')
+                };
 
-    global.createTestReservation = async (Reservation, reservationData = {}) => {
-        const defaultReservation = {
-            catwayNumber: 'A1',
-            clientName: 'John Doe',
-            boatName: 'Sea Spirit',
-            boatLength: 15,
-            startDate: new Date('2024-06-01'),
-            endDate: new Date('2024-06-07')
-        };
-
-        return await new Reservation({
-            ...defaultReservation,
-            ...reservationData
-        }).save();
-    };
+                return new Reservation(Object.assign({}, defaultReservation, reservationData)).save();
+            };
+        });
 }; 

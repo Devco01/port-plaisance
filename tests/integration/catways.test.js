@@ -1,74 +1,124 @@
-const request = require('supertest');
-const app = require('../../server/server');
-const mongoose = require('mongoose');
-const Catway = require('../../server/models/catway');
-const { generateToken } = require('../helpers/auth');
+var request = require('supertest');
+var app = require('../../server/app');
+var Catway = require('../../server/models/catway');
+var User = require('../../server/models/user');
+var testDb = require('../helpers/testDb');
+var auth = require('../helpers/auth');
 
-describe('Catway Routes', () => {
-    let token;
-    let adminToken;
+describe('Catways Integration Tests', function() {
+    var adminToken;
+    var userToken;
+    var testCatway;
 
-    beforeAll(async () => {
-        token = generateToken({ role: 'user' });
-        adminToken = generateToken({ role: 'admin' });
+    beforeAll(function(done) {
+        testDb.connect()
+            .then(function() {
+                return Promise.all([
+                    User.create({
+                        email: 'admin@test.com',
+                        password: 'Admin123!',
+                        role: 'admin',
+                        nom: 'Admin',
+                        prenom: 'Test'
+                    }),
+                    User.create({
+                        email: 'user@test.com',
+                        password: 'User123!',
+                        role: 'user',
+                        nom: 'User',
+                        prenom: 'Test'
+                    })
+                ]);
+            })
+            .then(function(users) {
+                adminToken = auth.generateToken({ id: users[0]._id, role: 'admin' });
+                userToken = auth.generateToken({ id: users[1]._id, role: 'user' });
+                done();
+            });
     });
 
-    beforeEach(async () => {
-        await Catway.deleteMany({});
+    afterAll(function(done) {
+        testDb.closeDatabase()
+            .then(function() { done(); });
     });
 
-    afterAll(async () => {
-        await mongoose.connection.close();
+    beforeEach(function(done) {
+        testDb.clearDatabase()
+            .then(function() {
+                return Catway.create({
+                    catwayNumber: 'A1',
+                    catwayType: 'long',
+                    catwayState: 'disponible'
+                });
+            })
+            .then(function(catway) {
+                testCatway = catway;
+                done();
+            });
     });
 
-    describe('GET /api/catways', () => {
-        it('should return all catways', async () => {
-            await Catway.create([
-                { catwayNumber: '1', catwayType: 'long', catwayState: 'disponible' },
-                { catwayNumber: '2', catwayType: 'short', catwayState: 'occupé' }
-            ]);
-
-            const res = await request(app)
+    describe('GET /api/catways', function() {
+        it('should get all catways', function(done) {
+            request(app)
                 .get('/api/catways')
-                .set('x-auth-token', token);
-
-            expect(res.status).toBe(200);
-            expect(Array.isArray(res.body)).toBeTruthy();
-            expect(res.body.length).toBe(2);
-        });
-
-        it('should return 401 if no token provided', async () => {
-            const res = await request(app).get('/api/catways');
-            expect(res.status).toBe(401);
+                .set('Authorization', 'Bearer ' + userToken)
+                .expect(200)
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    expect(Array.isArray(res.body)).toBe(true);
+                    expect(res.body.length).toBe(1);
+                    done();
+                });
         });
     });
 
-    describe('POST /api/catways', () => {
-        it('should create new catway if admin', async () => {
-            const res = await request(app)
-                .post('/api/catways')
-                .set('x-auth-token', adminToken)
-                .send({
-                    catwayNumber: '1',
-                    catwayType: 'long',
-                    catwayState: 'disponible'
-                });
+    describe('POST /api/catways', function() {
+        it('should create new catway as admin', function(done) {
+            var newCatway = {
+                catwayNumber: 'A2',
+                catwayType: 'short',
+                catwayState: 'disponible'
+            };
 
-            expect(res.status).toBe(201);
-            expect(res.body.catwayNumber).toBe('1');
+            request(app)
+                .post('/api/catways')
+                .set('Authorization', 'Bearer ' + adminToken)
+                .send(newCatway)
+                .expect(201)
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    expect(res.body.catwayNumber).toBe(newCatway.catwayNumber);
+                    done();
+                });
         });
 
-        it('should return 403 if not admin', async () => {
-            const res = await request(app)
-                .post('/api/catways')
-                .set('x-auth-token', token)
-                .send({
-                    catwayNumber: '1',
-                    catwayType: 'long',
-                    catwayState: 'disponible'
-                });
+        it('should reject creation by normal user', function(done) {
+            var newCatway = {
+                catwayNumber: 'A2',
+                catwayType: 'short',
+                catwayState: 'disponible'
+            };
 
-            expect(res.status).toBe(403);
+            request(app)
+                .post('/api/catways')
+                .set('Authorization', 'Bearer ' + userToken)
+                .send(newCatway)
+                .expect(403, done);
+        });
+    });
+
+    describe('PUT /api/catways/:id', function() {
+        it('should update catway as admin', function(done) {
+            request(app)
+                .put('/api/catways/' + testCatway.catwayNumber)
+                .set('Authorization', 'Bearer ' + adminToken)
+                .send({ catwayState: 'maintenance' })
+                .expect(200)
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    expect(res.body.catwayState).toBe('maintenance');
+                    done();
+                });
         });
     });
 }); 
