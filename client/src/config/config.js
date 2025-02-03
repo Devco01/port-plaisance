@@ -1,5 +1,5 @@
 const config = {
-    apiUrl: 'http://localhost:8000'  // URL fixe pour le développement
+    apiUrl: process.env.REACT_APP_API_URL || window.location.origin
 };
 
 export default config; 

@@ -1,18 +1,13 @@
-const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerJsdoc = require('swagger-jsdoc');
 
-const swaggerOptions = {
+const options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'API Port de Plaisance',
+            title: 'API Port de Plaisance Russell',
             version: '1.0.0',
-            description: 'Documentation API du Port de Plaisance'
+            description: 'API de gestion des réservations de catways'
         },
-        servers: [
-            {
-                url: 'http://localhost:8000'
-            }
-        ],
         components: {
             securitySchemes: {
                 bearerAuth: {
@@ -26,4 +21,4 @@ const swaggerOptions = {
     apis: ['./routes/*.js']
 };
 
-module.exports = swaggerJsDoc(swaggerOptions); 
+module.exports = swaggerJsdoc(options); 

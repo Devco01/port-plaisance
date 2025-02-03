@@ -11,7 +11,11 @@
     "start:server": "cd server && node server.js",
     "dev:server": "cd server && nodemon server.js",
     "start:client": "cd client && npm start",
-    "dev:client": "cd client && npm run dev"
+    "dev:client": "cd client && npm run dev",
+    "import-data": "node server/scripts/importData.js",
+    "start": "node server/server.js",
+    "build": "cd client && npm install && npm run build",
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -39,5 +43,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
