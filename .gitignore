@@ -34,3 +34,7 @@ Thumbs.db
 # Vite
 vite.config.js
 /client/vite.config.js
+
+# Case sensitivity
+*.[uU][sS][eE][rR].[jJ][sS]
+*.[dD][aA][sS][hH][bB][oO][aA][rR][dD].[jJ][sS]
