@@ -10,8 +10,10 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: '/api',
-                description: process.env.NODE_ENV === 'production' ? 'Serveur de production' : 'Serveur de développement'
+                url: process.env.NODE_ENV === 'production'
+                    ? 'https://port-plaisance.onrender.com'
+                    : 'http://localhost:3001',
+                description: process.env.NODE_ENV === 'production' ? 'Production' : 'Development'
             }
         ],
         components: {

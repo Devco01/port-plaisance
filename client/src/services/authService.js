@@ -35,4 +35,28 @@ const login = async (email, password) => {
                 hasToken: !!response.data.token,
                 length: response.data.token.length
             });
-            axios.defaults.headers.common['Authorization'] = `
+            axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+            return response.data;
+        } else {
+            throw new Error('Token non reçu du serveur');
+        }
+    } catch (error) {
+        console.error('Erreur lors de la connexion:', error);
+        throw error;
+    }
+};
+
+const logout = () => {
+    localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
+};
+
+const isAuthenticated = () => {
+    return !!localStorage.getItem('token');
+};
+
+const getToken = () => {
+    return localStorage.getItem('token');
+};
+
+export { login, logout, isAuthenticated, getToken };
