@@ -4,8 +4,7 @@ const connectDB = async () => {
     try {
         // Vérifier l'URI MongoDB
         if (!process.env.MONGODB_URI) {
-            console.error('❌ MONGODB_URI non défini. Environnement:', process.env.NODE_ENV);
-            process.exit(1);
+            throw new Error('MONGODB_URI non défini');
         }
 
         // Log de l'URI (masqué pour la sécurité)
@@ -16,14 +15,14 @@ const connectDB = async () => {
         console.log(`Tentative de connexion à MongoDB (${process.env.NODE_ENV}):`, maskedURI);
 
         // Tenter la connexion
-        await mongoose.connect(process.env.MONGODB_URI);
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000
+        });
         console.log('✅ Connecté à MongoDB');
     } catch (error) {
-        console.error('❌ Erreur MongoDB détaillée:', {
-            message: error.message,
-            code: error.code,
-            name: error.name
-        });
+        console.error('❌ Erreur de connexion MongoDB:', error.message);
         process.exit(1);
     }
 };

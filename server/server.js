@@ -1,4 +1,19 @@
-require('dotenv').config();
+require('dotenv').config({
+    path: process.env.NODE_ENV === 'production' ? 
+        '/opt/render/project/src/.env' : 
+        require('path').resolve(__dirname, '../.env')
+});
+
+// Vérification des variables d'environnement requises
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'PORT'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+    console.error('❌ Variables d\'environnement manquantes:', missingEnvVars);
+    console.error('📂 Fichier .env:', require('path').resolve(process.cwd(), '.env'));
+    console.error('🔍 Variables disponibles:', Object.keys(process.env));
+    process.exit(1);
+}
 
 // Log des variables d'environnement au démarrage
 console.log('Variables d\'environnement:', {
@@ -18,37 +33,16 @@ const connectDB = require('./config/db');
 
 const app = express();
 
-// Parser JSON avant les autres middlewares
-app.use(express.json());
-
-// Logger pour les requêtes
-app.use((req, res, next) => {
-    console.log('Requête reçue:', {
-        method: req.method,
-        url: req.url,
-        originalUrl: req.originalUrl,
-        body: req.body
-    });
-    next();
-});
-
-// Middleware
+// Middleware CORS en premier
 app.use(cors({
-    origin: '*',  // Pour le développement local
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Access-Control-Allow-Origin']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 
-// Log des requêtes CORS
-app.use((req, res, next) => {
-    console.log('CORS Headers:', {
-        origin: req.headers.origin,
-        method: req.method,
-        contentType: req.headers['content-type']
-    });
-    next();
-});
+// Parser JSON ensuite
+app.use(express.json());
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -60,28 +54,9 @@ console.log('Routes utilisateurs chargées');
 
 const catwayRoutes = require('./routes/catwayRoutes');
 
-// Afficher toutes les routes disponibles de manière détaillée
-console.log('\nRoutes disponibles:');
-userRoutes.stack.forEach(layer => {
-    if (layer.route) {
-        console.log(`Route: /api/users${layer.route.path}`);
-    }
-});
-
-// Préfixe global pour toutes les routes API
-app.use('/api', (req, res, next) => {
-    console.log('API Request:', req.method, req.url);
-    next();
-});
-
 // Monter les routes avec le préfixe /api
 app.use('/api/users', userRoutes);
 app.use('/api/catways', catwayRoutes);
-
-// Log des routes montées
-console.log('Routes disponibles:');
-console.log('/api/users/*');
-userRoutes.stack.forEach(r => r.route && console.log('  -', r.route.path));
 
 // Route de test
 app.get('/', (req, res) => {
@@ -91,23 +66,6 @@ app.get('/', (req, res) => {
 // Route de test globale
 app.get('/api/test', (req, res) => {
     res.json({ message: 'API en ligne' });
-});
-
-// Log des requêtes pour le débogage
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`, req.body);
-    next();
-});
-
-// Log toutes les requêtes
-app.use((req, res, next) => {
-    console.log('Nouvelle requête:', {
-        method: req.method,
-        url: req.url,
-        headers: req.headers,
-        body: req.body
-    });
-    next();
 });
 
 // Gestion des erreurs 404
