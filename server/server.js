@@ -4,7 +4,10 @@ require('dotenv').config();
 console.log('Variables d\'environnement:', {
     NODE_ENV: process.env.NODE_ENV,
     PORT: process.env.PORT,
-    MONGODB_URI: process.env.MONGODB_URI ? '✅ Défini' : '❌ Non défini'
+    MONGODB_URI: process.env.MONGODB_URI ? 
+        `✅ Défini (${process.env.MONGODB_URI})` : 
+        '❌ Non défini',
+    ENV_FILE: require('path').resolve(process.cwd(), '.env')
 });
 
 const express = require('express');
@@ -119,7 +122,12 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Erreur serveur', error: err.message });
 });
 
-app.listen(process.env.PORT || 8000, '0.0.0.0', () => {
-    console.log(`Serveur démarré sur le port ${process.env.PORT || 8000}`);
-    connectDB();
+// Connexion à MongoDB d'abord
+connectDB().then(() => {
+    app.listen(process.env.PORT || 8000, '0.0.0.0', () => {
+        console.log(`Serveur démarré sur le port ${process.env.PORT || 8000}`);
+    });
+}).catch(err => {
+    console.error('Impossible de démarrer le serveur:', err);
+    process.exit(1);
 });
