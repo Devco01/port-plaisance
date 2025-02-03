@@ -8,8 +8,6 @@ async function checkAndCreateAdmin() {
     try {
         const mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
         console.log('🔄 Vérification du compte admin...');
-        await mongoose.connect(mongoURI);
-        console.log('✅ Connecté à MongoDB');
 
         // Vérifier si l'admin existe
         let admin = await User.findOne({ email: 'admin@portplaisance.fr' });
@@ -38,10 +36,9 @@ async function checkAndCreateAdmin() {
             id: admin._id
         });
 
-        process.exit(0);
     } catch (error) {
         console.error('❌ Erreur:', error);
-        process.exit(1);
+        throw error;
     }
 }
 
