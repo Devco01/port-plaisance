@@ -1,5 +1,5 @@
 require('dotenv').config();
-console.log('ImportData - URI MongoDB:', process.env.MONGODB_URI);
+console.log('ImportData - URL MongoDB:', process.env.MONGODB_URL);
 const mongoose = require('mongoose');
 const Catway = require('../models/catway');
 const User = require('../models/user');

@@ -1,20 +1,21 @@
 require('dotenv').config();
-console.log('CheckAdmin - URI MongoDB:', process.env.MONGODB_URI);
+console.log('CheckAdmin - URL MongoDB:', process.env.MONGODB_URI);
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 
 async function checkAndCreateAdmin() {
     try {
-        console.log('MongoDB URI:', process.env.MONGODB_URI);
-        await mongoose.connect(process.env.MONGODB_URI);
+        const mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
+        console.log('🔄 Vérification du compte admin...');
+        await mongoose.connect(mongoURI);
         console.log('✅ Connecté à MongoDB');
 
         // Vérifier si l'admin existe
         let admin = await User.findOne({ email: 'admin@portplaisance.fr' });
         
         if (!admin) {
-            // Créer l'admin s'il n'existe pas
+            console.log('➕ Création du compte admin...');
             admin = new User({
                 email: 'admin@portplaisance.fr',
                 username: 'admin',
@@ -44,4 +45,4 @@ async function checkAndCreateAdmin() {
     }
 }
 
-checkAndCreateAdmin(); 
+module.exports = { checkAndCreateAdmin }; 

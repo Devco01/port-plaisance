@@ -29,6 +29,7 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const connectDB = require('./config/db');
+const checkAndCreateAdmin = require('./scripts/checkAdmin').checkAndCreateAdmin;
 const path = require('path');
 
 const app = express();
@@ -74,6 +75,9 @@ app.use((err, req, res, next) => {
 
 // Connexion à MongoDB d'abord
 connectDB().then(() => {
+    // Vérifier/créer le compte admin
+    return checkAndCreateAdmin();
+}).then(() => {
     app.listen(process.env.PORT || 8000, '0.0.0.0', () => {
         console.log(`Serveur démarré sur le port ${process.env.PORT || 8000}`);
     });
