@@ -86,8 +86,9 @@ connectDB().then(() => {
     // Vérifier/créer le compte admin
     return checkAndCreateAdmin();
 }).then(() => {
-    app.listen(process.env.PORT || 8000, '0.0.0.0', () => {
-        console.log(`Serveur démarré sur le port ${process.env.PORT || 8000}`);
+    const port = process.env.PORT || 3001;  // Utilisons 3001 au lieu de 8000
+    app.listen(port, '0.0.0.0', () => {
+        console.log(`Serveur démarré sur le port ${port}`);
     });
 }).catch(err => {
     console.error('Impossible de démarrer le serveur:', err);

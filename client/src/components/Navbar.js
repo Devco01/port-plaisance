@@ -5,8 +5,8 @@ import DescriptionIcon from '@mui/icons-material/Description';
 const getDocsUrl = () => {
     const baseUrl = process.env.NODE_ENV === 'production'
         ? 'https://port-plaisance.onrender.com'
-        : 'http://localhost:8000';
-    return `${baseUrl}/api/docs`;
+        : 'http://localhost:3001';
+    return `${baseUrl}/api-docs`;
 };
 
 const Navbar = () => {

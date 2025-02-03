@@ -35,7 +35,7 @@ cd ..
 4. **Configuration**
 - Créer un fichier `.env` à la racine du projet :
 ```env
-PORT=8000
+PORT=3001
 MONGODB_URI="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority"
 JWT_SECRET=Votre clé secrète ici
 ```
@@ -71,8 +71,8 @@ Ce compte est créé automatiquement lors de l'initialisation
 
 L'application sera accessible sur :
 - Client (dev) : http://localhost:3000
-- API (dev) : http://localhost:8000
-- Documentation API (dev) : http://localhost:8000/api-docs
+- API (dev) : http://localhost:3001
+- Documentation API (dev) : http://localhost:3001/api-docs
 
 En production :
 - Application : https://port-plaisance.onrender.com/
@@ -105,7 +105,7 @@ Dans le répertoire racine :
 - `npm run postinstall` : Script exécuté automatiquement après l'installation
 
 ## API Documentation
-La documentation de l'API est disponible sur http://localhost:8000/api-docs une fois le serveur démarré.
+La documentation de l'API est disponible sur http://localhost:3001/api-docs une fois le serveur démarré.
 
 ## Sécurité
 - Authentification JWT
@@ -124,13 +124,13 @@ La documentation de l'API est disponible sur http://localhost:8000/api-docs une 
 2. Configurer les variables d'environnement :
    - MONGODB_URI : URL de connexion MongoDB Atlas
    - JWT_SECRET : Clé secrète pour les tokens JWT
-   - PORT : Port du serveur (8000 par défaut)
+   - PORT : Port du serveur (3001 par défaut)
    - API_URL : URL de l'API
 
 ### Variables d'environnement sur Render
 - MONGODB_URI
 - JWT_SECRET
-- PORT=8000
+- PORT=3001
 
 ## Connexion
 
