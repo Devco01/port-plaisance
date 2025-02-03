@@ -1,0 +1,72 @@
+.swagger-ui .topbar {
+    background-color: #1a365d;
+    padding: 10px 0;
+}
+
+.swagger-ui .info {
+    margin: 30px 0;
+}
+
+.swagger-ui .info .title {
+    color: #1a365d;
+    font-size: 36px;
+}
+
+.swagger-ui .info .description {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.swagger-ui .scheme-container {
+    background-color: #f8f9fa;
+    box-shadow: none;
+    margin: 20px 0;
+}
+
+.swagger-ui .opblock-tag {
+    color: #2c5282;
+    font-size: 24px;
+}
+
+.swagger-ui .opblock {
+    margin: 0 0 15px;
+    border-radius: 8px;
+}
+
+.swagger-ui .opblock .opblock-summary {
+    padding: 10px;
+}
+
+.swagger-ui .opblock .opblock-summary-method {
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 80px;
+    text-align: center;
+}
+
+.swagger-ui .opblock-description-wrapper p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.swagger-ui .parameters-container .parameters-col_description {
+    font-size: 14px;
+}
+
+.swagger-ui .response-col_status {
+    font-size: 14px;
+}
+
+.swagger-ui .responses-inner h4 {
+    font-size: 16px;
+    color: #2c5282;
+}
+
+.swagger-ui section.models {
+    margin: 30px 0;
+}
+
+.swagger-ui section.models h4 {
+    color: #2c5282;
+    font-size: 24px;
+} 
