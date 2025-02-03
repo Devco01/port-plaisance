@@ -3,6 +3,7 @@ const router = express.Router();
 const Catway = require('../models/catway');
 const auth = require('../middleware/auth');
 const Reservation = require('../models/reservation');
+const catwayController = require('../controllers/catwayController');
 
 /**
  * @swagger
@@ -54,14 +55,7 @@ const Reservation = require('../models/reservation');
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get('/', auth.requireAuth, async (req, res) => {
-    try {
-        const catways = await Catway.find().sort('catwayNumber');
-        res.json(catways);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
+router.get('/', catwayController.getCatways);
 
 /**
  * @swagger
