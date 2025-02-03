@@ -88,36 +88,6 @@ Rôle: user
 
 Ces comptes sont créés automatiquement lors de l'initialisation (étape 5 de l'installation).
 
-Pour créer ces utilisateurs manuellement, vous pouvez utiliser les commandes suivantes :
-
-### Windows (PowerShell)
-```powershell
-$body = @{
-    email = "admin@portplaisance.fr"
-    password = "PortAdmin2024!"
-    nom = "Admin"
-    prenom = "Port"
-    role = "admin"
-} | ConvertTo-Json
-
-Invoke-WebRequest -Uri "http://localhost:8000/api/users/register" `
-    -Method Post `
-    -ContentType "application/json" `
-    -Body $body
-```
-
-### Linux/Mac (curl)
-```bash
-curl -X POST http://localhost:8000/api/users/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@portplaisance.fr",
-    "password": "PortAdmin2024!",
-    "nom": "Admin",
-    "prenom": "Port",
-    "role": "admin"
-  }'
-```
 
 L'application sera accessible sur :
 - Client : http://localhost:3000
@@ -139,13 +109,14 @@ L'application sera accessible sur :
 
 ## Scripts disponibles
 Dans le répertoire racine :
+### Scripts de développement
 - `npm run dev:server` : Démarre le serveur en mode développement avec nodemon
-- `npm run start:server` : Démarre le serveur en mode production
-- `npm run start:client` : Démarre l'application React
-- `npm run test` : Lance tous les tests
-- `npm run test:models` : Lance les tests des modèles
-- `npm run test:auth` : Lance les tests d'authentification
-- `npm run test:crud` : Lance les tests CRUD
+- `npm run dev:client` : Démarre le client React en mode développement
+
+### Scripts de production
+- `npm run start` : Démarre l'application en production
+- `npm run build` : Construit l'application pour la production
+- `npm run postinstall` : Script exécuté automatiquement après l'installation
 
 ## API Documentation
 La documentation de l'API est disponible sur http://localhost:8000/api-docs une fois le serveur démarré.
