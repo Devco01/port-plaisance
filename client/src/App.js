@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Navbar from './components/layout/Navbar';
@@ -71,6 +71,8 @@ function App() {
                                 <UsersCRUD />
                             </PrivateRoute>
                         } />
+                        {/* Rediriger toutes les autres routes vers la page d'accueil */}
+                        <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </Layout>
             </Router>

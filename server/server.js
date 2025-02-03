@@ -37,7 +37,6 @@ const userRoutes = require('./routes/userRoutes');
 console.log('Routes utilisateurs chargées');
 
 const catwayRoutes = require('./routes/catwayRoutes');
-const reservationRoutes = require('./routes/reservationRoutes');
 
 // Afficher toutes les routes disponibles de manière détaillée
 console.log('\nRoutes disponibles:');
@@ -51,14 +50,11 @@ userRoutes.stack.forEach(layer => {
 console.log('\nMontage des routes...');
 app.use('/api/users', userRoutes);
 app.use('/api/catways', catwayRoutes);
-app.use('/api/reservations', reservationRoutes);
 
 // Log des routes montées
 console.log('Routes disponibles:');
 console.log('/api/users/*');
 userRoutes.stack.forEach(r => r.route && console.log('  -', r.route.path));
-console.log('/api/reservations/*');
-reservationRoutes.stack.forEach(r => r.route && console.log('  -', r.route.path));
 
 // Route de test
 app.get('/', (req, res) => {

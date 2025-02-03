@@ -13,8 +13,7 @@ const UsersCRUD = () => {
     const [currentUser, setCurrentUser] = useState({
         email: '',
         password: '',
-        nom: '',
-        prenom: ''
+        username: ''
     });
 
     useEffect(() => {
@@ -49,8 +48,7 @@ const UsersCRUD = () => {
             setCurrentUser({
                 email: '',
                 password: '',
-                nom: '',
-                prenom: ''
+                username: ''
             });
             setEditMode(false);
         }
@@ -62,8 +60,7 @@ const UsersCRUD = () => {
         setCurrentUser({
             email: '',
             password: '',
-            nom: '',
-            prenom: ''
+            username: ''
         });
         setEditMode(false);
     };
@@ -82,14 +79,18 @@ const UsersCRUD = () => {
                 });
                 if (!response.ok) throw new Error('Erreur lors de la mise à jour');
             } else {
-                const response = await fetch(`${config.apiUrl}/api/users/register`, {
+                const response = await fetch(`${config.apiUrl}/api/users`, {
                     method: 'POST',
                     headers: {
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(currentUser)
                 });
-                if (!response.ok) throw new Error('Erreur lors de la création');
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Erreur lors de la création');
+                }
             }
             fetchUsers();
             handleClose();
@@ -135,18 +136,16 @@ const UsersCRUD = () => {
                 <Table>
                     <TableHead>
                         <TableRow>
+                            <TableCell>Nom d'utilisateur</TableCell>
                             <TableCell>Email</TableCell>
-                            <TableCell>Nom</TableCell>
-                            <TableCell>Prénom</TableCell>
                             <TableCell>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {users.map((user) => (
                             <TableRow key={user._id}>
+                                <TableCell>{user.username}</TableCell>
                                 <TableCell>{user.email}</TableCell>
-                                <TableCell>{user.nom}</TableCell>
-                                <TableCell>{user.prenom}</TableCell>
                                 <TableCell>
                                     <Button
                                         onClick={() => handleOpen(user)}
@@ -199,24 +198,14 @@ const UsersCRUD = () => {
                     />
                     <TextField
                         margin="dense"
-                        label="Nom"
+                        label="Nom d'utilisateur"
                         fullWidth
-                        value={currentUser.nom}
+                        value={currentUser.username}
                         onChange={(e) => setCurrentUser({
                             ...currentUser,
-                            nom: e.target.value
+                            username: e.target.value
                         })}
                         sx={{ mb: 2 }}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Prénom"
-                        fullWidth
-                        value={currentUser.prenom}
-                        onChange={(e) => setCurrentUser({
-                            ...currentUser,
-                            prenom: e.target.value
-                        })}
                     />
                 </DialogContent>
                 <DialogActions>
