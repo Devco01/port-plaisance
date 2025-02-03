@@ -17,7 +17,7 @@ async function checkAndCreateAdmin() {
             admin = new User({
                 email: 'admin@portplaisance.fr',
                 username: 'admin',
-                password: 'PortAdmin2024!',
+                password: await bcrypt.hash('PortAdmin2024!', 10),
                 role: 'admin'
             });
             await admin.save();
@@ -25,7 +25,7 @@ async function checkAndCreateAdmin() {
         } else {
             console.log('✅ Admin existe déjà');
             // Mettre à jour le mot de passe
-            admin.password = 'PortAdmin2024!';
+            admin.password = await bcrypt.hash('PortAdmin2024!', 10);
             await admin.save();
             console.log('✅ Mot de passe admin mis à jour');
         }

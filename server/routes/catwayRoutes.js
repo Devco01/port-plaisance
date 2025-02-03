@@ -320,7 +320,7 @@ router.get('/:id/reservations', auth, async (req, res) => {
  *                 type: string
  *                 format: date
  */
-router.post('/:id/reservations', auth, async (req, res) => {
+router.post('/catways/:id/reservations', auth, async (req, res) => {
     try {
         console.log('Création réservation - ID catway:', req.params.id);
         console.log('Données reçues:', req.body);
@@ -353,7 +353,7 @@ router.post('/:id/reservations', auth, async (req, res) => {
  *   put:
  *     summary: Modifier une réservation
  */
-router.put('/:id/reservations/:idReservation', auth, async (req, res) => {
+router.put('/catways/:id/reservations/:idReservation', auth, async (req, res) => {
     try {
         const catway = await Catway.findOne({ catwayNumber: req.params.id });
         if (!catway) {
@@ -385,7 +385,7 @@ router.put('/:id/reservations/:idReservation', auth, async (req, res) => {
  *   delete:
  *     summary: Supprimer une réservation
  */
-router.delete('/:id/reservations/:idReservation', auth, async (req, res) => {
+router.delete('/catways/:id/reservations/:idReservation', auth, async (req, res) => {
     try {
         const catway = await Catway.findOne({ catwayNumber: req.params.id });
         if (!catway) {
@@ -402,6 +402,34 @@ router.delete('/:id/reservations/:idReservation', auth, async (req, res) => {
         }
 
         res.json({ message: 'Réservation supprimée avec succès' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+/**
+ * @swagger
+ * /catways/{id}/reservations/{idReservation}:
+ *   get:
+ *     summary: Récupérer une réservation spécifique
+ */
+router.get('/catways/:id/reservations/:idReservation', auth, async (req, res) => {
+    try {
+        const catway = await Catway.findOne({ catwayNumber: req.params.id });
+        if (!catway) {
+            return res.status(404).json({ message: 'Catway non trouvé' });
+        }
+
+        const reservation = await Reservation.findOne({
+            _id: req.params.idReservation,
+            catwayNumber: req.params.id
+        });
+
+        if (!reservation) {
+            return res.status(404).json({ message: 'Réservation non trouvée' });
+        }
+
+        res.json(reservation);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

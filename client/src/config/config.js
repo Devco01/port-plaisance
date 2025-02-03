@@ -3,8 +3,8 @@ const config = {
         ? 'https://port-plaisance.onrender.com'
         : 'http://localhost:8000',
     apiUrl: process.env.NODE_ENV === 'production'
-        ? 'https://port-plaisance.onrender.com/api'
-        : 'http://localhost:8000/api'
+        ? 'https://port-plaisance.onrender.com'
+        : 'http://localhost:8000',
 };
 
 // Log de la configuration en développement

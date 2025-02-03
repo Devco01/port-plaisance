@@ -41,38 +41,41 @@ console.log('Routes utilisateurs chargées');
 const app = express();
 
 // Middleware CORS en premier
-app.use(cors({
-    origin: ['https://port-plaisance.onrender.com', 'http://localhost:3000'],
+const corsOptions = {
+    origin: function (origin, callback) {
+        console.log('🌐 Requête CORS de:', origin);
+        callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin']
-}));
+};
 
 // Parser JSON ensuite
 app.use(express.json());
 
-// Routes API
-app.use('/api/users', userRoutes);
-app.use('/api/catways', catwayRoutes);
-
-// Documentation API
+// Documentation API (avant les autres routes)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: "API Port de Plaisance - Documentation"
 }));
 
-// Servir les fichiers statiques React
+// Routes d'authentification à la racine
+app.use('/', userRoutes);  // Gère /login et /logout
+
+// Routes des ressources
+app.use('/', catwayRoutes); // Gère /catways/... et /users/...
+
+// Servir les fichiers statiques React en dernier
 app.use(express.static(path.join(__dirname, '../client/build')));
 
-// Route spécifique pour les icônes
-app.get(['/favicon.ico', '/logo192.png', '/logo512.png'], (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', req.path));
-});
-
-// Toutes les autres routes non-API renvoient l'app React
-app.get('*', (req, res) => {
-    console.log('📍 Route demandée:', req.path);
+// Route catch-all pour React
+app.get('*', (req, res, next) => {
+    // Ne pas rediriger les requêtes API ou documentation
+    if (req.url.startsWith('/api') || req.url.startsWith('/api-docs')) {
+        return next();
+    }
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 

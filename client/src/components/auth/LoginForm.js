@@ -18,6 +18,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 import { login } from '../../services/authService';
+import config from '../../config';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -31,10 +32,14 @@ const LoginForm = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
-        console.log('🔄 Tentative de connexion avec:', {
-            email,
-            passwordLength: password.length
-        });
+
+        // Test direct avec fetch
+        try {
+            const testResponse = await fetch(`${config.apiUrl}/users/test`);
+            console.log('🔍 Test API:', await testResponse.json());
+        } catch (err) {
+            console.error('❌ Test API échoué:', err);
+        }
 
         try {
             const response = await login(email, password);
