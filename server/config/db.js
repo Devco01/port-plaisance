@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const connectDB = async () => {
     try {
         // Vérifier l'URI MongoDB
-        const mongoURI = process.env.MONGODB_URI || process.env.MONGODB_URL;
+        const mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
         if (!mongoURI) {
-            throw new Error('MONGODB_URI non défini');
+            throw new Error('Aucune URL MongoDB définie (MONGODB_URL ou MONGODB_URI)');
         }
 
         // Log de l'URI (masqué pour la sécurité)
@@ -13,7 +13,7 @@ const connectDB = async () => {
             /mongodb\+srv:\/\/([^:]+):([^@]+)@/,
             'mongodb+srv://[USER]:[PASSWORD]@'
         );
-        console.log(`Tentative de connexion à MongoDB (${process.env.NODE_ENV}):`, maskedURI);
+        console.log(`Tentative de connexion à MongoDB via ${process.env.MONGODB_URL ? 'MONGODB_URL' : 'MONGODB_URI'}:`, maskedURI);
 
         // Tenter la connexion
         await mongoose.connect(mongoURI);

@@ -1,5 +1,5 @@
 const config = {
-    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:8000'
+    apiUrl: process.env.REACT_APP_API_URL || 'https://port-plaisance.onrender.com/api'
 };
 
 // Log de la configuration en développement
