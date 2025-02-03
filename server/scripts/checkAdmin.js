@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('CheckAdmin - URI MongoDB:', process.env.MONGODB_URI);
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
