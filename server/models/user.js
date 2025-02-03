@@ -1,17 +1,10 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+var mongoose = require('mongoose');
+var bcrypt = require('bcrypt');
 
-const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: [true, 'Le nom d\'utilisateur est requis'],
-        unique: true,
-        trim: true,
-        minlength: [3, 'Le nom d\'utilisateur doit contenir au moins 3 caractères']
-    },
+var userSchema = new mongoose.Schema({
     email: {
         type: String,
-        required: [true, 'L\'email est requis'],
+        required: true,
         unique: true,
         trim: true,
         lowercase: true,
@@ -19,34 +12,64 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Le mot de passe est requis'],
+        required: true,
         minlength: [8, 'Le mot de passe doit contenir au moins 8 caractères']
-    },
-    dateCreation: {
-        type: Date,
-        default: Date.now
     },
     role: {
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
+    },
+    nom: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    prenom: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    active: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true
 });
 
-// Middleware pour logger les opérations
-userSchema.pre('save', async function(next) {
-    console.log('💾 Sauvegarde utilisateur:', {
-        email: this.email,
-        role: this.role,
-        passwordLength: this.password?.length
-    });
-    // Ne pas hasher si le mot de passe est déjà hashé
-    if (this.isModified('password') && this.password.length < 30) {
-        this.password = await bcrypt.hash(this.password, 10);
+// Middleware pour hasher le mot de passe avant la sauvegarde
+userSchema.pre('save', function(next) {
+    var user = this;
+    if (!user.isModified('password')) {
+        return next();
     }
-    next();
+
+    bcrypt.genSalt(10)
+        .then(function(salt) {
+            return bcrypt.hash(user.password, salt);
+        })
+        .then(function(hash) {
+            user.password = hash;
+            next();
+        })
+        .catch(function(err) {
+            next(err);
+        });
 });
 
-module.exports = mongoose.model('User', userSchema);
+// Méthode pour comparer les mots de passe
+userSchema.methods.comparePassword = function(candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+};
+
+// Méthode pour générer un objet public sans données sensibles
+userSchema.methods.toPublic = function() {
+    var obj = this.toObject();
+    delete obj.password;
+    return obj;
+};
+
+var User = mongoose.model('User', userSchema);
+
+module.exports = User;

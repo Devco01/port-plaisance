@@ -1,10 +1,9 @@
-<<<<<<< HEAD
-const express = require('express');
-const router = express.Router();
-const Catway = require('../models/catway');
-const auth = require('../middleware/auth');
-const Reservation = require('../models/reservation');
-const catwayController = require('../controllers/catwayController');
+var express = require('express');
+var router = express.Router();
+var Catway = require('../models/catway');
+var auth = require('../middleware/auth'); 
+var Reservation = require('../models/reservation');
+var catwayController = require('../controllers/catwayController');
 
 /**
  * @swagger
@@ -38,66 +37,83 @@ const catwayController = require('../controllers/catwayController');
 
 /**
  * @swagger
- * /catways:
+ * /api/catways:
  *   get:
- *     summary: Liste l'ensemble des catways
+ *     summary: Liste tous les catways
  *     tags: [Catways]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *         description: Filtrer par type de catway (long/short)
+ *       - in: query
+ *         name: state
+ *         schema:
+ *           type: string
+ *         description: Filtrer par état du catway
  *     responses:
  *       200:
- *         description: Liste des catways récupérée avec succès
+ *         description: Liste des catways
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Catway'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get('/', catwayController.getCatways);
+router.get('/', auth, function(req, res) {
+    var query = {};
+    if (req.query.type) query.catwayType = req.query.type;
+    if (req.query.state) query.catwayState = req.query.state;
 
-/**
- * @swagger
- * /catways/{catwayNumber}:
- *   get:
- *     summary: Récupère les détails d'un catway
- *     tags: [Catways]
- *     parameters:
- *       - in: path
- *         name: catwayNumber
- *         required: true
- *         schema:
- *           type: string
- *         description: Numéro du catway
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Détails du catway récupérés avec succès
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Catway'
- *       404:
- *         description: Catway non trouvé
- */
-router.get('/:catwayNumber', auth.requireAuth, async (req, res) => {
-    try {
-        const catway = await Catway.findOne({ catwayNumber: req.params.catwayNumber });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-        res.json(catway);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    Catway.find(query)
+        .then(function(catways) {
+            res.json(catways);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
+        });
 });
 
 /**
  * @swagger
- * /catways:
+ * /api/catways/{id}:
+ *   get:
+ *     summary: Récupère un catway par son ID
+ *     tags: [Catways]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Détails du catway
+ *       404:
+ *         description: Catway non trouvé
+ */
+router.get('/:id', auth, function(req, res) {
+    Catway.findById(req.params.id)
+        .then(function(catway) {
+            if (!catway) {
+                return res.status(404).json({ message: 'Catway non trouvé' });
+            }
+            res.json(catway);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
+        });
+});
+
+/**
+ * @swagger
+ * /api/catways:
  *   post:
  *     summary: Crée un nouveau catway
  *     tags: [Catways]
@@ -111,147 +127,91 @@ router.get('/:catwayNumber', auth.requireAuth, async (req, res) => {
  *             $ref: '#/components/schemas/Catway'
  *     responses:
  *       201:
- *         description: Catway créé avec succès
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Catway'
+ *         description: Catway créé
  *       400:
  *         description: Données invalides
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post('/', auth.requireAuth, async (req, res) => {
-    try {
-        // Vérifier si le numéro existe déjà
-        const existingCatway = await Catway.findOne({ catwayNumber: req.body.catwayNumber });
-        if (existingCatway) {
-            return res.status(400).json({ message: 'Ce numéro de catway existe déjà' });
-        }
-
-        // Vérifier le type
-        if (!['long', 'short'].includes(req.body.catwayType)) {
-            return res.status(400).json({ message: 'Type de catway invalide' });
-        }
-
-        const catway = new Catway(req.body);
-        await catway.save();
-        res.status(201).json(catway);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
+router.post('/', auth, function(req, res) {
+    var catway = new Catway(req.body);
+    catway.save()
+        .then(function(newCatway) {
+            res.status(201).json(newCatway);
+        })
+        .catch(function(error) {
+            res.status(400).json({ message: error.message });
+        });
 });
 
 /**
  * @swagger
- * /catways/{catwayNumber}:
+ * /api/catways/{id}:
  *   put:
- *     summary: Modifie uniquement l'état d'un catway
+ *     summary: Met à jour un catway
  *     tags: [Catways]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: catwayNumber
+ *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: Numéro du catway
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - catwayState
- *             properties:
- *               catwayState:
- *                 type: string
- *                 description: Nouvel état du catway
+ *             $ref: '#/components/schemas/Catway'
  *     responses:
  *       200:
- *         description: État du catway modifié avec succès
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Catway'
- *       400:
- *         description: Données invalides ou tentative de modification du type
+ *         description: Catway mis à jour
  *       404:
  *         description: Catway non trouvé
  */
-router.put('/:catwayNumber', auth.requireAuth, async (req, res) => {
-    try {
-        const catway = await Catway.findOne({ catwayNumber: req.params.catwayNumber });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        // Seul l'état peut être modifié
-        if (req.body.catwayNumber || req.body.catwayType) {
-            return res.status(400).json({ message: 'Seul l\'état peut être modifié' });
-        }
-
-        catway.catwayState = req.body.catwayState;
-        await catway.save();
-        res.json(catway);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
+router.put('/:id', auth, function(req, res) {
+    Catway.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        .then(function(catway) {
+            if (!catway) {
+                return res.status(404).json({ message: 'Catway non trouvé' });
+            }
+            res.json(catway);
+        })
+        .catch(function(error) {
+            res.status(400).json({ message: error.message });
+        });
 });
 
 /**
  * @swagger
- * /catways/{catwayNumber}:
+ * /api/catways/{id}:
  *   delete:
  *     summary: Supprime un catway
  *     tags: [Catways]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: catwayNumber
+ *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: Numéro du catway
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Catway supprimé avec succès
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Catway supprimé avec succès
+ *         description: Catway supprimé
  *       404:
  *         description: Catway non trouvé
  */
-router.delete('/:catwayNumber', auth.requireAuth, async (req, res) => {
-    try {
-        // Vérifier les réservations en cours
-        const hasReservations = await Reservation.exists({
-            catwayNumber: req.params.catwayNumber,
-            endDate: { $gte: new Date() }
+router.delete('/:id', auth, function(req, res) {
+    Catway.findByIdAndDelete(req.params.id)
+        .then(function(catway) {
+            if (!catway) {
+                return res.status(404).json({ message: 'Catway non trouvé' });
+            }
+            res.json({ message: 'Catway supprimé avec succès' });
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
         });
-
-        if (hasReservations) {
-            return res.status(400).json({ 
-                message: 'Impossible de supprimer un catway avec des réservations en cours' 
-            });
-        }
-
-        const catway = await Catway.findOneAndDelete({ catwayNumber: req.params.catwayNumber });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-        res.json({ message: 'Catway supprimé avec succès' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
 });
 
 /**
@@ -279,19 +239,21 @@ router.delete('/:catwayNumber', auth.requireAuth, async (req, res) => {
  *               items:
  *                 $ref: '#/components/schemas/Reservation'
  */
-router.get('/:catwayNumber/reservations', auth.requireAuth, async (req, res) => {
-    try {
-        const catway = await Catway.findOne({ catwayNumber: req.params.catwayNumber });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        const reservations = await Reservation.find({ catwayNumber: req.params.catwayNumber })
-            .sort('-startDate');
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+router.get('/:catwayNumber/reservations', auth.requireAuth, function(req, res) {
+    Catway.findOne({ catwayNumber: req.params.catwayNumber })
+        .then(function(catway) {
+            if (!catway) {
+                return res.status(404).json({ message: 'Catway non trouvé' });
+            }
+            return Reservation.find({ catwayNumber: req.params.catwayNumber })
+                .sort('-startDate');
+        })
+        .then(function(reservations) {
+            res.json(reservations);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
+        });
 });
 
 /**
@@ -325,21 +287,20 @@ router.get('/:catwayNumber/reservations', auth.requireAuth, async (req, res) => 
  *       404:
  *         description: Réservation ou catway non trouvé
  */
-router.get('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async (req, res) => {
-    try {
-        const reservation = await Reservation.findOne({
-            _id: req.params.idReservation,
-            catwayNumber: req.params.catwayNumber
+router.get('/:catwayNumber/reservations/:idReservation', auth.requireAuth, function(req, res) {
+    Reservation.findOne({
+        _id: req.params.idReservation,
+        catwayNumber: req.params.catwayNumber
+    })
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
+            }
+            res.json(reservation);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
         });
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        res.json(reservation);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
 });
 
 /**
@@ -395,18 +356,17 @@ router.get('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async
  *       404:
  *         description: Catway non trouvé
  */
-router.post('/:catwayNumber/reservations', auth.requireAuth, async (req, res) => {
-    try {
-        const reservation = new Reservation({
-            ...req.body,
-            catwayNumber: req.params.catwayNumber
-        });
+router.post('/:catwayNumber/reservations', auth.requireAuth, function(req, res) {
+    var reservation = new Reservation(req.body);
+    reservation.catwayNumber = req.params.catwayNumber;
 
-        const newReservation = await reservation.save();
-        res.status(201).json(newReservation);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
+    reservation.save()
+        .then(function(newReservation) {
+            res.status(201).json(newReservation);
+        })
+        .catch(function(error) {
+            res.status(400).json({ message: error.message });
+        });
 });
 
 /**
@@ -463,25 +423,24 @@ router.post('/:catwayNumber/reservations', auth.requireAuth, async (req, res) =>
  *       404:
  *         description: Réservation ou catway non trouvé
  */
-router.put('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async (req, res) => {
-    try {
-        const reservation = await Reservation.findOneAndUpdate(
-            {
-                _id: req.params.idReservation,
-                catwayNumber: req.params.catwayNumber
-            },
-            req.body,
-            { new: true }
-        );
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        res.json(reservation);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
+router.put('/:catwayNumber/reservations/:idReservation', auth.requireAuth, function(req, res) {
+    Reservation.findOneAndUpdate(
+        {
+            _id: req.params.idReservation,
+            catwayNumber: req.params.catwayNumber
+        },
+        req.body,
+        { new: true }
+    )
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
+            }
+            res.json(reservation);
+        })
+        .catch(function(error) {
+            res.status(400).json({ message: error.message });
+        });
 });
 
 /**
@@ -519,465 +478,20 @@ router.put('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async
  *       404:
  *         description: Réservation ou catway non trouvé
  */
-router.delete('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async (req, res) => {
-    try {
-        const reservation = await Reservation.findOneAndDelete({
-            _id: req.params.idReservation,
-            catwayNumber: req.params.catwayNumber
+router.delete('/:catwayNumber/reservations/:idReservation', auth.requireAuth, function(req, res) {
+    Reservation.findOneAndDelete({
+        _id: req.params.idReservation,
+        catwayNumber: req.params.catwayNumber
+    })
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
+            }
+            res.json({ message: 'Réservation supprimée avec succès' });
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
         });
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        res.json({ message: 'Réservation supprimée avec succès' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
 });
 
 module.exports = router;
-
-
-=======
-const express = require('express');
-const router = express.Router();
-const Catway = require('../models/catway');
-const auth = require('../middleware/auth');
-const isAdmin = require('../middleware/isAdmin');
-const Reservation = require('../models/reservation');
-const config = require('../config/config');
-
-/**
- * @swagger
- * tags:
- *   name: Catways
- *   description: Gestion des catways
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Catway:
- *       type: object
- *       required:
- *         - catwayNumber
- *         - catwayType
- *         - catwayState
- *       properties:
- *         catwayNumber:
- *           type: string
- *           description: Numéro unique du catway
- *         catwayType:
- *           type: string
- *           enum: [long, short]
- *           description: Type de catway (long ou court)
- *         catwayState:
- *           type: string
- *           description: État actuel du catway
- */
-
-/**
- * @swagger
- * /catways:
- *   get:
- *     summary: Liste tous les catways
- *     tags: [Catways]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Liste des catways récupérée avec succès
- */
-router.get('/', auth, async (req, res) => {
-    try {
-        const catways = await Catway.find();
-        return res
-            .status(200)
-            .set('Content-Type', 'application/json')
-            .json(catways);
-    } catch (error) {
-        console.error('Erreur récupération catways:', error);
-        return res
-            .status(500)
-            .set('Content-Type', 'application/json')
-            .json({ message: 'Erreur serveur' });
-    }
-});
-
-/**
- * @swagger
- * /catways:
- *   post:
- *     summary: Créer un nouveau catway
- *     tags: [Catways]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - catwayNumber
- *               - catwayType
- *               - catwayState
- *             properties:
- *               catwayNumber:
- *                 type: string
- *               catwayType:
- *                 type: string
- *                 enum: [long, short]
- *               catwayState:
- *                 type: string
- *     responses:
- *       201:
- *         description: Catway créé avec succès
- *       401:
- *         description: Non autorisé
- *       500:
- *         description: Erreur serveur
- */
-router.post('/', [auth, isAdmin], async (req, res) => {
-    try {
-        console.log('Tentative de création de catway:', req.body);
-        const { catwayNumber, catwayType, catwayState } = req.body;
-        const catway = new Catway({
-            catwayNumber,
-            catwayType,
-            catwayState
-        });
-        console.log('Catway créé:', catway);
-        await catway.save();
-        console.log('Catway sauvegardé avec succès');
-        return res
-            .status(201)
-            .set('Content-Type', 'application/json')
-            .json(catway);
-    } catch (error) {
-        console.error('Erreur lors de la création du catway:', error);
-        return res
-            .status(500)
-            .set('Content-Type', 'application/json')
-            .json({ message: 'Erreur serveur' });
-    }
-});
-
-/**
- * @swagger
- * /catways/{id}:
- *   get:
- *     summary: Récupérer les détails d'un catway
- *     tags: [Catways]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *   put:
- *     summary: Modifier l'état d'un catway
- *     tags: [Catways]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - catwayState
- *             properties:
- *               catwayState:
- *                 type: string
- *   delete:
- *     summary: Supprimer un catway
- *     tags: [Catways]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- */
-router.put('/:id', [auth, isAdmin], async (req, res) => {
-    try {
-        // Ne permettre que la modification de l'état
-        const { catwayState } = req.body;
-        if (!catwayState) {
-            return res.status(400).json({ 
-                message: 'Seul l\'état du catway peut être modifié' 
-            });
-        }
-
-        const catway = await Catway.findByIdAndUpdate(
-            req.params.id,
-            { catwayState },
-            { new: true }
-        );
-
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        res.json(catway);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
-/**
- * @swagger
- * /catways/{id}:
- *   delete:
- *     summary: Supprimer un catway
- *     tags: [Catways]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Catway supprimé avec succès
- *       404:
- *         description: Catway non trouvé
- *       401:
- *         description: Non autorisé
- *       500:
- *         description: Erreur serveur
- */
-router.delete('/:id', [auth, isAdmin], async (req, res) => {
-    try {
-        // Vérifier si le catway existe
-        const catway = await Catway.findById(req.params.id);
-        if (!catway) {
-            return res
-                .status(404)
-                .json({ message: 'Catway non trouvé' });
-        }
-
-        // Vérifier s'il y a des réservations associées
-        const reservations = await Reservation.find({ catwayNumber: catway.catwayNumber });
-        if (reservations.length > 0) {
-            return res
-                .status(400)
-                .set('Content-Type', 'application/json')
-                .json({ 
-                    success: false,
-                    message: 'Impossible de supprimer ce catway car il a des réservations associées'
-                });
-        }
-
-        // Supprimer le catway
-        await Catway.deleteOne({ _id: req.params.id });
-        
-        return res
-            .status(200)
-            .json({ message: 'Catway supprimé avec succès' });
-
-    } catch (error) {
-        console.error('❌ Erreur lors de la suppression:', error);
-        return res
-            .status(500)
-            .set('Content-Type', 'application/json')
-            .json({
-                success: false,
-                message: 'Erreur serveur lors de la suppression',
-                error: error.message
-            });
-    }
-});
-
-/**
- * @swagger
- * /catways/{id}/reservations:
- *   get:
- *     summary: Liste toutes les réservations d'un catway
- *     tags: [Reservations]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- */
-router.get('/:id/reservations', auth, async (req, res) => {
-    try {
-        const catway = await Catway.findOne({ catwayNumber: req.params.id });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        const reservations = await Reservation.find({ catwayNumber: req.params.id })
-            .sort({ startDate: -1 });
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-});
-
-/**
- * @swagger
- * /catways/{id}/reservations:
- *   post:
- *     summary: Créer une nouvelle réservation
- *     tags: [Reservations]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - clientName
- *               - boatName
- *               - startDate
- *               - endDate
- *             properties:
- *               clientName:
- *                 type: string
- *               boatName:
- *                 type: string
- *               startDate:
- *                 type: string
- *                 format: date
- *               endDate:
- *                 type: string
- *                 format: date
- */
-router.post('/catways/:id/reservations', auth, async (req, res) => {
-    try {
-        console.log('Création réservation - ID catway:', req.params.id);
-        console.log('Données reçues:', req.body);
-        const catway = await Catway.findOne({ catwayNumber: req.params.id });
-        console.log('Catway trouvé:', catway);
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        const reservation = new Reservation({
-            catwayNumber: req.params.id,
-            clientName: req.body.clientName,
-            boatName: req.body.boatName,
-            startDate: req.body.startDate,
-            endDate: req.body.endDate
-        });
-        console.log('Réservation à créer:', reservation);
-        await reservation.save();
-        console.log('Réservation créée avec succès');
-        res.status(201).json(reservation);
-    } catch (error) {
-        console.error('Erreur création réservation:', error);
-        res.status(400).json({ message: error.message });
-    }
-});
-
-/**
- * @swagger
- * /catways/{id}/reservations/{idReservation}:
- *   put:
- *     summary: Modifier une réservation
- */
-router.put('/catways/:id/reservations/:idReservation', auth, async (req, res) => {
-    try {
-        const catway = await Catway.findOne({ catwayNumber: req.params.id });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        const reservation = await Reservation.findOneAndUpdate(
-            {
-                _id: req.params.idReservation,
-                catwayNumber: req.params.id
-            },
-            req.body,
-            { new: true }
-        );
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        res.json(reservation);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
-/**
- * @swagger
- * /catways/{id}/reservations/{idReservation}:
- *   delete:
- *     summary: Supprimer une réservation
- */
-router.delete('/catways/:id/reservations/:idReservation', auth, async (req, res) => {
-    try {
-        const catway = await Catway.findOne({ catwayNumber: req.params.id });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        const reservation = await Reservation.findOneAndDelete({
-            _id: req.params.idReservation,
-            catwayNumber: req.params.id
-        });
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        res.json({ message: 'Réservation supprimée avec succès' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
-/**
- * @swagger
- * /catways/{id}/reservations/{idReservation}:
- *   get:
- *     summary: Récupérer une réservation spécifique
- */
-router.get('/catways/:id/reservations/:idReservation', auth, async (req, res) => {
-    try {
-        const catway = await Catway.findOne({ catwayNumber: req.params.id });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        const reservation = await Reservation.findOne({
-            _id: req.params.idReservation,
-            catwayNumber: req.params.id
-        });
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        res.json(reservation);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
-module.exports = router;
-
-
->>>>>>> 9e1db78a25cb06c03b52345848bd5bfc84fe2764

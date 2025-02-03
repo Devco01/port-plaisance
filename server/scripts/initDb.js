@@ -1,57 +1,63 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const User = require('../models/User');
-const Catway = require('../models/catway');
-const Reservation = require('../models/reservation');
+var mongoose = require('mongoose');
+var bcrypt = require('bcryptjs');
+var User = require('../models/user');
+var Catway = require('../models/catway');
+var Reservation = require('../models/reservation');
 
-const seedDatabase = async () => {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log('Connexion à MongoDB établie');
+var initDb = function() {
+    var mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
+    console.log('🔄 Initialisation de la base de données...');
 
-        // Nettoyer la base de données
-        await Promise.all([
-            User.deleteMany({}),
-            Catway.deleteMany({}),
-            Reservation.deleteMany({})
-        ]);
+    return mongoose.connect(mongoURI)
+        .then(function() {
+            console.log('✅ Connecté à MongoDB');
+            return Promise.all([
+                User.deleteMany({}),
+                Catway.deleteMany({}),
+                Reservation.deleteMany({})
+            ]);
+        })
+        .then(function() {
+            console.log('✅ Collections nettoyées');
 
-        // Créer un admin par défaut
-        const adminPassword = await bcrypt.hash('Admin123!', 10);
-        const admin = await User.create({
-            username: 'admin',
-            email: 'admin@port-russell.com',
-            password: adminPassword,
-            role: 'admin'
-        });
-
-        // Créer quelques catways
-        const catways = await Catway.insertMany([
-            {
-                catwayNumber: 'A1',
-                catwayType: 'long',
-                catwayState: 'disponible'
-            },
-            {
-                catwayNumber: 'A2',
-                catwayType: 'short',
-                catwayState: 'disponible'
+            // Créer les catways par défaut
+            var catways = [];
+            for (var i = 1; i <= 20; i++) {
+                catways.push({
+                    catwayNumber: 'C' + i.toString().padStart(2, '0'),
+                    catwayType: i <= 10 ? 'long' : 'short',
+                    catwayState: 'disponible'
+                });
             }
-            // Ajoutez d'autres catways selon vos besoins
-        ]);
-
-        console.log('Base de données initialisée avec succès');
-        console.log('Identifiants admin :', {
-            email: 'admin@port-russell.com',
-            password: 'Admin123!'
+            return Catway.insertMany(catways);
+        })
+        .then(function(result) {
+            console.log('✅ Catways créés:', result.length);
+            return User.create({
+                email: 'admin@portplaisance.fr',
+                password: process.env.ADMIN_PASSWORD || 'Admin123!',
+                role: 'admin',
+                nom: 'Admin',
+                prenom: 'Port Russell'
+            });
+        })
+        .then(function() {
+            console.log('✅ Utilisateur admin créé');
+            console.log('✅ Initialisation terminée');
+        })
+        .catch(function(error) {
+            console.error('❌ Erreur lors de l\'initialisation:', error);
+            throw error;
+        })
+        .finally(function() {
+            mongoose.disconnect();
         });
-
-        process.exit(0);
-    } catch (error) {
-        console.error('Erreur lors de l\'initialisation :', error);
-        process.exit(1);
-    }
 };
 
-seedDatabase(); 
+// Exécuter l'initialisation si le script est appelé directement
+if (require.main === module) {
+    initDb();
+}
+
+module.exports = initDb; 

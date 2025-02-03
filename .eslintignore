@@ -1,0 +1,16 @@
+# Dossiers à ignorer complètement
+node_modules/
+build/
+dist/
+coverage/
+views/
+public/
+
+# Fichiers spécifiques
+*.ejs
+*.test.js
+swagger.js
+
+# Dossiers spécifiques
+client/src/components/auth/
+client/build/ 

@@ -1,9 +1,8 @@
-<<<<<<< HEAD
-const express = require('express');
-const router = express.Router();
-const Reservation = require('../models/reservation');
-const auth = require('../middleware/auth');
-const Catway = require('../models/catway');
+var express = require('express');
+var router = express.Router();
+var Reservation = require('../models/reservation');
+var auth = require('../middleware/auth');
+var Catway = require('../models/catway');
 
 /**
  * @swagger
@@ -19,24 +18,28 @@ const Catway = require('../models/catway');
  *     Reservation:
  *       type: object
  *       required:
- *         - user
- *         - catway
+ *         - catwayNumber
+ *         - clientName
+ *         - boatName
  *         - startDate
  *         - endDate
  *       properties:
- *         user:
+ *         catwayNumber:
  *           type: string
- *           description: ID de l'utilisateur
- *         catway:
+ *           description: Numéro du catway réservé
+ *         clientName:
  *           type: string
- *           description: ID du catway
+ *           description: Nom du client
+ *         boatName:
+ *           type: string
+ *           description: Nom du bateau
  *         startDate:
  *           type: string
- *           format: date-time
+ *           format: date
  *           description: Date de début de la réservation
  *         endDate:
  *           type: string
- *           format: date-time
+ *           format: date
  *           description: Date de fin de la réservation
  */
 
@@ -46,15 +49,16 @@ const Catway = require('../models/catway');
  *   get:
  *     summary: Récupérer toutes les réservations d'un catway
  */
-router.get('/catways/:id/reservations', auth, async (req, res) => {
-    try {
-        const reservations = await Reservation.find({ catwayId: req.params.id })
-            .populate('userId', 'nom prenom email')
-            .sort({ startDate: -1 });
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
+router.get('/catways/:id/reservations', auth, function(req, res) {
+    Reservation.find({ catwayId: req.params.id })
+        .populate('userId', 'nom prenom email')
+        .sort({ startDate: -1 })
+        .then(function(reservations) {
+            res.json(reservations);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: 'Erreur serveur' });
+        });
 });
 
 /**
@@ -63,19 +67,20 @@ router.get('/catways/:id/reservations', auth, async (req, res) => {
  *   get:
  *     summary: Récupérer une réservation spécifique
  */
-router.get('/catways/:id/reservations/:idReservation', auth, async (req, res) => {
-    try {
-        const reservation = await Reservation.findOne({
-            _id: req.params.idReservation,
-            catwayId: req.params.id
+router.get('/catways/:id/reservations/:idReservation', auth, function(req, res) {
+    Reservation.findOne({
+        _id: req.params.idReservation,
+        catwayId: req.params.id
+    })
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
+            }
+            res.json(reservation);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: 'Erreur serveur' });
         });
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-        res.json(reservation);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
 });
 
 /**
@@ -90,14 +95,15 @@ router.get('/catways/:id/reservations/:idReservation', auth, async (req, res) =>
  *       200:
  *         description: Liste des réservations de l'utilisateur
  */
-router.get('/user', auth, async (req, res) => {
-    try {
-        const reservations = await Reservation.find({ userId: req.user._id })
-            .sort({ startDate: -1 });
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
+router.get('/user', auth, function(req, res) {
+    Reservation.find({ userId: req.user._id })
+        .sort({ startDate: -1 })
+        .then(function(reservations) {
+            res.json(reservations);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: 'Erreur serveur' });
+        });
 });
 
 /**
@@ -107,19 +113,21 @@ router.get('/user', auth, async (req, res) => {
  *     summary: Liste toutes les réservations d'un catway
  *     tags: [Réservations]
  */
-router.get('/:catwayNumber/reservations', auth.requireAuth, async (req, res) => {
-    try {
-        const catway = await Catway.findOne({ catwayNumber: req.params.catwayNumber });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        const reservations = await Reservation.find({ catwayNumber: req.params.catwayNumber })
-            .sort('-startDate');
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+router.get('/:catwayNumber/reservations', auth.requireAuth, function(req, res) {
+    Catway.findOne({ catwayNumber: req.params.catwayNumber })
+        .then(function(catway) {
+            if (!catway) {
+                return res.status(404).json({ message: 'Catway non trouvé' });
+            }
+            return Reservation.find({ catwayNumber: req.params.catwayNumber })
+                .sort('-startDate');
+        })
+        .then(function(reservations) {
+            res.json(reservations);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
+        });
 });
 
 /**
@@ -129,21 +137,20 @@ router.get('/:catwayNumber/reservations', auth.requireAuth, async (req, res) => 
  *     summary: Récupère les détails d'une réservation
  *     tags: [Réservations]
  */
-router.get('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async (req, res) => {
-    try {
-        const reservation = await Reservation.findOne({
-            _id: req.params.idReservation,
-            catwayNumber: req.params.catwayNumber
+router.get('/:catwayNumber/reservations/:idReservation', auth.requireAuth, function(req, res) {
+    Reservation.findOne({
+        _id: req.params.idReservation,
+        catwayNumber: req.params.catwayNumber
+    })
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
+            }
+            res.json(reservation);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
         });
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        res.json(reservation);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
 });
 
 /**
@@ -153,56 +160,22 @@ router.get('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async
  *     summary: Crée une nouvelle réservation
  *     tags: [Réservations]
  */
-router.post('/:catwayNumber/reservations', auth.requireAuth, async (req, res) => {
-    try {
-        const catway = await Catway.findOne({ catwayNumber: req.params.catwayNumber });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        if (catway.catwayState !== 'disponible') {
-            return res.status(400).json({ message: 'Ce catway n\'est pas disponible' });
-        }
-
-        // Vérifier les dates
-        const startDate = new Date(req.body.startDate);
-        const endDate = new Date(req.body.endDate);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (startDate < today) {
-            return res.status(400).json({ message: 'La date de début ne peut pas être dans le passé' });
-        }
-
-        if (endDate <= startDate) {
-            return res.status(400).json({ message: 'La date de fin doit être après la date de début' });
-        }
-
-        // Vérifier les conflits de réservation
-        const conflictingReservation = await Reservation.findOne({
-            catwayNumber: req.params.catwayNumber,
-            $or: [
-                {
-                    startDate: { $lte: endDate },
-                    endDate: { $gte: startDate }
-                }
-            ]
+router.post('/:catwayNumber/reservations', auth.requireAuth, function(req, res) {
+    Catway.findOne({ catwayNumber: req.params.catwayNumber })
+        .then(function(catway) {
+            if (!catway) {
+                return res.status(404).json({ message: 'Catway non trouvé' });
+            }
+            var reservation = new Reservation(req.body);
+            reservation.catwayNumber = req.params.catwayNumber;
+            return reservation.save();
+        })
+        .then(function(newReservation) {
+            res.status(201).json(newReservation);
+        })
+        .catch(function(error) {
+            res.status(400).json({ message: error.message });
         });
-
-        if (conflictingReservation) {
-            return res.status(400).json({ message: 'Ce catway est déjà réservé pour cette période' });
-        }
-
-        const reservation = new Reservation({
-            ...req.body,
-            catwayNumber: req.params.catwayNumber
-        });
-
-        await reservation.save();
-        res.status(201).json(reservation);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
 });
 
 /**
@@ -212,57 +185,24 @@ router.post('/:catwayNumber/reservations', auth.requireAuth, async (req, res) =>
  *     summary: Modifie une réservation
  *     tags: [Réservations]
  */
-router.put('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async (req, res) => {
-    try {
-        // Vérifier les dates si elles sont modifiées
-        if (req.body.startDate || req.body.endDate) {
-            const startDate = new Date(req.body.startDate);
-            const endDate = new Date(req.body.endDate);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            if (startDate < today) {
-                return res.status(400).json({ message: 'La date de début ne peut pas être dans le passé' });
+router.put('/:catwayNumber/reservations/:idReservation', auth.requireAuth, function(req, res) {
+    Reservation.findOneAndUpdate(
+        {
+            _id: req.params.idReservation,
+            catwayNumber: req.params.catwayNumber
+        },
+        req.body,
+        { new: true }
+    )
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
             }
-
-            if (endDate <= startDate) {
-                return res.status(400).json({ message: 'La date de fin doit être après la date de début' });
-            }
-
-            // Vérifier les conflits de réservation
-            const conflictingReservation = await Reservation.findOne({
-                _id: { $ne: req.params.idReservation },
-                catwayNumber: req.params.catwayNumber,
-                $or: [
-                    {
-                        startDate: { $lte: endDate },
-                        endDate: { $gte: startDate }
-                    }
-                ]
-            });
-
-            if (conflictingReservation) {
-                return res.status(400).json({ message: 'Ce catway est déjà réservé pour cette période' });
-            }
-        }
-
-        const reservation = await Reservation.findOneAndUpdate(
-            {
-                _id: req.params.idReservation,
-                catwayNumber: req.params.catwayNumber
-            },
-            req.body,
-            { new: true }
-        );
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        res.json(reservation);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
+            res.json(reservation);
+        })
+        .catch(function(error) {
+            res.status(400).json({ message: error.message });
+        });
 });
 
 /**
@@ -272,21 +212,20 @@ router.put('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async
  *     summary: Supprime une réservation
  *     tags: [Réservations]
  */
-router.delete('/:catwayNumber/reservations/:idReservation', auth.requireAuth, async (req, res) => {
-    try {
-        const reservation = await Reservation.findOneAndDelete({
-            _id: req.params.idReservation,
-            catwayNumber: req.params.catwayNumber
+router.delete('/:catwayNumber/reservations/:idReservation', auth.requireAuth, function(req, res) {
+    Reservation.findOneAndDelete({
+        _id: req.params.idReservation,
+        catwayNumber: req.params.catwayNumber
+    })
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
+            }
+            res.json({ message: 'Réservation supprimée avec succès' });
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
         });
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        res.json({ message: 'Réservation supprimée avec succès' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
 });
 
 /**
@@ -301,174 +240,53 @@ router.delete('/:catwayNumber/reservations/:idReservation', auth.requireAuth, as
  *       200:
  *         description: Liste des réservations en cours
  */
-router.get('/current', auth, async (req, res) => {
-    try {
-        const today = new Date();
-        const reservations = await Reservation.find({
-            startDate: { $lte: today },
-            endDate: { $gte: today }
+router.get('/current', auth, function(req, res) {
+    var today = new Date();
+    Reservation.find({
+        startDate: { $lte: today },
+        endDate: { $gte: today }
+    })
+        .then(function(reservations) {
+            res.json(reservations);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
         });
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
-module.exports = router;
-
-=======
-const express = require('express');
-const router = express.Router();
-const Reservation = require('../models/reservation');
-const auth = require('../middleware/auth');
-
-/**
- * @swagger
- * tags:
- *   name: Reservations
- *   description: Gestion des réservations
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Reservation:
- *       type: object
- *       required:
- *         - user
- *         - catway
- *         - startDate
- *         - endDate
- *       properties:
- *         user:
- *           type: string
- *           description: ID de l'utilisateur
- *         catway:
- *           type: string
- *           description: ID du catway
- *         startDate:
- *           type: string
- *           format: date-time
- *           description: Date de début de la réservation
- *         endDate:
- *           type: string
- *           format: date-time
- *           description: Date de fin de la réservation
- */
-
-/**
- * @swagger
- * /catways/{id}/reservations:
- *   get:
- *     summary: Récupérer toutes les réservations d'un catway
- */
-router.get('/catways/:id/reservations', auth, async (req, res) => {
-    try {
-        const reservations = await Reservation.find({ catwayId: req.params.id })
-            .populate('userId', 'nom prenom email')
-            .sort({ startDate: -1 });
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
 });
 
 /**
  * @swagger
- * /catways/{id}/reservations/{idReservation}:
+ * /api/reservations:
  *   get:
- *     summary: Récupérer une réservation spécifique
- */
-router.get('/catways/:id/reservations/:idReservation', auth, async (req, res) => {
-    try {
-        const reservation = await Reservation.findOne({
-            _id: req.params.idReservation,
-            catwayId: req.params.id
-        });
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-        res.json(reservation);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-});
-
-/**
- * @swagger
- * /reservations/user:
- *   get:
- *     summary: Récupérer les réservations de l'utilisateur connecté
+ *     summary: Liste toutes les réservations
  *     tags: [Reservations]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Liste des réservations de l'utilisateur
+ *         description: Liste des réservations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Reservation'
  */
-router.get('/user', auth, async (req, res) => {
-    try {
-        const reservations = await Reservation.find({ userId: req.user._id })
-            .sort({ startDate: -1 });
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-});
-
-/**
- * @swagger
- * /reservations:
- *   post:
- *     summary: Créer une nouvelle réservation
- *     tags: [Reservations]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - catwayNumber
- *               - clientName
- *               - boatName
- *               - startDate
- *               - endDate
- *             properties:
- *               catwayNumber:
- *                 type: string
- *               clientName:
- *                 type: string
- *               boatName:
- *                 type: string
- *               startDate:
- *                 type: string
- *                 format: date
- *               endDate:
- *                 type: string
- *                 format: date
- */
-router.post('/', auth, async (req, res) => {
-    try {
-        const reservation = new Reservation({
-            ...req.body,
-            userId: req.user._id
+router.get('/', auth, function(req, res) {
+    Reservation.find()
+        .then(function(reservations) {
+            res.json(reservations);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
         });
-        await reservation.save();
-        res.status(201).json(reservation);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
 });
 
 /**
  * @swagger
- * /reservations/{id}:
- *   delete:
- *     summary: Supprimer une réservation
+ * /api/reservations/{id}:
+ *   get:
+ *     summary: Récupère une réservation par son ID
  *     tags: [Reservations]
  *     security:
  *       - bearerAuth: []
@@ -480,47 +298,97 @@ router.post('/', auth, async (req, res) => {
  *           type: string
  *     responses:
  *       200:
- *         description: Réservation supprimée
+ *         description: Détails de la réservation
  *       404:
  *         description: Réservation non trouvée
  */
-router.delete('/:id', auth, async (req, res) => {
-    try {
-        const reservation = await Reservation.findByIdAndDelete(req.params.id);
-        if (!reservation) {
-            return res.status(404).json({ msg: 'Réservation non trouvée' });
-        }
-        res.json({ msg: 'Réservation supprimée' });
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur du serveur' });
-    }
+router.get('/:id', auth, function(req, res) {
+    Reservation.findById(req.params.id)
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
+            }
+            res.json(reservation);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
+        });
 });
 
 /**
  * @swagger
- * /reservations/current:
- *   get:
- *     summary: Récupérer les réservations en cours
+ * /api/reservations:
+ *   post:
+ *     summary: Crée une nouvelle réservation
  *     tags: [Reservations]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Reservation'
+ *     responses:
+ *       201:
+ *         description: Réservation créée
+ *       400:
+ *         description: Données invalides
+ */
+router.post('/', auth, function(req, res) {
+    Catway.findOne({ catwayNumber: req.body.catwayNumber })
+        .then(function(catway) {
+            if (!catway) {
+                return res.status(404).json({ message: 'Catway non trouvé' });
+            }
+            var reservation = new Reservation(req.body);
+            return reservation.save();
+        })
+        .then(function(newReservation) {
+            res.status(201).json(newReservation);
+        })
+        .catch(function(error) {
+            res.status(400).json({ message: error.message });
+        });
+});
+
+/**
+ * @swagger
+ * /api/reservations/{id}:
+ *   put:
+ *     summary: Met à jour une réservation
+ *     tags: [Reservations]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Reservation'
  *     responses:
  *       200:
- *         description: Liste des réservations en cours
+ *         description: Réservation mise à jour
+ *       404:
+ *         description: Réservation non trouvée
  */
-router.get('/current', auth, async (req, res) => {
-    try {
-        const today = new Date();
-        const reservations = await Reservation.find({
-            startDate: { $lte: today },
-            endDate: { $gte: today }
+router.put('/:id', auth, function(req, res) {
+    Reservation.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
+            }
+            res.json(reservation);
+        })
+        .catch(function(error) {
+            res.status(400).json({ message: error.message });
         });
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
 });
 
 module.exports = router;
-
->>>>>>> 9e1db78a25cb06c03b52345848bd5bfc84fe2764
