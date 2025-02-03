@@ -15,9 +15,12 @@ if (!process.env.MONGODB_URI && !process.env.MONGODB_URL) {
 console.log('Variables d\'environnement:', {
     NODE_ENV: process.env.NODE_ENV,
     PORT: process.env.PORT,
-    MONGODB_URI: process.env.MONGODB_URI ? 
-        `✅ Défini (${process.env.MONGODB_URI})` : 
-        '❌ Non défini',
+    MONGODB: process.env.MONGODB_URL ? 
+        `✅ Défini via MONGODB_URL` : 
+        (process.env.MONGODB_URI ? 
+            `✅ Défini via MONGODB_URI` : 
+            '❌ Non défini'),
+    MONGODB_URL: process.env.MONGODB_URL,
     ENV_FILE: require('path').resolve(process.cwd(), '.env')
 });
 
