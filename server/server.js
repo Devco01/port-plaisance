@@ -26,6 +26,7 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const connectDB = require('./config/db');
+const path = require('path');
 
 const app = express();
 
@@ -39,6 +40,9 @@ app.use(cors({
 
 // Parser JSON ensuite
 app.use(express.json());
+
+// Servir les fichiers statiques du build React
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -54,20 +58,9 @@ const catwayRoutes = require('./routes/catwayRoutes');
 app.use('/api/users', userRoutes);
 app.use('/api/catways', catwayRoutes);
 
-// Route de test
-app.get('/', (req, res) => {
-    res.json({ message: 'API Port de Plaisance est en ligne' });
-});
-
-// Route de test globale
-app.get('/api/test', (req, res) => {
-    res.json({ message: 'API en ligne' });
-});
-
-// Gestion des erreurs 404
-app.use((req, res) => {
-    console.log('Route non trouvée:', req.originalUrl);
-    res.status(404).json({ message: 'Route non trouvée' });
+// Toutes les autres routes non-API renvoient l'app React
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
 // Gestion globale des erreurs
