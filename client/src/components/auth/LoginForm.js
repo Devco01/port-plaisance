@@ -16,43 +16,41 @@ import LockIcon from '@mui/icons-material/Lock';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
-import config from '../../config/config';
+import { login } from '../../services/authService';
 
 const LoginForm = () => {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('🔑 Soumission du formulaire:', { email });
         try {
-            const url = `${config.apiUrl}/api/users/login`;
-            console.log('Tentative de connexion à:', url);
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
+            const response = await login(email, password);
+            console.log('✅ Login réussi:', {
+                hasToken: !!response.token,
+                redirectTo: '/dashboard'
             });
-
-            console.log('Réponse status:', response.status);
-            const data = await response.json();
-            console.log('Réponse data:', data);
-
-            if (response.ok) {
-                localStorage.setItem('token', data.token);
+            if (response.token) {
+                console.log('🔄 Redirection vers le dashboard...');
                 navigate('/dashboard');
             } else {
-                setError(data.msg || 'Erreur de connexion');
+                console.error('❌ Pas de token dans la réponse');
+                setError('Erreur de connexion');
             }
         } catch (error) {
-            console.error('Erreur détaillée:', error);
-            setError('Erreur de connexion au serveur');
+            console.error('❌ Erreur de login:', {
+                message: error.message,
+                response: error.response?.data
+            });
+            if (error.response?.status === 400) {
+                setError(error.response.data.msg || 'Identifiants invalides');
+            } else {
+                setError('Erreur de connexion au serveur');
+            }
         }
     };
 
@@ -120,8 +118,8 @@ const LoginForm = () => {
                             fullWidth
                             label="Email"
                             type="email"
-                            value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -135,8 +133,8 @@ const LoginForm = () => {
                             fullWidth
                             label="Mot de passe"
                             type={showPassword ? 'text' : 'password'}
-                            value={formData.password}
-                            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">

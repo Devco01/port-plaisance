@@ -200,19 +200,30 @@ router.post('/register', async (req, res) => {
  *                   type: string
  */
 router.post('/login', async (req, res) => {
+    console.log('Route /login appelée');
     const { email, password } = req.body;
 
     try {
-        console.log('Tentative de connexion pour:', email);
+        console.log('🔍 Données reçues:', {
+            email,
+            hasPassword: !!password,
+            headers: req.headers
+        });
 
         // Vérifier que l'email et le mot de passe sont fournis
         if (!email || !password) {
+            console.log('Champs manquants');
             return res.status(400).json({ msg: 'Veuillez remplir tous les champs' });
         }
 
         // Rechercher l'utilisateur
         const user = await User.findOne({ email });
-        console.log('Utilisateur trouvé:', user ? 'Oui' : 'Non');
+        console.log('🔍 Recherche utilisateur:', {
+            email,
+            trouvé: !!user,
+            role: user?.role,
+            id: user?._id
+        });
 
         if (!user) {
             return res.status(400).json({ msg: 'Identifiants invalides' });
@@ -220,12 +231,16 @@ router.post('/login', async (req, res) => {
 
         // Vérifier le mot de passe
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log('Mot de passe correct:', isMatch ? 'Oui' : 'Non');
+        console.log('🔐 Vérification mot de passe:', {
+            isMatch,
+            userId: user._id
+        });
 
         if (!isMatch) {
             return res.status(400).json({ msg: 'Identifiants invalides' });
         }
 
+        console.log('✅ Connexion réussie pour:', user.email);
         // Créer le token
         const payload = {
             user: {
@@ -242,8 +257,13 @@ router.post('/login', async (req, res) => {
             { expiresIn: '24h' }
         );
 
+        console.log('🎟️ Token généré pour:', user.email);
         res.json({ token });
     } catch (error) {
+        console.error('❌ Erreur de connexion:', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({ msg: 'Erreur du serveur' });
     }
 });

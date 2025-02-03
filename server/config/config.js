@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const config = {
     port: process.env.PORT || 8000,
     mongoURI: process.env.MONGODB_URI,
