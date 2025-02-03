@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Catway = require('../models/catway');
 const User = require('../models/user');
-require('dotenv').config({ path: '.env' });
+require('dotenv').config();
 const fs = require('fs').promises;
 const path = require('path');
 const bcrypt = require('bcrypt');

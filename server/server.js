@@ -1,10 +1,16 @@
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config();
+
+// Log des variables d'environnement au démarrage
+console.log('Variables d\'environnement:', {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    MONGODB_URI: process.env.MONGODB_URI ? '✅ Défini' : '❌ Non défini'
+});
+
 const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
-const config = require('./config/config');
 const connectDB = require('./config/db');
 
 const app = express();
@@ -114,6 +120,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(process.env.PORT || 8000, '0.0.0.0', () => {
-    console.log(`Serveur démarré sur le port ${config.port}`);
+    console.log(`Serveur démarré sur le port ${process.env.PORT || 8000}`);
     connectDB();
 });
