@@ -35,10 +35,10 @@ const app = express();
 
 // Middleware CORS en premier
 app.use(cors({
-    origin: '*',
+    origin: ['https://port-plaisance.onrender.com', 'http://localhost:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin']
 }));
 
 // Parser JSON ensuite

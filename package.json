@@ -15,7 +15,7 @@
     "import-data": "node server/scripts/importData.js",
     "start": "node server/server.js",
     "build": "cd client && npm install && DISABLE_ESLINT_PLUGIN=true CI=false npm run build",
-    "postinstall": "npm run build",
+    "postinstall": "npm run build && node -e \"console.log('Environment check:', process.env)\"",
     "check-admin": "node server/scripts/checkAdmin.js"
   },
   "keywords": [],
