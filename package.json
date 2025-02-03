@@ -14,7 +14,7 @@
     "dev:client": "cd client && npm run dev",
     "import-data": "node server/scripts/importData.js",
     "start": "node server/server.js",
-    "build": "cd client && npm install && CI=false npm run build",
+    "build": "cd client && npm install && DISABLE_ESLINT_PLUGIN=true CI=false npm run build",
     "postinstall": "npm run build"
   },
   "keywords": [],
@@ -42,6 +42,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "nodemon": "^3.1.9"
   },
   "engines": {
