@@ -36,20 +36,8 @@ cd ..
 - Créer un fichier `.env` à la racine du projet :
 ```env
 PORT=8000
-MONGODB_URI=mongodb://localhost:27017/port-plaisance
-JWT_SECRET=PortRussell2024SecretKey
-```
-
-5. **Initialisation des utilisateurs de test**
-Pour initialiser les utilisateurs de test, utilisez l'une des commandes suivantes selon votre système :
-
-```powershell
-# Windows (PowerShell)
-Invoke-WebRequest -Uri "http://localhost:8000/api/users/init-test-users" -Method Post -ContentType "application/json"
-```
-```bash
-# Linux/Mac
-curl -X POST http://localhost:8000/api/users/init-test-users
+MONGODB_URI="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority"
+JWT_SECRET=Votre clé secrète ici
 ```
 
 ## Démarrage
@@ -79,7 +67,7 @@ Mot de passe: PortAdmin2024!
 Rôle: admin
 ```
 
-Ce compte est créé automatiquement lors de l'initialisation (étape 5 de l'installation).
+Ce compte est créé automatiquement lors de l'initialisation
 
 L'application sera accessible sur :
 - Client : http://localhost:3000
