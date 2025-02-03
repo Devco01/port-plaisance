@@ -203,6 +203,12 @@ router.post('/login', async (req, res) => {
     try {
         console.log('👤 Tentative de connexion:', req.body.email);
         const { email, password } = req.body;
+        
+        if (!email || !password) {
+            console.log('❌ Données manquantes');
+            return res.status(400).json({ message: 'Email et mot de passe requis' });
+        }
+
         const user = await User.findOne({ email });
 
         if (!user) {
