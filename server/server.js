@@ -86,9 +86,15 @@ connectDB().then(() => {
     // Vérifier/créer le compte admin
     return checkAndCreateAdmin();
 }).then(() => {
-    const port = process.env.PORT || 3001;  // Utilisons 3001 au lieu de 8000
+    // Toujours utiliser le port fourni par l'environnement en priorité
+    const port = process.env.PORT;
+    console.log('📌 Port demandé:', port);
     app.listen(port, '0.0.0.0', () => {
-        console.log(`Serveur démarré sur le port ${port}`);
+        console.log('🌍 Environnement:', process.env.NODE_ENV);
+        console.log(`🚀 Serveur démarré sur le port ${port}`);
+        if (process.env.NODE_ENV === 'production') {
+            console.log('📝 Documentation API:', `https://port-plaisance.onrender.com/api-docs`);
+        }
     });
 }).catch(err => {
     console.error('Impossible de démarrer le serveur:', err);

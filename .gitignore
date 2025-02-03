@@ -30,3 +30,7 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Vite
+vite.config.js
+/client/vite.config.js
