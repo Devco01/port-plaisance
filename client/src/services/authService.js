@@ -31,56 +31,8 @@ const login = async (email, password) => {
 
         if (response.data?.token) {
             localStorage.setItem('token', response.data.token);
-            axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-            return response.data;
-        } else {
-            throw new Error('Token non reçu du serveur');
-        }
-    } catch (error) {
-        console.error('❌ Erreur complète:', error);
-        localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
-        throw error;
-    }
-};
-
-const isAuthenticated = () => {
-    return !!localStorage.getItem('token');
-};
-
-const logout = () => {
-    localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
-};
-
-const getToken = () => {
-    return localStorage.getItem('token');
-};
-
-// Intercepteur pour ajouter le token à toutes les requêtes
-axios.interceptors.request.use(
-    (config) => {
-        const token = getToken();
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
-
-// Intercepteur pour gérer les erreurs d'authentification
-axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            logout();
-            window.location.href = '/login';
-        }
-        return Promise.reject(error);
-    }
-);
-
-export { login, isAuthenticated, logout, getToken }; 
+            console.log('✅ Token stocké:', {
+                hasToken: !!response.data.token,
+                length: response.data.token.length
+            });
+            axios.defaults.headers.common['Authorization'] = `

@@ -2,6 +2,11 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
 module.exports = function(req, res, next) {
+    console.log('🔍 Headers reçus:', {
+        auth: req.headers.authorization,
+        contentType: req.headers['content-type']
+    });
+
     // Récupérer le token du header
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -11,6 +16,7 @@ module.exports = function(req, res, next) {
     });
 
     if (!token) {
+        console.log('❌ Token manquant dans la requête');
         return res.status(401).json({ message: 'Token manquant' });
     }
 

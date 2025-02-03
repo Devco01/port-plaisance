@@ -37,7 +37,10 @@ const LoginForm = () => {
             console.log('✅ Réponse du serveur:', {
                 success: !!response,
                 hasToken: !!response?.token,
-                user: response?.user
+                user: {
+                    email: response?.user?.email,
+                    role: response?.user?.role
+                }
             });
             navigate('/dashboard');
         } catch (err) {

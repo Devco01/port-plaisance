@@ -141,6 +141,6 @@ Mot de passe: PortAdmin2024!
 ```
 
 ### URLs de l'API
-- Login : POST /login
-- Catways : GET /catways
-- Réservations : GET /catways/:id/reservations
+- Login : POST /api/login
+- Catways : GET /api/catways
+- Réservations : GET /api/catways/:id/reservations

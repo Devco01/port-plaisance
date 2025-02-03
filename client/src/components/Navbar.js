@@ -6,7 +6,7 @@ const getDocsUrl = () => {
     const baseUrl = process.env.NODE_ENV === 'production'
         ? 'https://port-plaisance.onrender.com'
         : 'http://localhost:8000';
-    return `${baseUrl}/api-docs`;
+    return `${baseUrl}/api/docs`;
 };
 
 const Navbar = () => {
