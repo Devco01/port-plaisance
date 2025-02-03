@@ -55,8 +55,8 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/catways', catwayRoutes);
 
-// Documentation API ensuite
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+// Documentation API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: "API Port de Plaisance - Documentation"
@@ -64,6 +64,11 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // Servir les fichiers statiques React
 app.use(express.static(path.join(__dirname, '../client/build')));
+
+// Route spécifique pour les icônes
+app.get(['/favicon.ico', '/logo192.png', '/logo512.png'], (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build', req.path));
+});
 
 // Toutes les autres routes non-API renvoient l'app React
 app.get('*', (req, res) => {

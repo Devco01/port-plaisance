@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
-import Navbar from './components/layout/Navbar';
+import Navbar from './components/Navbar';
 import LoginForm from './components/auth/LoginForm';
 import Register from './components/auth/Register';
 import Dashboard from './components/dashboard/Dashboard';

@@ -75,8 +75,10 @@ L'application sera accessible sur :
 - Documentation API (dev) : http://localhost:8000/api-docs
 
 En production :
-- Application : https://port-plaisance.onrender.com
+- Application : https://port-plaisance.onrender.com/
+- API : https://port-plaisance.onrender.com/api
 - Documentation API : https://port-plaisance.onrender.com/api-docs
+- Swagger UI : https://port-plaisance.onrender.com/api-docs/
 
 ## Fonctionnalités
 
@@ -129,3 +131,16 @@ La documentation de l'API est disponible sur http://localhost:8000/api-docs une 
 - MONGODB_URI
 - JWT_SECRET
 - PORT=8000
+
+## Connexion
+
+### Compte Administrateur par défaut
+```
+Email: admin@portplaisance.fr
+Mot de passe: PortAdmin2024!
+```
+
+### URLs de l'API
+- Login : POST /api/users/login
+- Catways : GET /api/catways
+- Réservations : GET /api/reservations
