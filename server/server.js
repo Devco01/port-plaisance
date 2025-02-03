@@ -5,13 +5,9 @@ require('dotenv').config({
 });
 
 // Vérification des variables d'environnement requises
-const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'PORT'];
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
-
-if (missingEnvVars.length > 0) {
-    console.error('❌ Variables d\'environnement manquantes:', missingEnvVars);
-    console.error('📂 Fichier .env:', require('path').resolve(process.cwd(), '.env'));
-    console.error('🔍 Variables disponibles:', Object.keys(process.env));
+const requiredEnvVars = ['JWT_SECRET', 'PORT'];
+if (!process.env.MONGODB_URI && !process.env.MONGODB_URL) {
+    console.error('❌ Ni MONGODB_URI ni MONGODB_URL ne sont définis');
     process.exit(1);
 }
 
