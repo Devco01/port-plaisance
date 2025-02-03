@@ -1,5 +1,6 @@
 const Reservation = require('../models/reservation');
 const Catway = require('../models/catway');
+const User = require('../models/user');
 
 /**
  * Liste toutes les réservations d'un catway
