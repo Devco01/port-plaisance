@@ -1,60 +1,77 @@
-const mongoose = require('mongoose');
+var mongoose = require('mongoose');
 
-const reservationSchema = new mongoose.Schema({
+var reservationSchema = new mongoose.Schema({
     catwayNumber: {
         type: String,
-        required: true
+        required: true,
+        ref: 'Catway'
     },
     clientName: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     boatName: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     startDate: {
         type: Date,
-        required: true,
-        validate: {
-            validator: function(v) {
-                if (!this.isNew) return true;
-                return v > new Date();
-            },
-            message: 'La date de début doit être future'
-        }
+        required: true
     },
     endDate: {
         type: Date,
-        required: true,
-        validate: {
-            validator: function(v) {
-                return v > this.startDate;
-            },
-            message: 'La date de fin doit être après la date de début'
-        }
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['confirmée', 'annulée', 'en_attente'],
+        default: 'en_attente'
+    },
+    totalPrice: {
+        type: Number,
+        min: 0
+    },
+    comments: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true
 });
 
-// Middleware pour vérifier les chevauchements
-reservationSchema.pre('save', async function(next) {
-    const overlapping = await this.constructor.findOne({
-        catwayNumber: this.catwayNumber,
-        _id: { $ne: this._id },
+// Index pour optimiser les recherches de conflits
+reservationSchema.index({ catwayNumber: 1, startDate: 1, endDate: 1 });
+
+// Méthode pour vérifier si une période est disponible
+reservationSchema.statics.checkAvailability = function(catwayNumber, startDate, endDate) {
+    return this.findOne({
+        catwayNumber: catwayNumber,
+        status: { $ne: 'annulée' },
         $or: [
             {
-                startDate: { $lte: this.endDate },
-                endDate: { $gte: this.startDate }
+                startDate: { $lte: endDate },
+                endDate: { $gte: startDate }
             }
         ]
-    });
+    }).exec();
+};
 
-    if (overlapping) {
-        throw new Error('Il existe déjà une réservation pour cette période');
-    }
-    next();
-});
+// Méthode pour calculer le prix total
+reservationSchema.methods.calculatePrice = function() {
+    var days = Math.ceil((this.endDate - this.startDate) / (1000 * 60 * 60 * 24));
+    var basePrice = 50; // Prix par jour
+    this.totalPrice = days * basePrice;
+    return this.save();
+};
 
-module.exports = mongoose.model('Reservation', reservationSchema);
+// Méthode pour annuler une réservation
+reservationSchema.methods.cancel = function() {
+    this.status = 'annulée';
+    return this.save();
+};
+
+var Reservation = mongoose.model('Reservation', reservationSchema);
+
+module.exports = Reservation;

@@ -1,45 +1,37 @@
 require('dotenv').config();
 console.log('CheckAdmin - URL MongoDB:', process.env.MONGODB_URI);
-const mongoose = require('mongoose');
-const User = require('../models/user');
-const bcrypt = require('bcrypt');
+var mongoose = require('mongoose');
+var User = require('../models/user');
+var bcrypt = require('bcrypt');
 
-async function checkAndCreateAdmin() {
-    try {
-        const mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
-        console.log('🔄 Vérification du compte admin...');
+var checkAndCreateAdmin = function() {
+    console.log('🔄 Vérification du compte admin...');
 
-        // Vérifier si l'admin existe
-        let admin = await User.findOne({ email: 'admin@portplaisance.fr' });
-        
-        if (!admin) {
-            console.log('➕ Création du compte admin...');
-            admin = new User({
-                email: 'admin@portplaisance.fr',
-                username: 'admin',
-                password: await bcrypt.hash('PortAdmin2024!', 10),
-                role: 'admin'
-            });
-            await admin.save();
-            console.log('✅ Admin créé avec succès');
-        } else {
-            console.log('✅ Admin existe déjà');
-            // Mettre à jour le mot de passe
-            admin.password = await bcrypt.hash('PortAdmin2024!', 10);
-            await admin.save();
-            console.log('✅ Mot de passe admin mis à jour');
-        }
-
-        console.log('Détails admin:', {
-            email: admin.email,
-            role: admin.role,
-            id: admin._id
+    return User.findOne({ role: 'admin' })
+        .then(function(admin) {
+            if (!admin) {
+                console.log('➕ Création du compte admin...');
+                var admin = new User({
+                    email: 'admin@portplaisance.fr',
+                    password: process.env.ADMIN_PASSWORD || 'Admin123!',
+                    role: 'admin',
+                    nom: 'Admin',
+                    prenom: 'Port Russell'
+                });
+                return admin.save();
+            }
+            return admin;
+        })
+        .then(function(admin) {
+            console.log('✅ Compte admin vérifié');
+            return admin;
+        })
+        .catch(function(error) {
+            console.error('❌ Erreur lors de la vérification/création du compte admin:', error);
+            throw error;
         });
+};
 
-    } catch (error) {
-        console.error('❌ Erreur:', error);
-        throw error;
-    }
-}
-
-module.exports = { checkAndCreateAdmin }; 
+module.exports = {
+    checkAndCreateAdmin: checkAndCreateAdmin
+}; 

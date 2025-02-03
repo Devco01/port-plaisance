@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tableau de bord - Port Russell</title>
+</head>
+<body>
+    <% if (!user) { %>
+        <script>window.location.href = '/';</script>
+    <% } %>
+
+    <%- include('../partials/header') %>
+    <%- include('../partials/navbar') %>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">Tableau de bord</h1>
+                
+                <!-- Informations utilisateur -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Bienvenue, <%= user.username %></h5>
+                        <p class="card-text">
+                            <strong>Email:</strong> <%= user.email %><br>
+                            <strong>Rôle:</strong> <%= user.role %><br>
+                            <strong>Date:</strong> <%= currentDate.toLocaleDateString('fr-FR') %>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Statistiques (admin uniquement) -->
+                <% if (user.role === 'admin' && stats) { %>
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Catways</h5>
+                                    <p class="card-text display-4"><%= stats.totalCatways %></p>
+                                    <small>dont <%= stats.availableCatways %> disponibles</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Réservations actives</h5>
+                                    <p class="card-text display-4"><%= stats.activeReservations %></p>
+                                    <small>sur <%= stats.totalReservations %> au total</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+                <!-- Réservations en cours -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Réservations en cours</h5>
+                        <a href="/dashboard/reservations/create" class="btn btn-primary btn-sm">
+                            Nouvelle réservation
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <% if (activeReservations.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Catway</th>
+                                            <th>Client</th>
+                                            <th>Bateau</th>
+                                            <th>Début</th>
+                                            <th>Fin</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% activeReservations.forEach(reservation => { %>
+                                            <tr>
+                                                <td><%= reservation.catwayNumber %></td>
+                                                <td><%= reservation.user.username %></td>
+                                                <td><%= reservation.boatName %></td>
+                                                <td><%= reservation.startDate.toLocaleDateString('fr-FR') %></td>
+                                                <td><%= reservation.endDate.toLocaleDateString('fr-FR') %></td>
+                                                <td>
+                                                    <a href="/dashboard/reservations/<%= reservation._id %>" 
+                                                       class="btn btn-info btn-sm">
+                                                        Détails
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <p class="text-muted mb-0">Aucune réservation en cours</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+</html> 

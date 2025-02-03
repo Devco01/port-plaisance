@@ -7,140 +7,43 @@ Application de gestion complète pour un port de plaisance permettant :
 - Gestion des utilisateurs (administration, droits d'accès)
 - Interface administrateur et utilisateur
 
-## Prérequis
+## Démo
+L'application est déployée sur Render : [https://port-plaisance.onrender.com](https://port-plaisance.onrender.com)
+
+## Installation et Configuration
+
+### Prérequis
 - Node.js (v14 ou supérieur)
 - MongoDB
 - npm ou yarn
 
-## Installation
+### Installation
+1. Cloner le projet
+2. Installer les dépendances (npm install)
+3. Configurer les variables d'environnement (.env)
+4. Démarrer l'application (npm run dev)
 
-1. **Cloner le projet**
-```bash
-git clone https://github.com/votre-username/port-de-plaisance.git
-cd port-de-plaisance
-```
+### Variables d'environnement
+Copier `.env.example` vers `.env` et configurer :
+- MONGODB_URI : URL de connexion MongoDB
+- JWT_SECRET : Clé secrète pour les tokens
+- PORT : Port du serveur (3001 par défaut)
 
-2. **Installer les dépendances du serveur**
-```bash
-npm install
-```
-
-3. **Installer les dépendances du client**
-```bash
-cd client
-npm install
-cd ..
-```
-
-4. **Configuration**
-- Créer un fichier `.env` à la racine du projet :
-```env
-PORT=3001
-MONGODB_URI="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority"
-JWT_SECRET=Votre clé secrète ici
-```
-
-## Démarrage
-
-1. **Démarrer le serveur**
-```bash
-# Mode développement
-npm run dev:server
-
-# Mode production
-npm run start:server
-```
-
-2. **Démarrer le client** (dans un nouveau terminal)
-```bash
-# Mode développement
-npm run start:client
-```
-
-## Utilisateur de test
-L'application dispose d'un compte administrateur préconfiguré :
+## Utilisation
 
 ### Compte Administrateur
 ```
 Email: admin@portplaisance.fr
 Mot de passe: PortAdmin2024!
-Rôle: admin
 ```
 
-Ce compte est créé automatiquement lors de l'initialisation
-
-L'application sera accessible sur :
-- Client (dev) : http://localhost:3000
-- API (dev) : http://localhost:3001
-- Documentation API (dev) : http://localhost:3001/api-docs
-
-En production :
-- Application : https://port-plaisance.onrender.com/
-- API : https://port-plaisance.onrender.com/api
-- Documentation API : https://port-plaisance.onrender.com/api-docs
-- Swagger UI : https://port-plaisance.onrender.com/api-docs/
-
-## Fonctionnalités
-
-### Administrateur
-- Gestion complète des catways
-- Gestion des utilisateurs
-- Gestion des réservations
-- Tableau de bord administratif
-
-### Utilisateur Standard
-- Consultation des catways disponibles
-- Gestion de ses réservations
-- Modification de son profil
+### URLs principales
+- Application : http://localhost:3000
+- API : http://localhost:3001
+- Documentation API : http://localhost:3001/api-docs
 
 ## Scripts disponibles
-Dans le répertoire racine :
-### Scripts de développement
-- `npm run dev:server` : Démarre le serveur en mode développement avec nodemon
-- `npm run dev:client` : Démarre le client React en mode développement
-
-### Scripts de production
-- `npm run start` : Démarre l'application en production
-- `npm run build` : Construit l'application pour la production
-- `npm run postinstall` : Script exécuté automatiquement après l'installation
-
-## API Documentation
-La documentation de l'API est disponible sur http://localhost:3001/api-docs une fois le serveur démarré.
-
-## Sécurité
-- Authentification JWT
-- Hachage des mots de passe avec bcrypt
-- Validation des données
-- Protection CORS
-
-## Déploiement
-
-### Prérequis
-- Compte MongoDB Atlas
-- Compte Render.com
-
-### Configuration
-1. Copier `.env.example` vers `.env`
-2. Configurer les variables d'environnement :
-   - MONGODB_URI : URL de connexion MongoDB Atlas
-   - JWT_SECRET : Clé secrète pour les tokens JWT
-   - PORT : Port du serveur (3001 par défaut)
-   - API_URL : URL de l'API
-
-### Variables d'environnement sur Render
-- MONGODB_URI
-- JWT_SECRET
-- PORT=3001
-
-## Connexion
-
-### Compte Administrateur par défaut
-```
-Email: admin@portplaisance.fr
-Mot de passe: PortAdmin2024!
-```
-
-### URLs de l'API
-- Login : POST /api/login
-- Catways : GET /api/catways
-- Réservations : GET /api/catways/:id/reservations
+- `npm run dev:server` : Démarre le serveur en développement
+- `npm run dev:client` : Démarre le client React
+- `npm run start` : Démarre en production
+- `npm run build` : Build l'application

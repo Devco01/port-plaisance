@@ -13,10 +13,10 @@ const Navbar = () => {
     return (
         <AppBar position="static">
             <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" sx={{ flexGrow: 1 }}>
                     Port de Plaisance
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                <Box>
                     <Button color="inherit" onClick={() => navigate('/dashboard')}>
                         Dashboard
                     </Button>

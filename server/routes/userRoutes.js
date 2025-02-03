@@ -1,17 +1,16 @@
-const express = require('express');
-const router = express.Router();
-const User = require('../models/user.js');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const auth = require('../middleware/auth');
-const config = require('../config/config');
-const isAdmin = require('../middleware/isAdmin');
+var express = require('express');
+var router = express.Router();
+var bcrypt = require('bcrypt');
+var jwt = require('jsonwebtoken');
+var User = require('../models/user');
+var auth = require('../middleware/auth');
+var isAdmin = require('../middleware/isAdmin');
 
 /**
  * @swagger
  * tags:
  *   name: Users
- *   description: Gestion des utilisateurs
+ *   description: Gestion des utilisateurs de la capitainerie
  */
 
 /**
@@ -21,391 +20,69 @@ const isAdmin = require('../middleware/isAdmin');
  *     User:
  *       type: object
  *       required:
+ *         - username
  *         - email
  *         - password
- *         - nom
- *         - prenom
  *       properties:
+ *         username:
+ *           type: string
+ *           description: Nom d'utilisateur
  *         email:
  *           type: string
  *           format: email
- *           description: Email de l'utilisateur
+ *           description: Adresse email unique
  *         password:
  *           type: string
  *           format: password
- *           description: Mot de passe de l'utilisateur
- *         nom:
- *           type: string
- *           description: Nom de l'utilisateur
- *         prenom:
- *           type: string
- *           description: Prénom de l'utilisateur
+ *           description: Mot de passe
  */
-
-/**
- * @swagger
- * /users/register:
- *   post:
- *     summary: Inscription d'un nouvel utilisateur
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *               - nom
- *               - prenom
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *               nom:
- *                 type: string
- *               prenom:
- *                 type: string
- *     responses:
- *       200:
- *         description: Utilisateur créé avec succès
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   description: JWT token
- *       400:
- *         description: Erreur de validation ou utilisateur existant
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *       500:
- *         description: Erreur serveur
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- */
-router.post('/register', async (req, res) => {
-    try {
-        const { email, password, nom, prenom } = req.body;
-
-        // Vérification que tous les champs sont présents
-        if (!email || !password || !nom || !prenom) {
-            return res.status(400).json({ msg: 'Tous les champs sont requis' });
-        }
-
-        // Vérification si l'utilisateur existe déjà
-        let user = await User.findOne({ email });
-
-        if (user) {
-            return res.status(400).json({ msg: 'Un utilisateur avec cet email existe déjà' });
-        }
-
-        // Création du nouvel utilisateur
-        user = new User({
-            email,
-            password,
-            nom,
-            prenom
-        });
-
-        // Hashage du mot de passe
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
-
-        await user.save();
-
-        // Création du token JWT
-        const payload = {
-            user: {
-                id: user.id
-            }
-        };
-
-        jwt.sign(
-            payload,
-            config.jwtSecret,
-            { expiresIn: '5h' },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
-    } catch (err) {
-        res.status(500).send('Erreur serveur');
-    }
-});
-
-/**
- * @swagger
- * /login:
- *   post:
- *     summary: Connexion utilisateur
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Connexion réussie
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   description: JWT token
- *       400:
- *         description: Identifiants invalides
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *       500:
- *         description: Erreur serveur
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- */
-router.post('/login', async (req, res) => {
-    try {
-        console.log('📝 Tentative de connexion:', {
-            email: req.body.email,
-            body: req.body
-        });
-
-        const { email, password } = req.body;
-        
-        if (!email || !password) {
-            console.log('❌ Données manquantes');
-            return res.status(400).json({ message: 'Email et mot de passe requis' });
-        }
-
-        const user = await User.findOne({ email });
-        console.log('🔍 Utilisateur trouvé:', {
-            found: !!user,
-            email: user?.email,
-            role: user?.role
-        });
-
-        // Log du hash stocké
-        console.log('🔐 Hash stocké:', {
-            email: user?.email,
-            storedHash: user?.password?.substring(0, 10) + '...',
-            inputPassword: password
-        });
-
-        if (!user) {
-            console.log('❌ Utilisateur non trouvé:', email);
-            return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        console.log('🔐 Vérification mot de passe:', isMatch ? '✅ OK' : '❌ Incorrect');
-
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
-        }
-
-        // Créer le token
-        const payload = {
-            user: {
-                id: user._id,
-                email: user.email,
-                username: user.username,
-                role: user.role
-            }
-        };
-
-        const token = jwt.sign(
-            payload,
-            config.jwtSecret,
-            { expiresIn: '24h' }
-        );
-
-        res.json({ token });
-    } catch (error) {
-        console.error('❌ Erreur de connexion:', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({ msg: 'Erreur du serveur' });
-    }
-});
-
-// Middleware pour vérifier le token
-const authMiddleware = (req, res, next) => {
-    const bearerHeader = req.header('Authorization');
-    
-    if (!bearerHeader) {
-        return res.status(401).json({ msg: 'Aucun token, autorisation refusée' });
-    }
-
-    try {
-        const bearer = bearerHeader.split(' ');
-        
-        const token = bearer[1];
-
-        const decoded = jwt.verify(token, config.jwtSecret);
-        
-        req.user = decoded.user;
-        next();
-    } catch (error) {
-        res.status(401).json({ msg: 'Token invalide' });
-    }
-};
 
 /**
  * @swagger
  * /users:
  *   get:
- *     summary: Liste tous les utilisateurs
+ *     summary: Liste tous les utilisateurs (admin seulement)
  *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Liste des utilisateurs récupérée avec succès
- * 
- *   post:
- *     summary: Créer un nouvel utilisateur
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - username
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *               username:
- *                 type: string
- *               password:
- *                 type: string
  */
-router.get('/users', [auth, isAdmin], async (req, res) => {
-    try {
-        const users = await User.find().select('-password');
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
+router.get('/', auth, isAdmin, function(req, res) {
+    User.find()
+        .select('-password')
+        .then(function(users) {
+            res.json(users);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
+        });
 });
 
 /**
  * @swagger
  * /users/{email}:
  *   get:
- *     summary: Récupérer les détails d'un utilisateur
+ *     summary: Récupère les détails d'un utilisateur
  *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: email
- *         required: true
- *         schema:
- *           type: string
- * 
- *   put:
- *     summary: Modifier un utilisateur
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: email
- *         required: true
- *         schema:
- *           type: string
- * 
- *   delete:
- *     summary: Supprimer un utilisateur
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: email
- *         required: true
- *         schema:
- *           type: string
  */
-router.get('/users/:email', auth, async (req, res) => {
+router.get('/:email', auth, function(req, res) {
     try {
-        const user = await User.findOne({ email: req.params.email });
-        if (!user) {
-            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        // Vérifier si l'utilisateur est admin ou demande ses propres infos
+        if (req.user.role !== 'admin' && req.user.email !== req.params.email) {
+
+            return res.status(403).json({ message: 'Accès non autorisé' });
         }
+
+        User.findOne({ email: req.params.email }).select('-password')
+            .then(function(user) {
+                if (!user) {
+                    return res.status(404).json({ message: 'Utilisateur non trouvé' });
+                }
+                res.json(user);
+            })
+            .catch(function(error) {
+                res.status(500).json({ message: error.message });
+            });
+
+
         res.json(user);
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-});
-
-/**
- * @swagger
- * /users:
- *   post:
- *     summary: Créer un nouvel utilisateur
- *     tags: [Users]
- */
-router.post('/', [auth, isAdmin], async (req, res) => {
-    try {
-        const { email, username, password } = req.body;
-        
-        // Vérifier si l'utilisateur existe déjà
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'Cet email est déjà utilisé' });
-        }
-
-        // Hasher le mot de passe
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Créer le nouvel utilisateur
-        const user = new User({
-            email,
-            username,
-            password: hashedPassword,
-            role: 'user'
-        });
-
-        await user.save();
-        res.status(201).json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -413,66 +90,131 @@ router.post('/', [auth, isAdmin], async (req, res) => {
 
 /**
  * @swagger
- * /users/{email}:
- *   put:
- *     summary: Modifier un utilisateur
+ * /users:
+ *   post:
+ *     summary: Crée un nouvel utilisateur (admin seulement)
  *     tags: [Users]
  */
-router.put('/:email', auth, async (req, res) => {
+router.post('/', auth, isAdmin, function(req, res) {
+    User.findOne({ email: req.body.email })
+        .then(function(existingUser) {
+            if (existingUser) {
+                return res.status(400).json({ message: 'Cet email est déjà utilisé' });
+            }
+
+            var passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(req.body.password)) {
+                return res.status(400).json({ 
+                    message: 'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre' 
+                });
+            }
+
+            return bcrypt.hash(req.body.password, 10);
+        })
+        .then(function(hashedPassword) {
+            var user = new User(req.body);
+            user.password = hashedPassword;
+            return user.save();
+
+        })
+        .then(function(user) {
+            var userResponse = user.toObject();
+            delete userResponse.password;
+            res.status(201).json(userResponse);
+        })
+        .catch(function(error) {
+            res.status(400).json({ message: error.message });
+        });
+});
+
+/**
+ * @swagger
+ * /users/{email}:
+ *   put:
+ *     summary: Modifie un utilisateur
+ *     tags: [Users]
+ */
+router.put('/:email', auth, function(req, res) {
     try {
-        const user = await User.findOneAndUpdate(
+        // Vérifier les droits d'accès
+        if (req.user.role !== 'admin' && req.user.email !== req.params.email) {
+
+            return res.status(403).json({ message: 'Accès non autorisé' });
+        }
+
+        // Empêcher la modification du rôle sauf pour les admins
+        if (req.body.role && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Modification du rôle non autorisée' });
+        }
+
+        var updates = req.body;
+
+        // Hasher le nouveau mot de passe si fourni
+
+        if (updates.password) {
+            var salt = bcrypt.genSalt(10);
+            updates.password = bcrypt.hash(updates.password, salt);
+        } else {
+            delete updates.password;
+        }
+
+
+        User.findOneAndUpdate(
             { email: req.params.email },
-            req.body,
+            updates,
             { new: true }
-        );
+        ).select('-password')
+            .then(function(user) {
+
+
+
         if (!user) {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
-        res.json(user);
+
+                res.json(user);
+            })
+            .catch(function(error) {
+                res.status(400).json({ message: error.message });
+            });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
+        res.status(400).json({ message: error.message });
     }
 });
+
 
 /**
  * @swagger
  * /users/{email}:
  *   delete:
- *     summary: Supprimer un utilisateur
+ *     summary: Supprime un utilisateur (admin seulement)
  *     tags: [Users]
  */
-router.delete('/:email', [auth, isAdmin], async (req, res) => {
+router.delete('/:email', auth, isAdmin, function(req, res) {
     try {
-        const user = await User.findOne({ email: req.params.email });
-        if (!user) {
+        User.findOne({ email: req.params.email })
+            .then(function(user) {
+                if (!user) {
+
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        await User.deleteOne({ email: req.params.email });
-        res.json({ message: 'Utilisateur supprimé' });
+        // Empêcher la suppression d'un admin
+        if (user.role === 'admin') {
+            return res.status(403).json({ message: 'Impossible de supprimer un administrateur' });
+        }
+
+        user.remove();
+        res.json({ message: 'Utilisateur supprimé avec succès' });
+
+            })
+            .catch(function(error) {
+                res.status(400).json({ message: error.message });
+            });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
+        res.status(500).json({ message: error.message });
     }
 });
 
-/**
- * @swagger
- * /logout:
- *   get:
- *     summary: Déconnexion utilisateur
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- */
-router.get('/logout', auth, (req, res) => {
-    res.json({ message: 'Déconnexion réussie' });
-});
-
-// Route de test pour vérifier l'accès à l'API
-router.get('/test', (req, res) => {
-    res.json({ message: 'API users accessible' });
-});
 
 module.exports = router;
-
-

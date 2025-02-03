@@ -1,0 +1,215 @@
+<%- include('../../layouts/dashboard', { title: 'Détails Réservation' }) %>
+
+<div class="reservation-details">
+    <div class="card">
+        <div class="card-header">
+            <h2>Détails de la Réservation</h2>
+            <div class="header-actions">
+                <a href="/dashboard/reservations" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour à la liste
+                </a>
+                <a href="/dashboard/reservations/<%= reservation._id %>/edit" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+            </div>
+        </div>
+
+        <div class="details-grid">
+            <div class="detail-section">
+                <h3>Informations de la réservation</h3>
+                
+                <div class="detail-group">
+                    <label>Statut</label>
+                    <div class="detail-value">
+                        <span class="status-badge status-<%= getReservationStatus(reservation) %>">
+                            <%= getReservationStatusLabel(reservation) %>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-group">
+                    <label>Période</label>
+                    <div class="detail-value dates">
+                        <div>
+                            <i class="fas fa-calendar-alt"></i>
+                            Du <%= formatDate(reservation.startDate) %>
+                        </div>
+                        <div>
+                            <i class="fas fa-calendar-check"></i>
+                            Au <%= formatDate(reservation.endDate) %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-group">
+                    <label>Durée</label>
+                    <div class="detail-value">
+                        <%= calculateDuration(reservation.startDate, reservation.endDate) %> jours
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3>Informations du client</h3>
+                
+                <div class="detail-group">
+                    <label>Nom du client</label>
+                    <div class="detail-value"><%= reservation.clientName %></div>
+                </div>
+
+                <div class="detail-group">
+                    <label>Bateau</label>
+                    <div class="detail-value">
+                        <%= reservation.boatName %> (<%= reservation.boatLength %>m)
+                    </div>
+                </div>
+
+                <div class="detail-group">
+                    <label>Notes</label>
+                    <div class="detail-value description">
+                        <%= reservation.notes || 'Aucune note' %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3>Informations du catway</h3>
+                
+                <div class="detail-group">
+                    <label>Numéro</label>
+                    <div class="detail-value">
+                        <a href="/dashboard/catways/<%= reservation.catwayNumber %>" class="link-primary">
+                            <%= reservation.catwayNumber %>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="detail-group">
+                    <label>Type</label>
+                    <div class="detail-value">
+                        <span class="badge badge-<%= reservation.catwayType %>">
+                            <%= reservation.catwayType === 'long' ? 'Long' : 'Court' %>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-group">
+                    <label>État actuel</label>
+                    <div class="detail-value">
+                        <span class="status-badge status-<%= catwayState %>">
+                            <%= catwayState %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="metadata">
+            <div class="metadata-item">
+                <i class="fas fa-clock"></i>
+                <span>Créée le <%= formatDate(reservation.createdAt) %></span>
+            </div>
+            <div class="metadata-item">
+                <i class="fas fa-history"></i>
+                <span>Dernière modification le <%= formatDate(reservation.updatedAt) %></span>
+            </div>
+            <div class="metadata-item">
+                <i class="fas fa-user"></i>
+                <span>Par <%= reservation.createdBy %></span>
+            </div>
+        </div>
+
+        <div class="actions-footer">
+            <button onclick="confirmDelete('<%= reservation._id %>')" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Supprimer la réservation
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(reservationId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
+        fetch(`/dashboard/reservations/${reservationId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.href = '/dashboard/reservations';
+            } else {
+                alert('Erreur lors de la suppression');
+            }
+        });
+    }
+}
+</script>
+
+<style>
+.reservation-details {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.detail-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.dates {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dates i {
+    width: 16px;
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.link-primary {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.link-primary:hover {
+    text-decoration: underline;
+}
+
+.actions-footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .metadata {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+</style> 

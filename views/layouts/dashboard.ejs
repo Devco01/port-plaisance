@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Port Russell</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Port Russell</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="/dashboard" class="<%= currentPage === 'dashboard' ? 'active' : '' %>">
+                            <i class="fas fa-home"></i>Tableau de bord
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/dashboard/catways" class="<%= currentPage === 'catways' ? 'active' : '' %>">
+                            <i class="fas fa-ship"></i>Catways
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/dashboard/reservations" class="<%= currentPage === 'reservations' ? 'active' : '' %>">
+                            <i class="fas fa-calendar"></i>Réservations
+                        </a>
+                    </li>
+                    <% if (user.role === 'admin') { %>
+                        <li>
+                            <a href="/dashboard/users" class="<%= currentPage === 'users' ? 'active' : '' %>">
+                                <i class="fas fa-users"></i>Utilisateurs
+                            </a>
+                        </li>
+                    <% } %>
+                    <li>
+                        <a href="/api-docs" target="_blank">
+                            <i class="fas fa-book"></i>Documentation API
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="date">
+                    <%= new Date().toLocaleDateString('fr-FR', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    }) %>
+                </div>
+                <div class="user-info">
+                    <span><%= user.nom %> <%= user.prenom %> (<%= user.email %>)</span>
+                    <a href="/logout" class="btn btn-logout">Déconnexion</a>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="content">
+                <% if (locals.error) { %>
+                    <div class="alert alert-danger">
+                        <%= error %>
+                    </div>
+                <% } %>
+                <% if (locals.success) { %>
+                    <div class="alert alert-success">
+                        <%= success %>
+                    </div>
+                <% } %>
+                
+                <%- body %>
+            </div>
+        </main>
+    </div>
+
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/your-kit-code.js"></script>
+</body>
+</html> 

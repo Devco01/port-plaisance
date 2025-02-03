@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Détails réservation - Port Russell</title>
+</head>
+<body>
+    <nav>
+        <a href="/dashboard">Tableau de bord</a>
+        <a href="/dashboard/reservations">Retour aux réservations</a>
+    </nav>
+
+    <h1>Détails de la réservation</h1>
+
+    <div>
+        <p>Catway: <%= reservation.catwayNumber %></p>
+        <p>Client: <%= reservation.clientName %></p>
+        <p>Bateau: <%= reservation.boatName %></p>
+        <p>Date de début: <%= reservation.startDate.toLocaleDateString() %></p>
+        <p>Date de fin: <%= reservation.endDate.toLocaleDateString() %></p>
+    </div>
+
+    <div>
+        <a href="/dashboard/reservations/<%= reservation._id %>/edit">Modifier</a>
+        <form action="/dashboard/reservations/<%= reservation._id %>/delete" method="POST" style="display:inline">
+            <button type="submit">Supprimer</button>
+        </form>
+    </div>
+</body>
+</html> 

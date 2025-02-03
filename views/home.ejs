@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port de Plaisance Russell - Accueil</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Port de Plaisance Russell</h1>
+            <p class="subtitle">Système de gestion des réservations de catways</p>
+        </header>
+
+        <main>
+            <section class="presentation">
+                <h2>Bienvenue sur notre plateforme</h2>
+                <p>
+                    Le port de plaisance Russell met à votre disposition un système moderne 
+                    de gestion des catways et des réservations. Notre plateforme permet de :
+                </p>
+                <ul>
+                    <li>Gérer les réservations de catways en temps réel</li>
+                    <li>Consulter la disponibilité des emplacements</li>
+                    <li>Suivre l'état des installations</li>
+                    <li>Accéder à l'historique des réservations</li>
+                </ul>
+            </section>
+
+            <section class="login-section">
+                <h2>Connexion</h2>
+                <% if (locals.error) { %>
+                    <div class="alert alert-danger">
+                        <%= error %>
+                    </div>
+                <% } %>
+                <form action="/login" method="POST" class="login-form">
+                    <div class="form-group">
+                        <label for="email">Email :</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Mot de passe :</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Se connecter</button>
+                </form>
+            </section>
+
+            <section class="api-docs">
+                <h2>Documentation API</h2>
+                <p>
+                    Accédez à notre documentation API complète pour intégrer nos services 
+                    dans vos applications.
+                </p>
+                <a href="/api-docs" class="btn btn-secondary">Consulter la documentation</a>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; <%= new Date().getFullYear() %> Port de Plaisance Russell - Tous droits réservés</p>
+        </footer>
+    </div>
+</body>
+</html> 

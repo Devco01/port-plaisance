@@ -1,0 +1,97 @@
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestion des Réservations</h1>
+        <a href="/dashboard/reservations/create" class="btn btn-primary">
+            Nouvelle Réservation
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <% if (reservations && reservations.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Catway</th>
+                                <th>Client</th>
+                                <th>Bateau</th>
+                                <th>Début</th>
+                                <th>Fin</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% reservations.forEach(reservation => { %>
+                                <tr>
+                                    <td><%= reservation.catwayNumber %></td>
+                                    <td><%= reservation.clientName %></td>
+                                    <td><%= reservation.boatName %></td>
+                                    <td><%= new Date(reservation.startDate).toLocaleDateString('fr-FR') %></td>
+                                    <td><%= new Date(reservation.endDate).toLocaleDateString('fr-FR') %></td>
+                                    <td>
+                                        <% 
+                                            const now = new Date();
+                                            const start = new Date(reservation.startDate);
+                                            const end = new Date(reservation.endDate);
+                                            let status = '';
+                                            let statusClass = '';
+                                            
+                                            if (now < start) {
+                                                status = 'À venir';
+                                                statusClass = 'bg-info';
+                                            } else if (now > end) {
+                                                status = 'Terminée';
+                                                statusClass = 'bg-secondary';
+                                            } else {
+                                                status = 'En cours';
+                                                statusClass = 'bg-success';
+                                            }
+                                        %>
+                                        <span class="badge <%= statusClass %>"><%= status %></span>
+                                    </td>
+                                    <td>
+                                        <a href="/dashboard/reservations/<%= reservation._id %>" class="btn btn-info btn-sm">Détails</a>
+                                        <a href="/dashboard/reservations/<%= reservation._id %>/edit" class="btn btn-warning btn-sm">Modifier</a>
+                                        <button 
+                                            onclick="deleteReservation('<%= reservation._id %>')" 
+                                            class="btn btn-danger btn-sm">
+                                            Supprimer
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <p class="text-center text-muted">Aucune réservation trouvée</p>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+async function deleteReservation(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
+        try {
+            const response = await fetch(`/api/reservations/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Erreur lors de la suppression');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression');
+        }
+    }
+}
+</script> 

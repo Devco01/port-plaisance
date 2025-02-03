@@ -1,0 +1,148 @@
+<%- include('../../partials/header') %>
+<%- include('../../partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Détails du catway <%= catway.catwayNumber %></h1>
+                <div>
+                    <% if (user.role === 'admin') { %>
+                        <a href="/dashboard/catways/<%= catway.catwayNumber %>/edit" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                    <% } %>
+                    <a href="/dashboard/catways" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <!-- Informations du catway -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Informations générales</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Numéro</dt>
+                                <dd class="col-sm-8"><%= catway.catwayNumber %></dd>
+
+                                <dt class="col-sm-4">Type</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-<%= catway.catwayType === 'long' ? 'primary' : 'info' %>">
+                                        <%= catway.catwayType %>
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-4">État</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-<%= catway.catwayState === 'disponible' ? 'success' : 
+                                        catway.catwayState === 'occupé' ? 'warning' : 'danger' %>">
+                                        <%= catway.catwayState %>
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-4">Longueur max.</dt>
+                                <dd class="col-sm-8"><%= catway.maxBoatLength %> mètres</dd>
+
+                                <dt class="col-sm-4">Créé le</dt>
+                                <dd class="col-sm-8">
+                                    <%= new Date(catway.createdAt).toLocaleDateString('fr-FR') %>
+                                </dd>
+
+                                <dt class="col-sm-4">Dernière modification</dt>
+                                <dd class="col-sm-8">
+                                    <%= new Date(catway.updatedAt).toLocaleDateString('fr-FR') %>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistiques des réservations -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Statistiques des réservations</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h3><%= reservations.filter(r => r.status === 'confirmée').length %></h3>
+                                    <p class="text-muted">Réservations actives</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3><%= reservations.length %></h3>
+                                    <p class="text-muted">Total des réservations</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des réservations -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Historique des réservations</h5>
+                    <a href="/dashboard/reservations/create?catway=<%= catway.catwayNumber %>" 
+                       class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Nouvelle réservation
+                    </a>
+                </div>
+                <div class="card-body">
+                    <% if (reservations.length === 0) { %>
+                        <p class="text-muted mb-0">Aucune réservation pour ce catway</p>
+                    <% } else { %>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Client</th>
+                                        <th>Bateau</th>
+                                        <th>Début</th>
+                                        <th>Fin</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% reservations.forEach(reservation => { %>
+                                        <tr>
+                                            <td><%= reservation.user.username %></td>
+                                            <td><%= reservation.boatName %></td>
+                                            <td>
+                                                <%= new Date(reservation.startDate).toLocaleDateString('fr-FR') %>
+                                            </td>
+                                            <td>
+                                                <%= new Date(reservation.endDate).toLocaleDateString('fr-FR') %>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<%= 
+                                                    reservation.status === 'confirmée' ? 'success' : 
+                                                    reservation.status === 'annulée' ? 'danger' : 'secondary' %>">
+                                                    <%= reservation.status %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="/dashboard/reservations/<%= reservation._id %>" 
+                                                   class="btn btn-sm btn-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../../partials/footer') %> 

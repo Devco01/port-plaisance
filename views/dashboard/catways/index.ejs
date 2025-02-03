@@ -1,0 +1,150 @@
+<%- include('../../partials/header') %>
+<%- include('../../partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Gestion des catways</h1>
+                <% if (user.role === 'admin') { %>
+                    <a href="/dashboard/catways/create" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nouveau catway
+                    </a>
+                <% } %>
+            </div>
+
+            <!-- Filtres -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form class="row g-3" method="GET">
+                        <div class="col-md-4">
+                            <label class="form-label">Type</label>
+                            <select name="type" class="form-select">
+                                <option value="">Tous</option>
+                                <option value="long">Long</option>
+                                <option value="short">Court</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">État</label>
+                            <select name="state" class="form-select">
+                                <option value="">Tous</option>
+                                <option value="disponible">Disponible</option>
+                                <option value="occupé">Occupé</option>
+                                <option value="maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-filter"></i> Filtrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Liste des catways -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Numéro</th>
+                                    <th>Type</th>
+                                    <th>État</th>
+                                    <th>Longueur max.</th>
+                                    <th>Réservations actives</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (catways.length === 0) { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center">Aucun catway trouvé</td>
+                                    </tr>
+                                <% } else { %>
+                                    <% catways.forEach(catway => { %>
+                                        <tr>
+                                            <td><%= catway.catwayNumber %></td>
+                                            <td>
+                                                <span class="badge bg-<%= catway.catwayType === 'long' ? 'primary' : 'info' %>">
+                                                    <%= catway.catwayType %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<%= catway.catwayState === 'disponible' ? 'success' : 
+                                                    catway.catwayState === 'occupé' ? 'warning' : 'danger' %>">
+                                                    <%= catway.catwayState %>
+                                                </span>
+                                            </td>
+                                            <td><%= catway.maxBoatLength %> m</td>
+                                            <td>
+                                                <% if (catway.activeReservations && catway.activeReservations.length > 0) { %>
+                                                    <%= catway.activeReservations.length %>
+                                                <% } else { %>
+                                                    0
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="/dashboard/catways/<%= catway.catwayNumber %>" 
+                                                       class="btn btn-sm btn-info">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <% if (user.role === 'admin') { %>
+                                                        <a href="/dashboard/catways/<%= catway.catwayNumber %>/edit" 
+                                                           class="btn btn-sm btn-warning">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-danger"
+                                                                onclick="confirmDelete('<%= catway.catwayNumber %>')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer ce catway ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(catwayNumber) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    const form = document.getElementById('deleteForm');
+    form.action = `/dashboard/catways/${catwayNumber}/delete`;
+    modal.show();
+}
+</script>
+
+<%- include('../../partials/footer') %> 
