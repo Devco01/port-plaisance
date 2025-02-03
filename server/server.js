@@ -32,6 +32,12 @@ const connectDB = require('./config/db');
 const checkAndCreateAdmin = require('./scripts/checkAdmin').checkAndCreateAdmin;
 const path = require('path');
 
+// Importer les routes
+console.log('Chargement des routes utilisateurs...');
+const userRoutes = require('./routes/userRoutes');
+const catwayRoutes = require('./routes/catwayRoutes');
+console.log('Routes utilisateurs chargées');
+
 const app = express();
 
 // Middleware CORS en premier
@@ -45,26 +51,19 @@ app.use(cors({
 // Parser JSON ensuite
 app.use(express.json());
 
-// Documentation API
+// Monter les routes API d'abord
+app.use('/api/users', userRoutes);
+app.use('/api/catways', catwayRoutes);
+
+// Documentation API ensuite
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: "API Port de Plaisance - Documentation"
 }));
 
-// Servir les fichiers statiques du build React
+// Servir les fichiers statiques React
 app.use(express.static(path.join(__dirname, '../client/build')));
-
-// Importer les routes
-console.log('Chargement des routes utilisateurs...');
-const userRoutes = require('./routes/userRoutes');
-console.log('Routes utilisateurs chargées');
-
-const catwayRoutes = require('./routes/catwayRoutes');
-
-// Monter les routes avec le préfixe /api
-app.use('/api/users', userRoutes);
-app.use('/api/catways', catwayRoutes);
 
 // Toutes les autres routes non-API renvoient l'app React
 app.get('*', (req, res) => {
