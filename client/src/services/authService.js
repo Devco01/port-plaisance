@@ -2,11 +2,16 @@ import axios from 'axios';
 import config from '../config/config';
 
 const login = async (email, password) => {
-    const url = `${config.apiUrl}/users/login`;
+    const url = `${config.apiUrl}/login`;
     console.log('🚀 Tentative de connexion:', {
         url,
-        email
+        email,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
     });
+
     try {
         const response = await axios.post(url, {
             email,
@@ -18,7 +23,13 @@ const login = async (email, password) => {
             }
         });
         
-        if (response.data.token) {
+        console.log('✅ Réponse serveur:', {
+            status: response.status,
+            hasData: !!response.data,
+            hasToken: !!response.data?.token
+        });
+
+        if (response.data?.token) {
             localStorage.setItem('token', response.data.token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
             return response.data;
@@ -26,13 +37,7 @@ const login = async (email, password) => {
             throw new Error('Token non reçu du serveur');
         }
     } catch (error) {
-        console.error('❌ Erreur de connexion:', {
-            message: error.message,
-            response: error.response?.data,
-            status: error.response?.status,
-            config: error.config,
-            url: error.config?.url
-        });
+        console.error('❌ Erreur complète:', error);
         localStorage.removeItem('token');
         delete axios.defaults.headers.common['Authorization'];
         throw error;

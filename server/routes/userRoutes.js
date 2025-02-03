@@ -7,9 +7,6 @@ const auth = require('../middleware/auth');
 const config = require('../config/config');
 const isAdmin = require('../middleware/isAdmin');
 
-// Préfixer toutes les routes avec /users
-router.use('/users', router);
-
 /**
  * @swagger
  * tags:
@@ -154,7 +151,7 @@ router.post('/register', async (req, res) => {
 
 /**
  * @swagger
- * /users/login:
+ * /login:
  *   post:
  *     summary: Connexion utilisateur
  *     tags: [Users]
@@ -325,15 +322,12 @@ const authMiddleware = (req, res, next) => {
  *               password:
  *                 type: string
  */
-router.get('/', [auth, isAdmin], async (req, res) => {
+router.get('/users', [auth, isAdmin], async (req, res) => {
     try {
         const users = await User.find().select('-password');
         res.json(users);
     } catch (error) {
-        res.status(500).json({ 
-            message: 'Erreur serveur',
-            error: error.message 
-        });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 });
 
@@ -370,7 +364,7 @@ router.get('/', [auth, isAdmin], async (req, res) => {
  *         schema:
  *           type: string
  */
-router.get('/:email', auth, async (req, res) => {
+router.get('/users/:email', auth, async (req, res) => {
     try {
         const user = await User.findOne({ email: req.params.email });
         if (!user) {
@@ -463,7 +457,7 @@ router.delete('/:email', [auth, isAdmin], async (req, res) => {
 
 /**
  * @swagger
- * /users/logout:
+ * /logout:
  *   get:
  *     summary: Déconnexion utilisateur
  *     tags: [Users]
@@ -472,6 +466,11 @@ router.delete('/:email', [auth, isAdmin], async (req, res) => {
  */
 router.get('/logout', auth, (req, res) => {
     res.json({ message: 'Déconnexion réussie' });
+});
+
+// Route de test pour vérifier l'accès à l'API
+router.get('/test', (req, res) => {
+    res.json({ message: 'API users accessible' });
 });
 
 module.exports = router;

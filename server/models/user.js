@@ -40,7 +40,8 @@ userSchema.pre('save', async function(next) {
         role: this.role,
         passwordLength: this.password?.length
     });
-    if (this.isModified('password')) {
+    // Ne pas hasher si le mot de passe est déjà hashé
+    if (this.isModified('password') && this.password.length < 30) {
         this.password = await bcrypt.hash(this.password, 10);
     }
     next();
