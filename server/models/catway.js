@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Reservation = require('./reservation');  // Vérifier la casse
 
 const catwaySchema = new mongoose.Schema({
     catwayNumber: {
