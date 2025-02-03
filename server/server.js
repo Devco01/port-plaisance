@@ -45,11 +45,15 @@ app.use(cors({
 // Parser JSON ensuite
 app.use(express.json());
 
+// Documentation API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    explorer: true,
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: "API Port de Plaisance - Documentation"
+}));
+
 // Servir les fichiers statiques du build React
 app.use(express.static(path.join(__dirname, '../client/build')));
-
-// Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Importer les routes
 console.log('Chargement des routes utilisateurs...');
