@@ -70,9 +70,13 @@ Rôle: admin
 Ce compte est créé automatiquement lors de l'initialisation
 
 L'application sera accessible sur :
-- Client : http://localhost:3000
-- API : http://localhost:8000
-- Documentation API : http://localhost:8000/api-docs
+- Client (dev) : http://localhost:3000
+- API (dev) : http://localhost:8000
+- Documentation API (dev) : http://localhost:8000/api-docs
+
+En production :
+- Application : https://port-plaisance.onrender.com
+- Documentation API : https://port-plaisance.onrender.com/api-docs
 
 ## Fonctionnalités
 
