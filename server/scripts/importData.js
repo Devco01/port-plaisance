@@ -12,7 +12,7 @@ const reservationSchema = require('../models/reservation').schema;
 async function importData() {
     try {
         // Connexion à MongoDB
-        const mongoURI = process.env.MONGODB_URI;
+        const mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
         await mongoose.connect(mongoURI);
         console.log('Connecté à MongoDB');
 
