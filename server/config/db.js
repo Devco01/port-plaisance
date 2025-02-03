@@ -1,21 +1,29 @@
 const mongoose = require('mongoose');
-const config = require('./config');
 
 const connectDB = async () => {
     try {
-        console.log('Tentative de connexion à MongoDB:', config.mongoURI);
-        if (!config.mongoURI) {
-            throw new Error('MongoDB URI is not defined in environment variables');
+        // Vérifier l'URI MongoDB
+        if (!process.env.MONGODB_URI) {
+            console.error('❌ MONGODB_URI non défini. Environnement:', process.env.NODE_ENV);
+            process.exit(1);
         }
-        await mongoose.connect(config.mongoURI);
+
+        // Log de l'URI (masqué pour la sécurité)
+        const maskedURI = process.env.MONGODB_URI.replace(
+            /mongodb\+srv:\/\/([^:]+):([^@]+)@/,
+            'mongodb+srv://[USER]:[PASSWORD]@'
+        );
+        console.log(`Tentative de connexion à MongoDB (${process.env.NODE_ENV}):`, maskedURI);
+
+        // Tenter la connexion
+        await mongoose.connect(process.env.MONGODB_URI);
         console.log('✅ Connecté à MongoDB');
-        
-        // Vérifier si nous avons des utilisateurs
-        const User = require('../models/user');
-        const users = await User.find();
-        console.log('Nombre d\'utilisateurs dans la base:', users.length);
     } catch (error) {
-        console.error('Erreur de connexion MongoDB:', error.message);
+        console.error('❌ Erreur MongoDB détaillée:', {
+            message: error.message,
+            code: error.code,
+            name: error.name
+        });
         process.exit(1);
     }
 };
