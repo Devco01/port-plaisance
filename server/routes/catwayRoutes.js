@@ -40,23 +40,13 @@ const config = require('../config/config');
  * @swagger
  * /catways:
  *   get:
- *     summary: Récupère tous les catways
+ *     summary: Liste tous les catways
  *     tags: [Catways]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Liste des catways
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Catway'
- *       401:
- *         description: Non autorisé
- *       500:
- *         description: Erreur serveur
+ *         description: Liste des catways récupérée avec succès
  */
 router.get('/', auth, async (req, res) => {
     try {
@@ -97,7 +87,7 @@ router.get('/', auth, async (req, res) => {
  *                 type: string
  *               catwayType:
  *                 type: string
- *                 enum: [short, long]
+ *                 enum: [long, short]
  *               catwayState:
  *                 type: string
  *     responses:
@@ -136,70 +126,68 @@ router.post('/', [auth, isAdmin], async (req, res) => {
 /**
  * @swagger
  * /catways/{id}:
- *   put:
- *     summary: Mettre à jour un catway
+ *   get:
+ *     summary: Récupérer les détails d'un catway
  *     tags: [Catways]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: ID MongoDB du catway
+ *   put:
+ *     summary: Modifier l'état d'un catway
+ *     tags: [Catways]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Catway'
- *     responses:
- *       200:
- *         description: Catway mis à jour avec succès
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Catway'
- *       400:
- *         description: Données invalides
- *       401:
- *         description: Non autorisé
- *       500:
- *         description: Erreur serveur
+ *             type: object
+ *             required:
+ *               - catwayState
+ *             properties:
+ *               catwayState:
+ *                 type: string
+ *   delete:
+ *     summary: Supprimer un catway
+ *     tags: [Catways]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
  */
 router.put('/:id', [auth, isAdmin], async (req, res) => {
     try {
+        // Ne permettre que la modification de l'état
         const { catwayState } = req.body;
-        
         if (!catwayState) {
-            return res
-                .status(400)
-                .set('Content-Type', 'application/json')
-                .json({ message: 'L\'état du catway est requis' });
+            return res.status(400).json({ 
+                message: 'Seul l\'état du catway peut être modifié' 
+            });
         }
 
-        const catway = await Catway.findById(req.params.id);
+        const catway = await Catway.findByIdAndUpdate(
+            req.params.id,
+            { catwayState },
+            { new: true }
+        );
+
         if (!catway) {
-            return res
-                .status(404)
-                .set('Content-Type', 'application/json')
-                .json({ message: 'Catway non trouvé' });
+            return res.status(404).json({ message: 'Catway non trouvé' });
         }
 
-        catway.catwayState = catwayState;
-        await catway.save();
-
-        return res
-            .status(200)
-            .set('Content-Type', 'application/json')
-            .json(catway);
+        res.json(catway);
     } catch (error) {
-        console.error('Erreur modification:', error);
-        return res
-            .status(500)
-            .set('Content-Type', 'application/json')
-            .json({ message: 'Erreur serveur' });
+        res.status(500).json({ message: error.message });
     }
 });
 
@@ -217,7 +205,6 @@ router.put('/:id', [auth, isAdmin], async (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: ID MongoDB du catway
  *     responses:
  *       200:
  *         description: Catway supprimé avec succès
@@ -272,70 +259,121 @@ router.delete('/:id', [auth, isAdmin], async (req, res) => {
 
 /**
  * @swagger
- * /catways/:id/reservations:
- *   post:
- *     summary: Créer une nouvelle réservation
- *     tags: [Catways]
- *     security:
- *       - bearerAuth: []
+ * /catways/{id}/reservations:
+ *   get:
+ *     summary: Liste toutes les réservations d'un catway
+ *     tags: [Reservations]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: ID MongoDB du catway
+ */
+router.get('/:id/reservations', auth, async (req, res) => {
+    try {
+        const catway = await Catway.findOne({ catwayNumber: req.params.id });
+        if (!catway) {
+            return res.status(404).json({ message: 'Catway non trouvé' });
+        }
+
+        const reservations = await Reservation.find({ catwayNumber: req.params.id })
+            .sort({ startDate: -1 });
+        res.json(reservations);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+});
+
+/**
+ * @swagger
+ * /catways/{id}/reservations:
+ *   post:
+ *     summary: Créer une nouvelle réservation
+ *     tags: [Reservations]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Reservation'
- *     responses:
- *       201:
- *         description: Réservation créée avec succès
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Reservation'
- *       400:
- *         description: Données invalides
- *       401:
- *         description: Non autorisé
- *       500:
- *         description: Erreur serveur
+ *             type: object
+ *             required:
+ *               - clientName
+ *               - boatName
+ *               - startDate
+ *               - endDate
+ *             properties:
+ *               clientName:
+ *                 type: string
+ *               boatName:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *               endDate:
+ *                 type: string
+ *                 format: date
  */
 router.post('/:id/reservations', auth, async (req, res) => {
     try {
-        const catway = await Catway.findById(req.params.id);
+        console.log('Création réservation - ID catway:', req.params.id);
+        console.log('Données reçues:', req.body);
+        const catway = await Catway.findOne({ catwayNumber: req.params.id });
+        console.log('Catway trouvé:', catway);
         if (!catway) {
             return res.status(404).json({ message: 'Catway non trouvé' });
         }
 
-        // Vérifier les chevauchements de dates
-        const { startDate, endDate } = req.body;
-        const overlappingReservation = await Reservation.findOne({
-            catwayId: req.params.id,
-            $or: [
-                {
-                    startDate: { $lte: endDate },
-                    endDate: { $gte: startDate }
-                }
-            ]
+        const reservation = new Reservation({
+            catwayNumber: req.params.id,
+            clientName: req.body.clientName,
+            boatName: req.body.boatName,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate
         });
+        console.log('Réservation à créer:', reservation);
+        await reservation.save();
+        console.log('Réservation créée avec succès');
+        res.status(201).json(reservation);
+    } catch (error) {
+        console.error('Erreur création réservation:', error);
+        res.status(400).json({ message: error.message });
+    }
+});
 
-        if (overlappingReservation) {
-            return res.status(400).json({ message: 'Il existe déjà une réservation pour cette période' });
+/**
+ * @swagger
+ * /catways/{id}/reservations/{idReservation}:
+ *   put:
+ *     summary: Modifier une réservation
+ */
+router.put('/:id/reservations/:idReservation', auth, async (req, res) => {
+    try {
+        const catway = await Catway.findOne({ catwayNumber: req.params.id });
+        if (!catway) {
+            return res.status(404).json({ message: 'Catway non trouvé' });
         }
 
-        const reservation = new Reservation({
-            ...req.body,
-            catwayId: req.params.id,
-            catwayNumber: catway.catwayNumber
-        });
+        const reservation = await Reservation.findOneAndUpdate(
+            {
+                _id: req.params.idReservation,
+                catwayNumber: req.params.id
+            },
+            req.body,
+            { new: true }
+        );
 
-        await reservation.save();
-        res.status(201).json(reservation);
+        if (!reservation) {
+            return res.status(404).json({ message: 'Réservation non trouvée' });
+        }
+
+        res.json(reservation);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -346,37 +384,17 @@ router.post('/:id/reservations', auth, async (req, res) => {
  * /catways/{id}/reservations/{idReservation}:
  *   delete:
  *     summary: Supprimer une réservation
- *     tags: [Catways]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID MongoDB du catway
- *       - in: path
- *         name: idReservation
- *         required: true
- *         schema:
- *           type: string
- *         description: ID MongoDB de la réservation
- *     responses:
- *       200:
- *         description: Réservation supprimée avec succès
- *       404:
- *         description: Réservation non trouvée
- *       401:
- *         description: Non autorisé
- *       500:
- *         description: Erreur serveur
  */
 router.delete('/:id/reservations/:idReservation', auth, async (req, res) => {
     try {
+        const catway = await Catway.findOne({ catwayNumber: req.params.id });
+        if (!catway) {
+            return res.status(404).json({ message: 'Catway non trouvé' });
+        }
+
         const reservation = await Reservation.findOneAndDelete({
             _id: req.params.idReservation,
-            catwayId: req.params.id
+            catwayNumber: req.params.id
         });
 
         if (!reservation) {
@@ -385,7 +403,7 @@ router.delete('/:id/reservations/:idReservation', auth, async (req, res) => {
 
         res.json({ message: 'Réservation supprimée avec succès' });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
+        res.status(500).json({ message: error.message });
     }
 });
 

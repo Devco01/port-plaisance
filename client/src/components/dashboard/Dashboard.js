@@ -21,54 +21,67 @@ import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import EventIcon from '@mui/icons-material/Event';
 import config from '../../config/config';
+import { jwtDecode } from 'jwt-decode';
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
-    const [reservations, setReservations] = useState([]);
+    const [currentReservations, setCurrentReservations] = useState([]);
     
     // Mémoriser la date pour éviter les re-rendus
     const today = useMemo(() => new Date(), []);
 
     useEffect(() => {
-        const fetchUserInfo = async () => {
+        // Récupérer les réservations en cours
+        const fetchCurrentReservations = async () => {
             try {
-                const response = await fetch(`${config.apiUrl}/api/users/me`, {
+                const token = localStorage.getItem('token');
+                // D'abord, récupérer tous les catways
+                const catwaysResponse = await fetch(`${config.apiUrl}/api/catways`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    setUser(data);
-                }
-            } catch (error) {
-            }
-        };
+                const catways = await catwaysResponse.json();
 
-        const fetchReservations = async () => {
-            try {
-                const response = await fetch(`${config.apiUrl}/api/reservations`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    // Filtrer pour n'avoir que les réservations en cours
-                    const currentReservations = data.filter(reservation => {
-                        const startDate = new Date(reservation.startDate);
-                        const endDate = new Date(reservation.endDate);
-                        return startDate <= today && endDate >= today;
+                // Ensuite, récupérer les réservations pour chaque catway
+                const allReservations = [];
+                for (const catway of catways) {
+                    const response = await fetch(`${config.apiUrl}/api/catways/${catway.catwayNumber}/reservations`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
                     });
-                    setReservations(currentReservations);
+                    const reservations = await response.json();
+                    // Ajouter le numéro du catway à chaque réservation
+                    reservations.forEach(res => {
+                        res.catwayNumber = catway.catwayNumber;
+                    });
+                    allReservations.push(...reservations);
                 }
+
+                // Filtrer pour n'avoir que les réservations en cours
+                const now = new Date();
+                const currentReservations = allReservations.filter(res => {
+                    const endDate = new Date(res.endDate);
+                    // Une réservation est en cours si elle n'est pas terminée
+                    return endDate >= now;
+                });
+
+                setCurrentReservations(currentReservations);
             } catch (error) {
                 console.error('Erreur lors de la récupération des réservations:', error);
             }
         };
 
+        // Récupérer les infos de l'utilisateur connecté
+        const fetchUserInfo = async () => {
+            const token = localStorage.getItem('token');
+            const decoded = jwtDecode(token);
+            setUser(decoded.user);
+        };
+
         fetchUserInfo();
-        fetchReservations();
+        fetchCurrentReservations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Retirer today des dépendances
 
@@ -110,7 +123,7 @@ const Dashboard = () => {
                                     <Box display="flex" alignItems="center" mb={1}>
                                         <PersonIcon sx={{ mr: 1 }} />
                                         <Typography>
-                                            {user.nom} {user.prenom}
+                                            {user.username}
                                         </Typography>
                                     </Box>
                                     <Box display="flex" alignItems="center">
@@ -141,8 +154,8 @@ const Dashboard = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {reservations.length > 0 ? (
-                                    reservations.map((reservation) => (
+                                {currentReservations.length > 0 ? (
+                                    currentReservations.map((reservation) => (
                                         <TableRow key={reservation._id}>
                                             <TableCell>{reservation.catwayNumber}</TableCell>
                                             <TableCell>{reservation.clientName}</TableCell>
@@ -153,7 +166,7 @@ const Dashboard = () => {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} align="center">
+                                        <TableCell colSpan={7} align="center">
                                             Aucune réservation en cours
                                         </TableCell>
                                     </TableRow>

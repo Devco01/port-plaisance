@@ -1,0 +1,16 @@
+[
+    {
+        "catwayNumber": "1",
+        "clientName": "Jean Dupont",
+        "boatName": "Le Petit Mousse",
+        "startDate": "2024-03-15",
+        "endDate": "2024-03-20"
+    },
+    {
+        "catwayNumber": "2",
+        "clientName": "Marie Martin",
+        "boatName": "L'Aventurier",
+        "startDate": "2024-03-18",
+        "endDate": "2024-03-25"
+    }
+] 

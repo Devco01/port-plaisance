@@ -155,3 +155,22 @@ La documentation de l'API est disponible sur http://localhost:8000/api-docs une 
 - Hachage des mots de passe avec bcrypt
 - Validation des données
 - Protection CORS
+
+## Déploiement
+
+### Prérequis
+- Compte MongoDB Atlas
+- Compte Render.com
+
+### Configuration
+1. Copier `.env.example` vers `.env`
+2. Configurer les variables d'environnement :
+   - MONGODB_URI : URL de connexion MongoDB Atlas
+   - JWT_SECRET : Clé secrète pour les tokens JWT
+   - PORT : Port du serveur (8000 par défaut)
+   - API_URL : URL de l'API
+
+### Variables d'environnement sur Render
+- MONGODB_URI
+- JWT_SECRET
+- PORT=8000

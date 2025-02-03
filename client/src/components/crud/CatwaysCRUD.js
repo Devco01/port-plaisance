@@ -1,11 +1,11 @@
-import config from '../../config/config';
 import React, { useState, useEffect } from 'react';
 import {
     Container, Typography, Paper, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Button, Dialog,
     DialogTitle, DialogContent, DialogActions, TextField,
-    FormControl, InputLabel, Select, MenuItem
+    MenuItem
 } from '@mui/material';
+import config from '../../config/config';
 
 const CatwaysCRUD = () => {
     const [catways, setCatways] = useState([]);
@@ -13,8 +13,8 @@ const CatwaysCRUD = () => {
     const [editMode, setEditMode] = useState(false);
     const [currentCatway, setCurrentCatway] = useState({
         catwayNumber: '',
-        catwayType: 'small',
-        catwayState: 'disponible'
+        catwayType: 'long',
+        catwayState: 'Bon état'
     });
 
     useEffect(() => {
@@ -43,8 +43,8 @@ const CatwaysCRUD = () => {
         } else {
             setCurrentCatway({
                 catwayNumber: '',
-                catwayType: 'small',
-                catwayState: 'disponible'
+                catwayType: 'long',
+                catwayState: 'Bon état'
             });
             setEditMode(false);
         }
@@ -55,8 +55,8 @@ const CatwaysCRUD = () => {
         setOpen(false);
         setCurrentCatway({
             catwayNumber: '',
-            catwayType: 'small',
-            catwayState: 'disponible'
+            catwayType: 'long',
+            catwayState: 'Bon état'
         });
         setEditMode(false);
     };
@@ -65,18 +65,27 @@ const CatwaysCRUD = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            console.log('Données du catway à créer:', currentCatway);
-            const response = await fetch(`${config.apiUrl}/api/catways`, {
-                method: 'POST',
+            const url = editMode 
+                ? `${config.apiUrl}/api/catways/${currentCatway._id}`
+                : `${config.apiUrl}/api/catways`;
+            
+            const method = editMode ? 'PUT' : 'POST';
+            
+            // En mode édition, n'envoyer que l'état
+            const body = editMode 
+                ? { catwayState: currentCatway.catwayState }
+                : currentCatway;
+
+            const response = await fetch(url, {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(currentCatway)
+                body: JSON.stringify(body)
             });
 
             const data = await response.json();
-            console.log('Réponse du serveur:', data);
 
             if (response.ok) {
                 await fetchCatways();
@@ -169,47 +178,46 @@ const CatwaysCRUD = () => {
                     {editMode ? 'Modifier le Catway' : 'Ajouter un Catway'}
                 </DialogTitle>
                 <DialogContent>
+                    {!editMode && (
+                        <>
+                            <TextField
+                                margin="dense"
+                                label="Numéro"
+                                fullWidth
+                                value={currentCatway.catwayNumber}
+                                onChange={(e) => setCurrentCatway({
+                                    ...currentCatway,
+                                    catwayNumber: e.target.value
+                                })}
+                                sx={{ mb: 2 }}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Type"
+                                select
+                                fullWidth
+                                value={currentCatway.catwayType}
+                                onChange={(e) => setCurrentCatway({
+                                    ...currentCatway,
+                                    catwayType: e.target.value
+                                })}
+                                sx={{ mb: 2 }}
+                            >
+                                <MenuItem value="long">Long</MenuItem>
+                                <MenuItem value="short">Court</MenuItem>
+                            </TextField>
+                        </>
+                    )}
                     <TextField
                         margin="dense"
-                        label="Numéro"
+                        label="État"
                         fullWidth
-                        value={currentCatway.catwayNumber}
+                        value={currentCatway.catwayState}
                         onChange={(e) => setCurrentCatway({
                             ...currentCatway,
-                            catwayNumber: e.target.value
+                            catwayState: e.target.value
                         })}
-                        sx={{ mb: 2 }}
                     />
-                    <FormControl fullWidth sx={{ mb: 2 }}>
-                        <InputLabel>Type</InputLabel>
-                        <Select
-                            value={currentCatway.catwayType}
-                            label="Type"
-                            onChange={(e) => setCurrentCatway({
-                                ...currentCatway,
-                                catwayType: e.target.value
-                            })}
-                        >
-                            <MenuItem value="small">Petit</MenuItem>
-                            <MenuItem value="medium">Moyen</MenuItem>
-                            <MenuItem value="large">Grand</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl fullWidth>
-                        <InputLabel>État</InputLabel>
-                        <Select
-                            value={currentCatway.catwayState}
-                            label="État"
-                            onChange={(e) => setCurrentCatway({
-                                ...currentCatway,
-                                catwayState: e.target.value
-                            })}
-                        >
-                            <MenuItem value="disponible">Disponible</MenuItem>
-                            <MenuItem value="occupé">Occupé</MenuItem>
-                            <MenuItem value="maintenance">En maintenance</MenuItem>
-                        </Select>
-                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Annuler</Button>

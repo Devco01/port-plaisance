@@ -4,17 +4,19 @@ const catwaySchema = new mongoose.Schema({
     catwayNumber: {
         type: String,
         required: [true, 'Le numéro du catway est requis'],
-        unique: true
+        unique: true,
+        immutable: true
     },
     catwayType: {
         type: String,
-        enum: ['small', 'medium', 'large'],
-        required: [true, 'Le type de catway est requis']
+        enum: ['long', 'short'],
+        required: [true, 'Le type de catway est requis'],
+        immutable: true
     },
     catwayState: {
         type: String,
-        enum: ['disponible', 'occupé', 'maintenance'],
-        default: 'disponible'
+        required: true,
+        default: 'Bon état'
     }
 }, {
     timestamps: true

@@ -231,14 +231,13 @@ router.post('/login', async (req, res) => {
             user: {
                 id: user._id,
                 email: user.email,
-                nom: user.nom,
-                prenom: user.prenom,
-                role: user.role || 'user'
+                username: user.username,
+                role: user.role
             }
         };
 
         const token = jwt.sign(
-            payload, 
+            payload,
             config.jwtSecret,
             { expiresIn: '24h' }
         );
@@ -273,56 +272,38 @@ const authMiddleware = (req, res, next) => {
 
 /**
  * @swagger
- * /users/me:
- *   get:
- *     summary: Récupérer les informations de l'utilisateur connecté
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Informations de l'utilisateur récupérées avec succès
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 _id:
- *                   type: string
- *                 email:
- *                   type: string
- *                 nom:
- *                   type: string
- *                 prenom:
- *                   type: string
- *       401:
- *         description: Non autorisé
- *       500:
- *         description: Erreur serveur
- */
-router.get('/me', authMiddleware, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id).select('-password');
-        if (!user) {
-            return res.status(404).json({ msg: 'Utilisateur non trouvé' });
-        }
-        res.json(user);
-    } catch (error) {
-        res.status(500).send('Erreur du serveur');
-    }
-});
-
-/**
- * @swagger
  * /users:
  *   get:
- *     summary: Récupérer tous les utilisateurs
+ *     summary: Liste tous les utilisateurs
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Liste des utilisateurs
+ *         description: Liste des utilisateurs récupérée avec succès
+ * 
+ *   post:
+ *     summary: Créer un nouvel utilisateur
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - username
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
  */
 router.get('/', [auth, isAdmin], async (req, res) => {
     try {
@@ -339,41 +320,100 @@ router.get('/', [auth, isAdmin], async (req, res) => {
 /**
  * @swagger
  * /users/{email}:
- *   put:
- *     summary: Modifier un utilisateur
+ *   get:
+ *     summary: Récupérer les détails d'un utilisateur
  *     tags: [Users]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: email
  *         required: true
  *         schema:
  *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nom:
- *                 type: string
- *               prenom:
- *                 type: string
+ * 
+ *   put:
+ *     summary: Modifier un utilisateur
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ * 
+ *   delete:
+ *     summary: Supprimer un utilisateur
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
  */
-router.put('/:email', auth, async (req, res) => {
+router.get('/:email', auth, async (req, res) => {
     try {
         const user = await User.findOne({ email: req.params.email });
         if (!user) {
-            return res.status(404).json({ msg: 'Utilisateur non trouvé' });
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+});
+
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Créer un nouvel utilisateur
+ *     tags: [Users]
+ */
+router.post('/', [auth, isAdmin], async (req, res) => {
+    try {
+        const { email, username, password } = req.body;
+        
+        // Vérifier si l'utilisateur existe déjà
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Cet email est déjà utilisé' });
         }
 
-        const { nom, prenom } = req.body;
-        if (nom) user.nom = nom;
-        if (prenom) user.prenom = prenom;
+        // Hasher le mot de passe
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Créer le nouvel utilisateur
+        const user = new User({
+            email,
+            username,
+            password: hashedPassword,
+            role: 'user'
+        });
 
         await user.save();
+        res.status(201).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+/**
+ * @swagger
+ * /users/{email}:
+ *   put:
+ *     summary: Modifier un utilisateur
+ *     tags: [Users]
+ */
+router.put('/:email', auth, async (req, res) => {
+    try {
+        const user = await User.findOneAndUpdate(
+            { email: req.params.email },
+            req.body,
+            { new: true }
+        );
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
         res.json(user);
     } catch (error) {
         res.status(500).json({ message: 'Erreur serveur' });
@@ -386,14 +426,6 @@ router.put('/:email', auth, async (req, res) => {
  *   delete:
  *     summary: Supprimer un utilisateur
  *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: email
- *         required: true
- *         schema:
- *           type: string
  */
 router.delete('/:email', [auth, isAdmin], async (req, res) => {
     try {
@@ -409,113 +441,17 @@ router.delete('/:email', [auth, isAdmin], async (req, res) => {
     }
 });
 
-// Route temporaire pour créer un utilisateur de test
-router.post('/create-test-user', async (req, res) => {
-    try {
-        const testUser = new User({
-            email: 'test@test.com',
-            password: await bcrypt.hash('password123', 10),
-            nom: 'Test',
-            prenom: 'User',
-            role: 'admin'
-        });
-        await testUser.save();
-        res.json({ message: 'Utilisateur de test créé' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Route pour initialiser les utilisateurs de test
-router.post('/init-test-users', async (req, res) => {
-    try {
-        // D'abord, supprimer les utilisateurs existants
-        await User.deleteMany({ 
-            email: { 
-                $in: ['admin@portplaisance.fr', 'user@portplaisance.fr'] 
-            } 
-        });
-
-        // Créer l'admin
-        const admin = new User({
-            email: 'admin@portplaisance.fr',
-            password: await bcrypt.hash('PortAdmin2024!', 10),
-            nom: 'Admin',
-            prenom: 'Port',
-            role: 'admin'
-        });
-
-        // Créer l'utilisateur standard
-        const user = new User({
-            email: 'user@portplaisance.fr',
-            password: await bcrypt.hash('UserPort2024!', 10),
-            nom: 'User',
-            prenom: 'Port',
-            role: 'user'
-        });
-
-        // Sauvegarder les nouveaux utilisateurs
-        await Promise.all([
-            admin.save(),
-            user.save()
-        ]);
-
-        res.json({ message: 'Utilisateurs de test créés avec succès' });
-    } catch (error) {
-        console.error('Erreur:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Route de débogage (à placer AVANT le module.exports)
 /**
  * @swagger
- * /users/debug:
+ * /users/logout:
  *   get:
- *     summary: Liste tous les utilisateurs (debug)
+ *     summary: Déconnexion utilisateur
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  */
-router.get('/debug', async (req, res) => {
-    try {
-        const users = await User.find().select('-__v');
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Route simple pour créer un admin
-router.post('/create-admin', async (req, res) => {
-    try {
-        // Supprimer l'admin s'il existe
-        await User.deleteOne({ email: 'admin@portplaisance.fr' });
-
-        // Créer le nouvel admin
-        const admin = new User({
-            email: 'admin@portplaisance.fr',
-            password: await bcrypt.hash('PortAdmin2024!', 10),
-            nom: 'Admin',
-            prenom: 'Port',
-            role: 'admin'
-        });
-
-        await admin.save();
-        res.json({ 
-            message: 'Admin créé avec succès',
-            credentials: {
-                email: 'admin@portplaisance.fr',
-                password: 'PortAdmin2024!'
-            }
-        });
-    } catch (error) {
-        console.error('Erreur:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Route de test simple
-router.get('/test', (req, res) => {
-    res.json({ message: 'Route de test OK' });
+router.get('/logout', auth, (req, res) => {
+    res.json({ message: 'Déconnexion réussie' });
 });
 
 module.exports = router;
