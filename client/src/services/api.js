@@ -1,9 +1,12 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';
-
 const api = axios.create({
-    baseURL: API_URL
+    baseURL: process.env.NODE_ENV === 'production' 
+        ? 'https://port-plaisance.onrender.com/api'
+        : 'http://localhost:8000/api',
+    headers: {
+        'Content-Type': 'application/json'
+    }
 });
 
 // Intercepteur pour ajouter le token aux requêtes
@@ -14,6 +17,20 @@ api.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// Intercepteur pour les erreurs
+api.interceptors.response.use(
+    response => response,
+    error => {
+        console.error('🔥 Erreur API:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status,
+            message: error.message
+        });
+        return Promise.reject(error);
+    }
+);
 
 export const login = async (email, password) => {
     const response = await api.post('/users/login', { email, password });

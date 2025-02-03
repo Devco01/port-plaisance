@@ -7,6 +7,9 @@ const auth = require('../middleware/auth');
 const config = require('../config/config');
 const isAdmin = require('../middleware/isAdmin');
 
+// Préfixer toutes les routes avec /users
+router.use('/users', router);
+
 /**
  * @swagger
  * tags:
@@ -201,6 +204,7 @@ router.post('/register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
     try {
+        console.log('📝 Corps de la requête:', req.body);
         console.log('👤 Tentative de connexion:', req.body.email);
         const { email, password } = req.body;
         
@@ -210,6 +214,11 @@ router.post('/login', async (req, res) => {
         }
 
         const user = await User.findOne({ email });
+        console.log('🔍 Recherche utilisateur:', {
+            email,
+            trouvé: !!user,
+            role: user?.role
+        });
 
         if (!user) {
             console.log('❌ Utilisateur non trouvé:', email);
