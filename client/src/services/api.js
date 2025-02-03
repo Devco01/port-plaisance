@@ -1,4 +1,5 @@
 import axios from 'axios';
+import config from '../config/config';
 
 const api = axios.create({
     baseURL: process.env.NODE_ENV === 'production' 
@@ -48,12 +49,12 @@ export const getCatways = async () => {
 };
 
 export const createReservation = async (reservationData) => {
-    const response = await api.post('/reservations', reservationData);
+    const response = await api.post(`/catways/${reservationData.catwayNumber}/reservations`, reservationData);
     return response.data;
 };
 
 export const getReservations = async () => {
-    const response = await api.get('/reservations');
+    const response = await api.get('/catways');
     return response.data;
 };
 
@@ -91,12 +92,12 @@ export const getUsers = async () => {
 };
 
 export const updateUser = async (id, userData) => {
-    const response = await api.put(`/users/${id}`, userData);
+    const response = await api.put(`/users/${userData.email}`, userData);
     return response.data;
 };
 
 export const deleteUser = async (id) => {
-    const response = await api.delete(`/users/${id}`);
+    const response = await api.delete(`/users/${id.email}`);
     return response.data;
 };
 
