@@ -204,8 +204,11 @@ router.post('/register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
     try {
-        console.log('📝 Corps de la requête:', req.body);
-        console.log('👤 Tentative de connexion:', req.body.email);
+        console.log('📝 Tentative de connexion:', {
+            email: req.body.email,
+            body: req.body
+        });
+
         const { email, password } = req.body;
         
         if (!email || !password) {
@@ -214,10 +217,17 @@ router.post('/login', async (req, res) => {
         }
 
         const user = await User.findOne({ email });
-        console.log('🔍 Recherche utilisateur:', {
-            email,
-            trouvé: !!user,
+        console.log('🔍 Utilisateur trouvé:', {
+            found: !!user,
+            email: user?.email,
             role: user?.role
+        });
+
+        // Log du hash stocké
+        console.log('🔐 Hash stocké:', {
+            email: user?.email,
+            storedHash: user?.password?.substring(0, 10) + '...',
+            inputPassword: password
         });
 
         if (!user) {

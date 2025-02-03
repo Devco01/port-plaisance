@@ -3,9 +3,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DescriptionIcon from '@mui/icons-material/Description';
 
 const getDocsUrl = () => {
-    return process.env.NODE_ENV === 'production'
-        ? 'https://port-plaisance.onrender.com/api-docs'
-        : 'http://localhost:8000/api-docs';
+    const baseUrl = process.env.NODE_ENV === 'production'
+        ? 'https://port-plaisance.onrender.com'
+        : 'http://localhost:8000';
+    return `${baseUrl}/api-docs`;
 };
 
 const Navbar = () => {

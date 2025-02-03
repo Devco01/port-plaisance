@@ -8,7 +8,8 @@ import {
     Typography, 
     Container,
     InputAdornment,
-    IconButton
+    IconButton,
+    CircularProgress
 } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import EmailIcon from '@mui/icons-material/Email';
@@ -23,34 +24,35 @@ const LoginForm = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('🔑 Soumission du formulaire:', { email });
+        setError('');
+        setLoading(true);
+        console.log('🔄 Tentative de connexion avec:', {
+            email,
+            passwordLength: password.length
+        });
+
         try {
             const response = await login(email, password);
-            console.log('✅ Login réussi:', {
-                hasToken: !!response.token,
-                redirectTo: '/dashboard'
+            console.log('✅ Réponse du serveur:', {
+                success: !!response,
+                hasToken: !!response?.token,
+                user: response?.user
             });
-            if (response.token) {
-                console.log('🔄 Redirection vers le dashboard...');
-                navigate('/dashboard');
-            } else {
-                console.error('❌ Pas de token dans la réponse');
-                setError('Erreur de connexion');
-            }
-        } catch (error) {
-            console.error('❌ Erreur de login:', {
-                message: error.message,
-                response: error.response?.data
+            navigate('/dashboard');
+        } catch (err) {
+            console.error('❌ Erreur de connexion:', {
+                message: err.message,
+                status: err.response?.status,
+                data: err.response?.data
             });
-            if (error.response?.status === 400) {
-                setError(error.response.data.msg || 'Identifiants invalides');
-            } else {
-                setError('Erreur de connexion au serveur');
-            }
+            setError(err.response?.data?.message || 'Erreur de connexion');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -159,6 +161,7 @@ const LoginForm = () => {
                             variant="contained"
                             fullWidth
                             size="large"
+                            disabled={loading}
                             sx={{ 
                                 mt: 2,
                                 py: 1.5,
@@ -166,7 +169,11 @@ const LoginForm = () => {
                                 fontWeight: 'bold'
                             }}
                         >
-                            Se connecter
+                            {loading ? (
+                                <CircularProgress size={24} color="inherit" />
+                            ) : (
+                                'Se connecter'
+                            )}
                         </Button>
 
                         <Box sx={{ mt: 2, textAlign: 'center' }}>
