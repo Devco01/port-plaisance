@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -33,12 +34,15 @@ const userSchema = new mongoose.Schema({
 });
 
 // Middleware pour logger les opérations
-userSchema.pre('save', function(next) {
-    console.log('Sauvegarde utilisateur:', {
+userSchema.pre('save', async function(next) {
+    console.log('💾 Sauvegarde utilisateur:', {
         email: this.email,
         role: this.role,
         passwordLength: this.password?.length
     });
+    if (this.isModified('password')) {
+        this.password = await bcrypt.hash(this.password, 10);
+    }
     next();
 });
 

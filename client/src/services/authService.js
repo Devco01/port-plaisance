@@ -2,7 +2,7 @@ import axios from 'axios';
 import config from '../config/config';
 
 const login = async (email, password) => {
-    const url = `${config.apiUrl}/api/users/login`;
+    const url = `${config.apiUrl}/users/login`;
     console.log('🚀 Tentative de connexion:', {
         url,
         email
