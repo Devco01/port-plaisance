@@ -51,12 +51,12 @@ app.use(cors({
 // Parser JSON ensuite
 app.use(express.json());
 
-// Monter les routes API d'abord
+// Routes API
 app.use('/api/users', userRoutes);
 app.use('/api/catways', catwayRoutes);
 
 // Documentation API ensuite
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: "API Port de Plaisance - Documentation"
@@ -67,6 +67,7 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Toutes les autres routes non-API renvoient l'app React
 app.get('*', (req, res) => {
+    console.log('📍 Route demandée:', req.path);
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
