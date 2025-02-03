@@ -32,4 +32,14 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+// Middleware pour logger les opérations
+userSchema.pre('save', function(next) {
+    console.log('Sauvegarde utilisateur:', {
+        email: this.email,
+        role: this.role,
+        passwordLength: this.password?.length
+    });
+    next();
+});
+
 module.exports = mongoose.model('User', userSchema);

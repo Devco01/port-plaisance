@@ -70,7 +70,7 @@ npm run start:client
 ```
 
 ## Utilisateur de test
-L'application dispose de deux comptes préconfigurés pour tester les différentes fonctionnalités :
+L'application dispose d'un compte administrateur préconfiguré :
 
 ### Compte Administrateur
 ```
@@ -79,15 +79,7 @@ Mot de passe: PortAdmin2024!
 Rôle: admin
 ```
 
-### Compte Utilisateur Standard
-```
-Email: user@portplaisance.fr
-Mot de passe: UserPort2024!
-Rôle: user
-```
-
-Ces comptes sont créés automatiquement lors de l'initialisation (étape 5 de l'installation).
-
+Ce compte est créé automatiquement lors de l'initialisation (étape 5 de l'installation).
 
 L'application sera accessible sur :
 - Client : http://localhost:3000

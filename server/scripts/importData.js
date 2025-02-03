@@ -11,7 +11,7 @@ const reservationSchema = require('../models/reservation').schema;
 async function importData() {
     try {
         // Connexion à MongoDB
-        const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/port-plaisance';
+        const mongoURI = process.env.MONGODB_URI;
         await mongoose.connect(mongoURI);
         console.log('Connecté à MongoDB');
 
@@ -25,7 +25,10 @@ async function importData() {
                 role: 'admin'
             });
             await admin.save();
-            console.log('✅ Admin créé');
+            console.log('✅ Admin créé avec:', {
+                email: admin.email,
+                role: admin.role
+            });
         }
 
         // Lire et importer les catways
