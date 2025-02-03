@@ -51,31 +51,27 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin']
 };
 
-// Parser JSON ensuite
+// Parser JSON
 app.use(express.json());
 
-// Documentation API (avant les autres routes)
+// Documentation API
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: "API Port de Plaisance - Documentation"
 }));
 
-// Routes d'authentification à la racine
-app.use('/', userRoutes);  // Gère /login et /logout
+// Routes API (avant les fichiers statiques)
+app.use('/api', [
+    userRoutes,  // /api/login, /api/users, etc.
+    catwayRoutes // /api/catways, etc.
+]);
 
-// Routes des ressources
-app.use('/', catwayRoutes); // Gère /catways/... et /users/...
-
-// Servir les fichiers statiques React en dernier
+// Servir les fichiers statiques React
 app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Route catch-all pour React
-app.get('*', (req, res, next) => {
-    // Ne pas rediriger les requêtes API ou documentation
-    if (req.url.startsWith('/api') || req.url.startsWith('/api-docs')) {
-        return next();
-    }
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 

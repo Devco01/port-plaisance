@@ -1,5 +1,4 @@
 import axios from 'axios';
-import config from '../config/config';
 
 const api = axios.create({
     baseURL: process.env.NODE_ENV === 'production' 
@@ -14,7 +13,12 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
-        config.headers['x-auth-token'] = token;
+        config.headers['Authorization'] = `Bearer ${token}`;
+        console.log('🔑 Token ajouté aux headers:', {
+            url: config.url,
+            hasToken: !!token,
+            tokenStart: token.substring(0, 20) + '...'  // Log sécurisé du token
+        });
     }
     return config;
 });
@@ -34,70 +38,70 @@ api.interceptors.response.use(
 );
 
 export const login = async (email, password) => {
-    const response = await api.post('/login', { email, password });
+    const response = await api.post('/api/login', { email, password });
     return response.data;
 };
 
 export const register = async (userData) => {
-    const response = await api.post('/register', userData);
+    const response = await api.post('/api/register', userData);
     return response.data;
 };
 
 export const getCatways = async () => {
-    const response = await api.get('/catways');
+    const response = await api.get('/api/catways');
     return response.data;
 };
 
 export const createReservation = async (reservationData) => {
-    const response = await api.post(`/catways/${reservationData.catwayNumber}/reservations`, reservationData);
+    const response = await api.post(`/api/catways/${reservationData.catwayNumber}/reservations`, reservationData);
     return response.data;
 };
 
 export const getReservations = async () => {
-    const response = await api.get('/catways');
+    const response = await api.get('/api/catways');
     return response.data;
 };
 
 // Méthodes CRUD pour les catways
 export const createCatway = async (catwayData) => {
-    const response = await api.post('/catways', catwayData);
+    const response = await api.post('/api/catways', catwayData);
     return response.data;
 };
 
 export const updateCatway = async (id, catwayData) => {
-    const response = await api.put(`/catways/${id}`, catwayData);
+    const response = await api.put(`/api/catways/${id}`, catwayData);
     return response.data;
 };
 
 export const deleteCatway = async (id) => {
-    const response = await api.delete(`/catways/${id}`);
+    const response = await api.delete(`/api/catways/${id}`);
     return response.data;
 };
 
 // Méthodes CRUD pour les réservations
 export const updateReservation = async (id, reservationData) => {
-    const response = await api.put(`/catways/${reservationData.catwayNumber}/reservations/${id}`, reservationData);
+    const response = await api.put(`/api/catways/${reservationData.catwayNumber}/reservations/${id}`, reservationData);
     return response.data;
 };
 
 export const deleteReservation = async (id) => {
-    const response = await api.delete(`/catways/${id}/reservations/${id}`);
+    const response = await api.delete(`/api/catways/${id}/reservations/${id}`);
     return response.data;
 };
 
 // Méthodes CRUD pour les utilisateurs
 export const getUsers = async () => {
-    const response = await api.get('/users');
+    const response = await api.get('/api/users');
     return response.data;
 };
 
 export const updateUser = async (id, userData) => {
-    const response = await api.put(`/users/${userData.email}`, userData);
+    const response = await api.put(`/api/users/${userData.email}`, userData);
     return response.data;
 };
 
 export const deleteUser = async (id) => {
-    const response = await api.delete(`/users/${id.email}`);
+    const response = await api.delete(`/api/users/${id.email}`);
     return response.data;
 };
 
