@@ -21,7 +21,7 @@
     "check-admin": "node server/scripts/checkAdmin.js",
     "dev": "PORT=3001 nodemon server/server.js",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
-    "prepare": "husky install",
+    "prepare": "",
     "validate": "npm run lint && npm run test",
     "seed": "node server/scripts/initDb.js"
   },
