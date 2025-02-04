@@ -3,7 +3,7 @@ var router = express.Router();
 var Catway = require('../models/catway');
 var auth = require('../middleware/auth'); 
 var Reservation = require('../models/reservation');
-var catwayController = require('../controllers/catwayController');
+var _catwayController = require('../controllers/catwayController');
 
 /**
  * @swagger

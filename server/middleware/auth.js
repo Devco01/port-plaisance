@@ -6,60 +6,24 @@ var User = require('../models/user');
  * Vérifie le token JWT et ajoute l'utilisateur à la requête
  */
 var auth = function(req, res, next) {
-    // Récupérer le token
-    var token = req.headers.authorization ? 
-        req.headers.authorization.split(' ')[1] : 
-        (req.cookies.token || req.query.token);
-
-    if (!token) {
-        return res.status(401).json({ 
-            message: 'Authentification requise' 
-        });
+    var token;
+    if (req.headers.authorization && req.headers.authorization.split(' ')[1]) {
+        token = req.headers.authorization.split(' ')[1];
+    } else {
+        token = req.cookies.token;
     }
 
-    // Vérifier le token
-    jwt.verify(token, process.env.JWT_SECRET, function(err, decoded) {
-        if (err) {
-            if (err.name === 'JsonWebTokenError') {
-                return res.status(401).json({ 
-                    message: 'Token invalide' 
-                });
-            }
-            if (err.name === 'TokenExpiredError') {
-                return res.status(401).json({ 
-                    message: 'Token expiré' 
-                });
-            }
-            return res.status(500).json({ 
-                message: 'Erreur d\'authentification' 
-            });
-        }
+    if (!token) {
+        return res.status(401).json({ message: 'Token non fourni' });
+    }
 
-        // Récupérer l'utilisateur
-        User.findOne({ 
-            email: decoded.email,
-            active: true 
-        })
-            .select('-password')
-            .then(function(user) {
-                if (!user) {
-                    return res.status(401).json({ 
-                        message: 'Utilisateur non trouvé ou compte désactivé' 
-                    });
-                }
-
-                // Ajouter l'utilisateur à la requête
-                req.user = user;
-                req.token = token;
-
-                next();
-            })
-            .catch(function(error) {
-                res.status(500).json({ 
-                    message: 'Erreur d\'authentification' 
-                });
-            });
-    });
+    try {
+        var decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        res.status(401).json({ message: 'Token invalide' });
+    }
 };
 
 /**

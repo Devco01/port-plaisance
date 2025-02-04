@@ -5,7 +5,7 @@ require('dotenv').config({
 });
 
 // Vérification des variables d'environnement requises
-var requiredEnvVars = ['JWT_SECRET', 'PORT'];
+var _requiredEnvVars = ['JWT_SECRET', 'PORT'];
 if (!process.env.MONGODB_URI && !process.env.MONGODB_URL) {
     console.error('❌ Ni MONGODB_URI ni MONGODB_URL ne sont définis');
     process.exit(1);
@@ -30,7 +30,7 @@ console.log('Variables d\'environnement:', {
 });
 
 var express = require('express');
-var cors = require('cors');
+var _cors = require('cors');
 var swaggerUi = require('swagger-ui-express');
 var swaggerSpec = require('./config/swagger');
 var connectDB = require('./config/db');
@@ -49,7 +49,7 @@ var app = express();
 
 // Middleware CORS en premier
 
-var corsOptions = {
+var _corsOptions = {
     origin: function (origin, callback) {
         console.log('🌐 Requête CORS de:', origin);
 

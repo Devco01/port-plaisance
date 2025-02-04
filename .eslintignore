@@ -1,14 +1,22 @@
-# Dossiers à ignorer complètement
+# Dossiers à ignorer
 node_modules/
+client/
 build/
 dist/
 coverage/
+
+# Fichiers spécifiques
+*.config.js
+jest.config.js
+babel.config.js
+*.test.js
+
+# Dossiers spécifiques
 views/
 public/
 
 # Fichiers spécifiques
 *.ejs
-*.test.js
 swagger.js
 
 # Dossiers spécifiques
