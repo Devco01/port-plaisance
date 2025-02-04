@@ -1,20 +1,22 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
-var reservationSchema = new mongoose.Schema({
+var reservationSchema = new Schema({
     catwayNumber: {
         type: String,
-        required: true,
-        ref: 'Catway'
+        required: true
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     },
     clientName: {
         type: String,
-        required: true,
-        trim: true
+        required: true
     },
     boatName: {
         type: String,
-        required: true,
-        trim: true
+        required: true
     },
     startDate: {
         type: Date,
@@ -22,33 +24,59 @@ var reservationSchema = new mongoose.Schema({
     },
     endDate: {
         type: Date,
-        required: true
+        required: true,
+        validate: {
+            validator: function(endDate) {
+                return endDate > this.startDate;
+            },
+            message: 'La date de fin doit être postérieure à la date de début'
+        }
     },
     status: {
         type: String,
-        enum: ['confirmée', 'annulée', 'en_attente'],
-        default: 'en_attente'
+        enum: ['pending', 'confirmed', 'cancelled'],
+        default: 'pending'
     },
-    totalPrice: {
-        type: Number,
-        min: 0
-    },
-    comments: {
-        type: String,
-        trim: true
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
-}, {
-    timestamps: true
 });
 
-// Index pour optimiser les recherches de conflits
-reservationSchema.index({ catwayNumber: 1, startDate: 1, endDate: 1 });
+// Vérifie les chevauchements avant la sauvegarde
+reservationSchema.pre('save', function(next) {
+    var reservation = this;
+    
+    // Vérifie si les dates se chevauchent avec une réservation existante
+    mongoose.model('Reservation').findOne({
+        catwayNumber: reservation.catwayNumber,
+        _id: { $ne: reservation._id },
+        $or: [
+            {
+                startDate: { $lt: reservation.endDate },
+                endDate: { $gt: reservation.startDate }
+            },
+            {
+                startDate: { $lte: reservation.startDate },
+                endDate: { $gte: reservation.endDate }
+            }
+        ]
+    })
+        .then(function(existingReservation) {
+            if (existingReservation) {
+                next(new Error('Chevauchement : une réservation existe déjà pour cette période'));
+            } else {
+                next();
+            }
+        })
+        .catch(next);
+});
 
-// Méthode pour vérifier si une période est disponible
+// Vérifier la disponibilité du catway
 reservationSchema.statics.checkAvailability = function(catwayNumber, startDate, endDate) {
-    return this.findOne({
+    return this.find({
         catwayNumber: catwayNumber,
-        status: { $ne: 'annulée' },
+        status: 'confirmed',
         $or: [
             {
                 startDate: { $lte: endDate },
@@ -58,20 +86,4 @@ reservationSchema.statics.checkAvailability = function(catwayNumber, startDate, 
     }).exec();
 };
 
-// Méthode pour calculer le prix total
-reservationSchema.methods.calculatePrice = function() {
-    var days = Math.ceil((this.endDate - this.startDate) / (1000 * 60 * 60 * 24));
-    var basePrice = 50; // Prix par jour
-    this.totalPrice = days * basePrice;
-    return this.save();
-};
-
-// Méthode pour annuler une réservation
-reservationSchema.methods.cancel = function() {
-    this.status = 'annulée';
-    return this.save();
-};
-
-var Reservation = mongoose.model('Reservation', reservationSchema);
-
-module.exports = Reservation;
+module.exports = mongoose.model('Reservation', reservationSchema);

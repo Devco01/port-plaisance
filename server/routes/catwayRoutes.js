@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var Catway = require('../models/catway');
-var auth = require('../middleware/auth'); 
 var Reservation = require('../models/reservation');
+var authMiddleware = require('../middleware/auth');
 var _catwayController = require('../controllers/catwayController');
 
 /**
@@ -39,8 +39,8 @@ var _catwayController = require('../controllers/catwayController');
  * @swagger
  * /api/catways:
  *   get:
- *     summary: Liste tous les catways
  *     tags: [Catways]
+ *     summary: Liste tous les catways
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -48,12 +48,12 @@ var _catwayController = require('../controllers/catwayController');
  *         name: type
  *         schema:
  *           type: string
- *         description: Filtrer par type de catway (long/short)
+ *         description: Filtrer par type de catway
  *       - in: query
  *         name: state
  *         schema:
  *           type: string
- *         description: Filtrer par état du catway
+ *         description: Filtrer par état
  *     responses:
  *       200:
  *         description: Liste des catways
@@ -64,26 +64,20 @@ var _catwayController = require('../controllers/catwayController');
  *               items:
  *                 $ref: '#/components/schemas/Catway'
  */
-router.get('/', auth, function(req, res) {
-    var query = {};
-    if (req.query.type) query.catwayType = req.query.type;
-    if (req.query.state) query.catwayState = req.query.state;
-
-    Catway.find(query)
+router.get('/', authMiddleware.auth, function(req, res, next) {
+    Catway.find()
         .then(function(catways) {
             res.json(catways);
         })
-        .catch(function(error) {
-            res.status(500).json({ message: error.message });
-        });
+        .catch(next);
 });
 
 /**
  * @swagger
  * /api/catways/{id}:
  *   get:
- *     summary: Récupère un catway par son ID
  *     tags: [Catways]
+ *     summary: Récupère un catway par son ID
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -95,28 +89,28 @@ router.get('/', auth, function(req, res) {
  *     responses:
  *       200:
  *         description: Détails du catway
- *       404:
- *         description: Catway non trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Catway'
  */
-router.get('/:id', auth, function(req, res) {
-    Catway.findById(req.params.id)
+router.get('/:id', authMiddleware.auth, function(req, res, next) {
+    Catway.findOne({ catwayNumber: req.params.id })
         .then(function(catway) {
             if (!catway) {
                 return res.status(404).json({ message: 'Catway non trouvé' });
             }
             res.json(catway);
         })
-        .catch(function(error) {
-            res.status(500).json({ message: error.message });
-        });
+        .catch(next);
 });
 
 /**
  * @swagger
  * /api/catways:
  *   post:
- *     summary: Crée un nouveau catway
  *     tags: [Catways]
+ *     summary: Crée un nouveau catway
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -125,29 +119,22 @@ router.get('/:id', auth, function(req, res) {
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Catway'
- *     responses:
- *       201:
- *         description: Catway créé
- *       400:
- *         description: Données invalides
  */
-router.post('/', auth, function(req, res) {
+router.post('/', authMiddleware.auth, authMiddleware.isAdmin, function(req, res, next) {
     var catway = new Catway(req.body);
     catway.save()
-        .then(function(newCatway) {
-            res.status(201).json(newCatway);
+        .then(function(saved) {
+            res.status(201).json(saved);
         })
-        .catch(function(error) {
-            res.status(400).json({ message: error.message });
-        });
+        .catch(next);
 });
 
 /**
  * @swagger
  * /api/catways/{id}:
  *   put:
- *     summary: Met à jour un catway
  *     tags: [Catways]
+ *     summary: Modifie un catway existant
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -162,31 +149,28 @@ router.post('/', auth, function(req, res) {
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Catway'
- *     responses:
- *       200:
- *         description: Catway mis à jour
- *       404:
- *         description: Catway non trouvé
  */
-router.put('/:id', auth, function(req, res) {
-    Catway.findByIdAndUpdate(req.params.id, req.body, { new: true })
-        .then(function(catway) {
-            if (!catway) {
-                return res.status(404).json({ message: 'Catway non trouvé' });
+router.put('/:id', authMiddleware.auth, authMiddleware.isAdmin, function(req, res, next) {
+    Catway.findOneAndUpdate(
+        { catwayNumber: req.params.id },
+        req.body,
+        { new: true }
+    )
+        .then(function(updated) {
+            if (!updated) {
+                return res.status(404).json({ error: 'Catway non trouvé' });
             }
-            res.json(catway);
+            res.json(updated);
         })
-        .catch(function(error) {
-            res.status(400).json({ message: error.message });
-        });
+        .catch(next);
 });
 
 /**
  * @swagger
  * /api/catways/{id}:
  *   delete:
- *     summary: Supprime un catway
  *     tags: [Catways]
+ *     summary: Supprime un catway
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -195,23 +179,24 @@ router.put('/:id', auth, function(req, res) {
  *         required: true
  *         schema:
  *           type: string
- *     responses:
- *       200:
- *         description: Catway supprimé
- *       404:
- *         description: Catway non trouvé
  */
-router.delete('/:id', auth, function(req, res) {
-    Catway.findByIdAndDelete(req.params.id)
-        .then(function(catway) {
-            if (!catway) {
-                return res.status(404).json({ message: 'Catway non trouvé' });
+router.delete('/:id', authMiddleware.auth, authMiddleware.isAdmin, function(req, res, next) {
+    Reservation.findOne({ catwayNumber: req.params.id })
+        .then(function(reservation) {
+            if (reservation) {
+                return res.status(400).json({ 
+                    error: 'Impossible de supprimer un catway avec des réservations actives' 
+                });
+            }
+            return Catway.findOneAndDelete({ catwayNumber: req.params.id });
+        })
+        .then(function(deleted) {
+            if (!deleted) {
+                return res.status(404).json({ error: 'Catway non trouvé' });
             }
             res.json({ message: 'Catway supprimé avec succès' });
         })
-        .catch(function(error) {
-            res.status(500).json({ message: error.message });
-        });
+        .catch(next);
 });
 
 /**
@@ -239,21 +224,12 @@ router.delete('/:id', auth, function(req, res) {
  *               items:
  *                 $ref: '#/components/schemas/Reservation'
  */
-router.get('/:catwayNumber/reservations', auth.requireAuth, function(req, res) {
-    Catway.findOne({ catwayNumber: req.params.catwayNumber })
-        .then(function(catway) {
-            if (!catway) {
-                return res.status(404).json({ message: 'Catway non trouvé' });
-            }
-            return Reservation.find({ catwayNumber: req.params.catwayNumber })
-                .sort('-startDate');
-        })
+router.get('/:catwayNumber/reservations', authMiddleware.auth, function(req, res, next) {
+    Reservation.find({ catwayNumber: req.params.catwayNumber })
         .then(function(reservations) {
             res.json(reservations);
         })
-        .catch(function(error) {
-            res.status(500).json({ message: error.message });
-        });
+        .catch(next);
 });
 
 /**
@@ -287,7 +263,7 @@ router.get('/:catwayNumber/reservations', auth.requireAuth, function(req, res) {
  *       404:
  *         description: Réservation ou catway non trouvé
  */
-router.get('/:catwayNumber/reservations/:idReservation', auth.requireAuth, function(req, res) {
+router.get('/:catwayNumber/reservations/:idReservation', authMiddleware.auth, function(req, res, next) {
     Reservation.findOne({
         _id: req.params.idReservation,
         catwayNumber: req.params.catwayNumber
@@ -298,9 +274,7 @@ router.get('/:catwayNumber/reservations/:idReservation', auth.requireAuth, funct
             }
             res.json(reservation);
         })
-        .catch(function(error) {
-            res.status(500).json({ message: error.message });
-        });
+        .catch(next);
 });
 
 /**
@@ -356,7 +330,7 @@ router.get('/:catwayNumber/reservations/:idReservation', auth.requireAuth, funct
  *       404:
  *         description: Catway non trouvé
  */
-router.post('/:catwayNumber/reservations', auth.requireAuth, function(req, res) {
+router.post('/:catwayNumber/reservations', authMiddleware.auth, function(req, res, next) {
     var reservation = new Reservation(req.body);
     reservation.catwayNumber = req.params.catwayNumber;
 
@@ -364,9 +338,7 @@ router.post('/:catwayNumber/reservations', auth.requireAuth, function(req, res) 
         .then(function(newReservation) {
             res.status(201).json(newReservation);
         })
-        .catch(function(error) {
-            res.status(400).json({ message: error.message });
-        });
+        .catch(next);
 });
 
 /**
@@ -423,7 +395,7 @@ router.post('/:catwayNumber/reservations', auth.requireAuth, function(req, res) 
  *       404:
  *         description: Réservation ou catway non trouvé
  */
-router.put('/:catwayNumber/reservations/:idReservation', auth.requireAuth, function(req, res) {
+router.put('/:catwayNumber/reservations/:idReservation', authMiddleware.auth, function(req, res, next) {
     Reservation.findOneAndUpdate(
         {
             _id: req.params.idReservation,
@@ -438,9 +410,7 @@ router.put('/:catwayNumber/reservations/:idReservation', auth.requireAuth, funct
             }
             res.json(reservation);
         })
-        .catch(function(error) {
-            res.status(400).json({ message: error.message });
-        });
+        .catch(next);
 });
 
 /**
@@ -478,7 +448,7 @@ router.put('/:catwayNumber/reservations/:idReservation', auth.requireAuth, funct
  *       404:
  *         description: Réservation ou catway non trouvé
  */
-router.delete('/:catwayNumber/reservations/:idReservation', auth.requireAuth, function(req, res) {
+router.delete('/:catwayNumber/reservations/:idReservation', authMiddleware.auth, function(req, res, next) {
     Reservation.findOneAndDelete({
         _id: req.params.idReservation,
         catwayNumber: req.params.catwayNumber
@@ -489,9 +459,67 @@ router.delete('/:catwayNumber/reservations/:idReservation', auth.requireAuth, fu
             }
             res.json({ message: 'Réservation supprimée avec succès' });
         })
-        .catch(function(error) {
-            res.status(500).json({ message: error.message });
-        });
+        .catch(next);
+});
+
+/**
+ * @swagger
+ * /api/catways/{id}/reservations:
+ *   get:
+ *     tags: [Reservations]
+ *     summary: Liste les réservations d'un catway
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numéro du catway
+ *     responses:
+ *       200:
+ *         description: Liste des réservations
+ */
+router.get('/:id/reservations', authMiddleware.auth, function(req, res, next) {
+    Reservation.find({ catwayNumber: req.params.id })
+        .then(function(reservations) {
+            res.json(reservations);
+        })
+        .catch(next);
+});
+
+/**
+ * @swagger
+ * /api/catways/{id}/reservations:
+ *   post:
+ *     tags: [Reservations]
+ *     summary: Crée une nouvelle réservation
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numéro du catway
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Reservation'
+ *     responses:
+ *       201:
+ *         description: Réservation créée
+ */
+router.post('/:id/reservations', authMiddleware.auth, function(req, res, next) {
+    var reservation = new Reservation({
+        catwayNumber: req.params.id,
+        clientName: req.body.clientName,
+        boatName: req.body.boatName,
+        startDate: req.body.startDate,
+        endDate: req.body.endDate
+    });
+
+    reservation.save()
+        .then(function(saved) {
+            res.status(201).json(saved);
+        })
+        .catch(next);
 });
 
 module.exports = router;

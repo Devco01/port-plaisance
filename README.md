@@ -1,49 +1,80 @@
-# Port de Plaisance - Application de Gestion
+# API Port de Plaisance Russell
 
-## Description
-Application de gestion complète pour un port de plaisance permettant :
-- Gestion des catways (ajout, modification, suppression)
-- Gestion des réservations (planification, modification, annulation)
-- Gestion des utilisateurs (administration, droits d'accès)
-- Interface administrateur et utilisateur
+Application de gestion des réservations de catways pour le port de plaisance Russell.
 
-## Démo
-L'application est déployée sur Render : [https://port-plaisance.onrender.com](https://port-plaisance.onrender.com)
+## 🚀 Fonctionnalités
 
-## Installation et Configuration
+- Gestion complète des catways (CRUD)
+- Système de réservation
+- Authentification des utilisateurs
+- Interface d'administration
+- Documentation API avec Swagger
 
-### Prérequis
-- Node.js (v14 ou supérieur)
-- MongoDB
-- npm ou yarn
+## 🛠️ Technologies
 
-### Installation
+- Backend: Node.js, Express
+- Base de données: MongoDB
+- Frontend: React, Material-UI
+- Documentation: Swagger
+- Déploiement: Render
+
+## 📦 Installation
+
 1. Cloner le projet
-2. Installer les dépendances (npm install)
-3. Configurer les variables d'environnement (.env)
-4. Démarrer l'application (npm run dev)
+```bash
+git clone https://github.com/Devco01/Port-de-plaisance.git
+cd Port-de-plaisance
+```
 
-### Variables d'environnement
-Copier `.env.example` vers `.env` et configurer :
-- MONGODB_URI : URL de connexion MongoDB
-- JWT_SECRET : Clé secrète pour les tokens
-- PORT : Port du serveur (3001 par défaut)
+2. Installer les dépendances
+```bash
+npm install
+cd client && npm install
+```
 
-## Utilisation
+3. Configurer les variables d'environnement
+```bash
+cp .env.example .env
+# Éditer .env avec vos configurations
+```
 
-### Compte Administrateur
+4. Démarrer l'application
+```bash
+# Mode développement
+npm run dev
+
+# Mode production
+npm run build && npm start
+```
+
+## 🔑 Compte de démonstration
+
 ```
 Email: admin@portplaisance.fr
 Mot de passe: PortAdmin2024!
 ```
 
-### URLs principales
-- Application : http://localhost:3000
-- API : http://localhost:3001
-- Documentation API : http://localhost:3001/api-docs
+## 📚 Documentation API
 
-## Scripts disponibles
-- `npm run dev:server` : Démarre le serveur en développement
-- `npm run dev:client` : Démarre le client React
-- `npm run start` : Démarre en production
-- `npm run build` : Build l'application
+La documentation de l'API est disponible à l'adresse `/api-docs` une fois l'application lancée.
+
+## 🧪 Tests
+
+```bash
+# Exécuter tous les tests
+npm test
+
+# Tests unitaires
+npm run test:unit
+
+# Tests d'intégration
+npm run test:integration
+```
+
+## 🚀 Déploiement
+
+L'application est déployée sur Render : [https://port-plaisance.onrender.com](https://port-plaisance.onrender.com)
+
+## 📝 License
+
+MIT

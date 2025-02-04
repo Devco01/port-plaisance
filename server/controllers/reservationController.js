@@ -286,4 +286,143 @@ exports.deleteReservation = function(req, res) {
                 message: error.message 
             });
         });
+};
+
+module.exports = {
+    getAllReservations: function(req, res) {
+        Reservation.find()
+            .populate('user', 'username email')
+            .then(function(reservations) {
+                res.json(reservations);
+            })
+            .catch(function(error) {
+                res.status(500).json({ message: error.message });
+            });
+    },
+
+    getReservationsByCatway: function(req, res) {
+        Reservation.find({ catwayNumber: req.params.catwayNumber })
+            .populate('user', 'username email')
+            .then(function(reservations) {
+                res.json(reservations);
+            })
+            .catch(function(error) {
+                res.status(500).json({ message: error.message });
+            });
+    },
+
+    createReservation: function(req, res) {
+        var foundCatway;
+        var newReservation;
+        
+        Catway.findOne({ catwayNumber: req.params.catwayNumber })
+            .then(function(catway) {
+                if (!catway) {
+                    throw new Error('Catway non trouvé');
+                }
+                if (catway.catwayState !== 'disponible') {
+                    throw new Error('Catway non disponible');
+                }
+                
+                foundCatway = catway;
+                newReservation = new Reservation(Object.assign({}, req.body, {
+                    catwayNumber: req.params.catwayNumber,
+                    user: req.user._id
+                }));
+
+                return newReservation.save();
+            })
+            .then(function(reservation) {
+                foundCatway.activeReservations.push(reservation._id);
+                return foundCatway.save();
+            })
+            .then(function() {
+                res.status(201).json(newReservation);
+            })
+            .catch(function(error) {
+                var status = error.message.includes('non trouvé') ? 404 :
+                    error.message.includes('non disponible') ? 400 : 500;
+                    
+                res.status(status).json({ message: error.message });
+            });
+    },
+
+    updateReservation: function(req, res) {
+        Reservation.findOne({
+            _id: req.params.id,
+            catwayNumber: req.params.catwayNumber
+        })
+            .populate('user', 'email')
+            .then(function(reservation) {
+                if (!reservation) {
+                    return res.status(404).json({ message: 'Réservation non trouvée' });
+                }
+                
+                if (req.user.role !== 'admin' && req.user.email !== reservation.user.email) {
+                    return res.status(403).json({ message: 'Accès non autorisé' });
+                }
+
+                Object.assign(reservation, req.body);
+                return reservation.save();
+            })
+            .then(function(updatedReservation) {
+                res.json(updatedReservation);
+            })
+            .catch(function(error) {
+                if (error.name === 'ValidationError') {
+                    return res.status(400).json({ 
+                        message: 'Données invalides', 
+                        errors: error.errors 
+                    });
+                }
+                res.status(400).json({ message: error.message });
+            });
+    },
+
+    deleteReservation: function(req, res) {
+        var foundReservation;
+        var foundCatway;
+
+        Reservation.findOne({
+            _id: req.params.id,
+            catwayNumber: req.params.catwayNumber
+        })
+            .populate('user', 'email')
+            .then(function(reservation) {
+                if (!reservation) {
+                    throw new Error('Réservation non trouvée');
+                }
+
+                foundReservation = reservation;
+
+                if (req.user.role !== 'admin' && req.user.email !== reservation.user.email) {
+                    throw new Error('Accès non autorisé');
+                }
+
+                return Catway.findOne({ catwayNumber: req.params.catwayNumber });
+            })
+            .then(function(catway) {
+                if (!catway) {
+                    throw new Error('Catway non trouvé');
+                }
+                foundCatway = catway;
+
+                return foundReservation.remove();
+            })
+            .then(function() {
+                if (foundCatway.activeReservations.length === 0) {
+                    foundCatway.catwayState = 'disponible';
+                    return foundCatway.save();
+                }
+            })
+            .then(function() {
+                res.json({ message: 'Réservation supprimée avec succès' });
+            })
+            .catch(function(error) {
+                var status = error.message.includes('non trouvé') ? 404 :
+                    error.message.includes('non autorisé') ? 403 : 500;
+
+                res.status(status).json({ message: error.message });
+            });
+    }
 }; 

@@ -1,15 +1,13 @@
 var express = require('express');
 var router = express.Router();
-var bcrypt = require('bcrypt');
-var User = require('../models/user');
 var auth = require('../middleware/auth');
-var isAdmin = require('../middleware/isAdmin');
+var userController = require('../controllers/userController');
 
 /**
  * @swagger
  * tags:
  *   name: Users
- *   description: Gestion des utilisateurs de la capitainerie
+ *   description: Gestion des utilisateurs
  */
 
 /**
@@ -38,175 +36,50 @@ var isAdmin = require('../middleware/isAdmin');
 
 /**
  * @swagger
- * /users:
+ * /api/users:
  *   get:
- *     summary: Liste tous les utilisateurs (admin seulement)
+ *     summary: Liste tous les utilisateurs
  *     tags: [Users]
  */
-router.get('/', auth, isAdmin, function(req, res) {
-    User.find()
-        .select('-password')
-        .then(function(users) {
-            res.json(users);
-        })
-        .catch(function(error) {
-            res.status(500).json({ message: error.message });
-        });
-});
+router.get('/', auth.auth, auth.isAdmin, userController.getAllUsers);
 
 /**
  * @swagger
- * /users/{email}:
+ * /api/users/{email}:
  *   get:
- *     summary: Récupère les détails d'un utilisateur
+ *     summary: Récupère un utilisateur par son email
  *     tags: [Users]
  */
-router.get('/:email', auth, function(req, res) {
-    try {
-        // Vérifier si l'utilisateur est admin ou demande ses propres infos
-        if (req.user.role !== 'admin' && req.user.email !== req.params.email) {
-
-            return res.status(403).json({ message: 'Accès non autorisé' });
-        }
-
-        User.findOne({ email: req.params.email }).select('-password')
-            .then(function(user) {
-                if (!user) {
-                    return res.status(404).json({ message: 'Utilisateur non trouvé' });
-                }
-                res.json(user);
-            })
-            .catch(function(error) {
-                res.status(500).json({ message: error.message });
-            });
-
-
-        res.json(user);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
+router.get('/:email', auth.auth, auth.isOwnerOrAdmin(), userController.getUserByEmail);
 
 /**
  * @swagger
- * /users:
+ * /api/users:
  *   post:
- *     summary: Crée un nouvel utilisateur (admin seulement)
+ *     summary: Crée un nouvel utilisateur
  *     tags: [Users]
  */
-router.post('/', auth, isAdmin, function(req, res) {
-    User.findOne({ email: req.body.email })
-        .then(function(existingUser) {
-            if (existingUser) {
-                return res.status(400).json({ message: 'Cet email est déjà utilisé' });
-            }
-
-            var passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
-            if (!passwordRegex.test(req.body.password)) {
-                return res.status(400).json({ 
-                    message: 'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre' 
-                });
-            }
-
-            return bcrypt.hash(req.body.password, 10);
-        })
-        .then(function(hashedPassword) {
-            var user = new User(req.body);
-            user.password = hashedPassword;
-            return user.save();
-
-        })
-        .then(function(user) {
-            var userResponse = user.toObject();
-            delete userResponse.password;
-            res.status(201).json(userResponse);
-        })
-        .catch(function(error) {
-            res.status(400).json({ message: error.message });
-        });
-});
+router.post('/', auth.auth, auth.isAdmin, userController.createUser);
 
 /**
  * @swagger
- * /users/{email}:
+ * /api/users/{email}:
  *   put:
  *     summary: Modifie un utilisateur
  *     tags: [Users]
  */
-router.put('/:email', auth, function(req, res) {
-    try {
-        // Vérifier les droits d'accès
-        if (req.user.role !== 'admin' && req.user.email !== req.params.email) {
-
-            return res.status(403).json({ message: 'Accès non autorisé' });
-        }
-
-        // Empêcher la modification du rôle sauf pour les admins
-        if (req.body.role && req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Modification du rôle non autorisée' });
-        }
-
-        var updates = req.body;
-
-        // Hasher le nouveau mot de passe si fourni
-
-        if (updates.password) {
-            var salt = bcrypt.genSalt(10);
-            updates.password = bcrypt.hash(updates.password, salt);
-        } else {
-            delete updates.password;
-        }
-
-
-        User.findOneAndUpdate(
-            { email: req.params.email },
-            updates,
-            { new: true }
-        ).select('-password')
-            .then(function(user) {
-                if (!user) {
-                    return res.status(404).json({ message: 'Utilisateur non trouvé' });
-                }
-                res.json(user);
-            })
-            .catch(function(error) {
-                res.status(400).json({ message: error.message });
-            });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-});
-
+router.put('/:email', auth.auth, auth.isOwnerOrAdmin(), userController.updateUser);
 
 /**
  * @swagger
- * /users/{email}:
+ * /api/users/{email}:
  *   delete:
- *     summary: Supprime un utilisateur (admin seulement)
+ *     summary: Supprime un utilisateur
  *     tags: [Users]
  */
-router.delete('/:email', auth, isAdmin, function(req, res) {
-    User.findOne({ email: req.params.email })
-        .then(function(user) {
-            if (!user) {
-                return res.status(404).json({ message: 'Utilisateur non trouvé' });
-            }
+router.delete('/:email', auth.auth, auth.isAdmin, userController.deleteUser);
 
-            if (user.role === 'admin') {
-                return res.status(403).json({ message: 'Impossible de supprimer un administrateur' });
-            }
-
-            return user.remove();
-        })
-        .then(function() {
-            res.json({ message: 'Utilisateur supprimé avec succès' });
-        })
-        .catch(function(error) {
-            res.status(500).json({ message: error.message });
-        });
-});
-
-router.get('/:id', auth, function(req, res) {
+router.get('/:id', auth.auth, function(req, res) {
     User.findById(req.params.id)
         .select('-password')
         .then(function(user) {

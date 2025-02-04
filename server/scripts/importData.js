@@ -3,7 +3,7 @@ console.log('ImportData - URL MongoDB:', process.env.MONGODB_URL);
 var mongoose = require('mongoose');
 var Catway = require('../models/catway');
 var User = require('../models/user');
-var fs = require('fs').promises;
+var fs = require('fs');
 var path = require('path');
 var bcrypt = require('bcrypt');
 var Reservation = require('../models/reservation');
@@ -58,4 +58,60 @@ if (require.main === module) {
     importData();
 }
 
-module.exports = importData; 
+function importUsers() {
+    var dataPath = path.join(process.env.DATA_PATH || '.', 'users.json');
+    return new Promise(function(resolve, reject) {
+        fs.readFile(dataPath, 'utf8', function(err, data) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            var users = JSON.parse(data);
+            return Promise.all(users.map(function(user) {
+                return bcrypt.hash(user.password, 10)
+                    .then(function(hash) {
+                        user.password = hash;
+                        return new User(user).save();
+                    });
+            }))
+                .then(resolve)
+                .catch(reject);
+        });
+    });
+}
+
+module.exports = {
+    importCatways: function() {
+        var dataPath = path.join(process.env.DATA_PATH || '.', 'catways.json');
+        return new Promise(function(resolve, reject) {
+            fs.readFile(dataPath, 'utf8', function(err, data) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                var catways = JSON.parse(data);
+                return Catway.insertMany(catways)
+                    .then(resolve)
+                    .catch(reject);
+            });
+        });
+    },
+
+    importReservations: function() {
+        var dataPath = path.join(process.env.DATA_PATH || '.', 'reservations.json');
+        return new Promise(function(resolve, reject) {
+            fs.readFile(dataPath, 'utf8', function(err, data) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                var reservations = JSON.parse(data);
+                return Reservation.insertMany(reservations)
+                    .then(resolve)
+                    .catch(reject);
+            });
+        });
+    },
+
+    importUsers: importUsers
+}; 

@@ -3,7 +3,7 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 var User = require('../models/user');
-var auth = require('../middleware/auth');
+var authMiddleware = require('../middleware/auth');
 
 /**
  * @swagger
@@ -119,16 +119,9 @@ router.post('/login', function(req, res) {
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get('/logout', auth.requireAuth, function(req, res) {
-    try {
-        res.clearCookie('token', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production'
-        });
-        res.json({ message: 'Déconnexion réussie' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+router.get('/logout', authMiddleware.auth, function(req, res) {
+    res.clearCookie('token');
+    res.json({ message: 'Déconnexion réussie' });
 });
 
 /**
@@ -138,13 +131,10 @@ router.get('/logout', auth.requireAuth, function(req, res) {
  *     summary: Récupère les informations de l'utilisateur connecté
  *     tags: [Auth]
  */
-router.get('/me', auth.requireAuth, function(req, res) {
+router.get('/me', authMiddleware.auth, function(req, res) {
     User.findById(req.user.id)
         .select('-password')
         .then(function(user) {
-            if (!user) {
-                return res.status(404).json({ message: 'Utilisateur non trouvé' });
-            }
             res.json(user);
         })
         .catch(function(error) {
@@ -159,7 +149,7 @@ router.get('/me', auth.requireAuth, function(req, res) {
  *     summary: Change le mot de passe de l'utilisateur connecté
  *     tags: [Auth]
  */
-router.post('/change-password', auth.requireAuth, function(req, res) {
+router.post('/change-password', authMiddleware.auth, function(req, res) {
     var currentPassword = req.body.currentPassword;
     var newPassword = req.body.newPassword;
     var user;

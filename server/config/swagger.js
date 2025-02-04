@@ -4,28 +4,14 @@ var fs = require('fs');
 var path = require('path');
 var express = require('express');
 
-var swaggerOptions = {
+var options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'API Port de Plaisance Russell',
+            title: 'API Port de Plaisance',
             version: '1.0.0',
-            description: 'API de gestion des réservations de catways',
-            contact: {
-                name: 'Support API',
-                email: 'support@port-russell.com'
-            },
-            license: {
-                name: 'MIT',
-                url: 'https://opensource.org/licenses/MIT'
-            }
+            description: 'API de gestion du port de plaisance'
         },
-        servers: [
-            {
-                url: process.env.API_URL || 'http://localhost:3000',
-                description: 'Serveur de développement'
-            }
-        ],
         components: {
             securitySchemes: {
                 bearerAuth: {
@@ -35,106 +21,42 @@ var swaggerOptions = {
                 }
             },
             schemas: {
-                Error: {
-                    type: 'object',
-                    properties: {
-                        message: {
-                            type: 'string',
-                            description: 'Message d\'erreur'
-                        }
-                    }
-                },
                 User: {
                     type: 'object',
-                    required: ['username', 'email', 'password'],
+                    required: ['email', 'password'],
                     properties: {
-                        username: {
-                            type: 'string',
-                            description: 'Nom d\'utilisateur'
-                        },
-                        email: {
-                            type: 'string',
-                            format: 'email',
-                            description: 'Adresse email'
-                        },
-                        password: {
-                            type: 'string',
-                            format: 'password',
-                            description: 'Mot de passe'
-                        },
-                        role: {
-                            type: 'string',
-                            enum: ['user', 'admin'],
-                            description: 'Rôle de l\'utilisateur'
-                        },
-                        active: {
-                            type: 'boolean',
-                            description: 'Statut du compte'
-                        }
+                        email: { type: 'string', format: 'email' },
+                        password: { type: 'string', minLength: 8 },
+                        role: { type: 'string', enum: ['user', 'admin'] }
                     }
                 },
                 Catway: {
                     type: 'object',
-                    required: ['catwayNumber', 'catwayType'],
+                    required: ['catwayNumber', 'catwayType', 'catwayState'],
                     properties: {
-                        catwayNumber: {
-                            type: 'string',
-                            description: 'Numéro unique du catway'
-                        },
-                        catwayType: {
-                            type: 'string',
-                            enum: ['long', 'short'],
-                            description: 'Type de catway'
-                        },
-                        catwayState: {
-                            type: 'string',
-                            enum: ['disponible', 'occupé', 'maintenance'],
-                            description: 'État du catway'
-                        }
+                        catwayNumber: { type: 'string' },
+                        catwayType: { type: 'string', enum: ['long', 'short'] },
+                        catwayState: { type: 'string', enum: ['disponible', 'occupé', 'maintenance'] }
                     }
                 },
                 Reservation: {
                     type: 'object',
-                    required: ['catwayNumber', 'clientName', 'boatName', 'startDate', 'endDate'],
+                    required: ['catwayNumber', 'clientName', 'startDate', 'endDate'],
                     properties: {
-                        catwayNumber: {
-                            type: 'string',
-                            description: 'Numéro du catway réservé'
-                        },
-                        clientName: {
-                            type: 'string',
-                            description: 'Nom du client'
-                        },
-                        boatName: {
-                            type: 'string',
-                            description: 'Nom du bateau'
-                        },
-                        boatLength: {
-                            type: 'number',
-                            description: 'Longueur du bateau en mètres'
-                        },
-                        startDate: {
-                            type: 'string',
-                            format: 'date',
-                            description: 'Date de début de réservation'
-                        },
-                        endDate: {
-                            type: 'string',
-                            format: 'date',
-                            description: 'Date de fin de réservation'
-                        }
+                        catwayNumber: { type: 'string' },
+                        clientName: { type: 'string' },
+                        boatName: { type: 'string' },
+                        startDate: { type: 'string', format: 'date-time' },
+                        endDate: { type: 'string', format: 'date-time' }
                     }
                 }
             }
-        },
-        security: [{
-            bearerAuth: []
-        }]
+        }
     },
     apis: ['./server/routes/*.js']
 };
 
-var specs = swaggerJsdoc(swaggerOptions);
+var specs = swaggerJsdoc(options);
 var app = express();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {

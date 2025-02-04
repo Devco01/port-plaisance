@@ -1,36 +1,64 @@
+require('dotenv').config();
+
 var mongoose = require('mongoose');
+var testDb = require('../helpers/testDb');
 
-var beforeAllFn = function() {
-    return new Promise(function(resolve) {
-        if (!mongoose.connection.readyState) {
-            mongoose.connect(global.__MONGO_URI__)
-                .then(function() { resolve(); });
-        } else {
-            resolve();
-        }
-    });
-};
+// Configuration globale pour les tests
+jest.setTimeout(90000);
 
-var afterAllFn = function() {
-    return mongoose.disconnect();
-};
+// Mock des variables d'environnement
+process.env.JWT_SECRET = 'test_secret_key';
+process.env.MONGODB_URI = 'mongodb://localhost:27017/test_db';
 
-var beforeEachFn = function() {
-    return new Promise(function(resolve) {
-        if (mongoose.connection.db) {
-            mongoose.connection.db.collections()
-                .then(function(collections) {
-                    Promise.all(collections.map(function(collection) {
-                        return collection.deleteMany({});
-                    }))
-                        .then(function() { resolve(); });
-                });
-        } else {
-            resolve();
-        }
-    });
-};
+// Liste des fichiers de test qui n'ont pas besoin de la base de données
 
-beforeAll(beforeAllFn);
-afterAll(afterAllFn);
-beforeEach(beforeEachFn); 
+beforeAll(function(done) {
+    testDb.connect()
+        .then(function() {
+            done();
+        })
+        .catch(function(err) {
+            console.error('Erreur de connexion à la base de test:', err);
+            done(err);
+        });
+});
+
+afterAll(function(done) {
+    mongoose.connection.close()
+        .then(function() {
+            done();
+        })
+        .catch(function(err) {
+            console.error('Erreur de déconnexion:', err);
+            done(err);
+        });
+});
+
+beforeEach(function(done) {
+    if (!mongoose.connection.db) {
+        return done();
+    }
+    
+    var collections = mongoose.connection.collections;
+    Promise.all(
+        Object.keys(collections).map(function(key) {
+            return collections[key].deleteMany({});
+        })
+    )
+        .then(function() {
+            done();
+        })
+        .catch(function(err) {
+            console.error('Erreur de nettoyage de la base:', err);
+            done(err);
+        });
+});
+
+afterEach(function() {
+    console.log('Test terminé');
+});
+
+// Gestion des erreurs non capturées pendant les tests
+process.on('unhandledRejection', function(error) {
+    console.error('Unhandled Promise Rejection:', error);
+}); 

@@ -1,27 +1,12 @@
 var mongoose = require('mongoose');
 
-function teardown() {
-    return new Promise(function(resolve, reject) {
-        if (mongoose.connection.readyState !== 0) {
-            mongoose.disconnect()
-                .then(function() {
-                    if (global.__MONGO_SERVER__) {
-                        global.__MONGO_SERVER__.stop()
-                            .then(function() {
-                                delete global.__MONGO_SERVER__;
-                                delete global.__MONGO_URI__;
-                                resolve();
-                            })
-                            .catch(reject);
-                    } else {
-                        resolve();
-                    }
-                })
-                .catch(reject);
-        } else {
-            resolve();
-        }
-    });
-}
-
-module.exports = teardown; 
+module.exports = function() {
+    return mongoose.connection.close()
+        .then(function() {
+            return Promise.resolve();
+        })
+        .catch(function(err) {
+            console.error('Erreur lors de la fermeture de la connexion:', err);
+            return Promise.resolve();
+        });
+}; 

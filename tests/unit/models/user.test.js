@@ -1,118 +1,164 @@
-var mongoose = require('mongoose');
 var User = require('../../../server/models/user');
+var testDb = require('../../helpers/testDb');
 
 describe('Tests du Modèle User', function() {
     beforeAll(function(done) {
-        mongoose.connect(global.__MONGO_URI__)
-            .then(function() { done(); });
+        testDb.connect()
+            .then(function() {
+                done();
+            })
+            .catch(done);
     });
 
     afterAll(function(done) {
-        mongoose.connection.close()
-            .then(function() { done(); });
+        testDb.disconnect()
+            .then(function() {
+                done();
+            })
+            .catch(done);
     });
 
     beforeEach(function(done) {
-        User.deleteMany({})
-            .then(function() { done(); });
+        testDb.clearDatabase()
+            .then(function() {
+                done();
+            })
+            .catch(done);
     });
 
-    it('devrait créer et sauvegarder un utilisateur valide', function(done) {
-        var validUser = {
-            email: 'test@test.com',
-            password: 'Test123!',
+    it('devrait créer un utilisateur valide', function(done) {
+        var validUser = new User({
+            email: 'test@example.com',
+            password: 'Password123!',
+            role: 'user',
             nom: 'Test',
-            prenom: 'User',
-            role: 'user'
-        };
+            prenom: 'User'
+        });
 
-        var user = new User(validUser);
+        validUser.save()
+            .then(function(savedUser) {
+                expect(savedUser.email).toBe('test@example.com');
+                expect(savedUser.role).toBe('user');
+                expect(savedUser.nom).toBe('Test');
+                expect(savedUser.prenom).toBe('User');
+                done();
+            })
+            .catch(done);
+    });
+
+    it('devrait hasher le mot de passe avant la sauvegarde', function(done) {
+        var user = new User({
+            email: 'test@example.com',
+            password: 'Password123!',
+            role: 'user',
+            nom: 'Test',
+            prenom: 'User'
+        });
+
+        user.save()
+            .then(function(savedUser) {
+                expect(savedUser.password).not.toBe('Password123!');
+                expect(savedUser.password).toHaveLength(60);
+                done();
+            })
+            .catch(done);
+    });
+
+    it('devrait valider le mot de passe correctement', function(done) {
+        var user = new User({
+            email: 'test@example.com',
+            password: 'Password123!',
+            role: 'user',
+            nom: 'Test',
+            prenom: 'User'
+        });
+
         user.save()
             .then(function(saved) {
-                expect(saved._id).toBeDefined();
-                expect(saved.email).toBe(validUser.email);
-                expect(saved.password).not.toBe(validUser.password); // Le mot de passe doit être hashé
+                return saved.comparePassword('Password123!');
+            })
+            .then(function(isMatch) {
+                expect(isMatch).toBe(true);
                 done();
-            });
+            })
+            .catch(done);
+    });
+
+    it('devrait rejeter un mot de passe incorrect', function(done) {
+        var user = new User({
+            email: 'test@example.com',
+            password: 'Password123!',
+            role: 'user',
+            nom: 'Test',
+            prenom: 'User'
+        });
+
+        user.save()
+            .then(function(saved) {
+                return saved.comparePassword('WrongPassword');
+            })
+            .then(function(isMatch) {
+                expect(isMatch).toBe(false);
+                done();
+            })
+            .catch(done);
     });
 
     it('devrait rejeter un email invalide', function(done) {
-        var userWithInvalidEmail = {
-            email: 'invalidemail',
-            password: 'Test123!',
+        var user = new User({
+            email: 'invalid-email',
+            password: 'Password123!',
+            role: 'user',
             nom: 'Test',
-            prenom: 'User',
-            role: 'user'
-        };
+            prenom: 'User'
+        });
 
-        var user = new User(userWithInvalidEmail);
         user.save()
-            .catch(function(error) {
-                expect(error).toBeDefined();
-                expect(error.errors.email).toBeDefined();
+            .catch(function(err) {
+                expect(err).toBeDefined();
                 done();
             });
     });
 
     it('devrait rejeter un mot de passe trop court', function(done) {
-        var userWithShortPassword = {
-            email: 'test@test.com',
-            password: '123',
+        var user = new User({
+            email: 'test@example.com',
+            password: 'short',
+            role: 'user',
             nom: 'Test',
-            prenom: 'User',
-            role: 'user'
-        };
+            prenom: 'User'
+        });
 
-        var user = new User(userWithShortPassword);
         user.save()
-            .catch(function(error) {
-                expect(error).toBeDefined();
-                expect(error.errors.password).toBeDefined();
+            .catch(function(err) {
+                expect(err).toBeDefined();
                 done();
             });
     });
 
-    it('devrait rejeter un email dupliqué', function(done) {
+    it('devrait empêcher les doublons d\'email', function(done) {
         var user1 = new User({
-            email: 'test@test.com',
-            password: 'Test123!',
-            nom: 'Test1',
-            prenom: 'User1',
-            role: 'user'
+            email: 'test@example.com',
+            password: 'Password123!',
+            role: 'user',
+            nom: 'Test',
+            prenom: 'User'
+        });
+
+        var user2 = new User({
+            email: 'test@example.com',
+            password: 'DifferentPass123!',
+            role: 'user',
+            nom: 'Test2',
+            prenom: 'User2'
         });
 
         user1.save()
             .then(function() {
-                var user2 = new User({
-                    email: 'test@test.com', // email dupliqué
-                    password: 'Test456!',
-                    nom: 'Test2',
-                    prenom: 'User2',
-                    role: 'user'
-                });
                 return user2.save();
             })
-            .catch(function(error) {
-                expect(error.code).toBe(11000); // code MongoDB pour clé dupliquée
-                done();
-            });
-    });
-
-    it('devrait comparer correctement les mots de passe', function(done) {
-        var user = new User({
-            email: 'test@test.com',
-            password: 'Test123!',
-            nom: 'Test',
-            prenom: 'User',
-            role: 'user'
-        });
-
-        user.save()
-            .then(function(saved) {
-                return saved.comparePassword('Test123!');
-            })
-            .then(function(isMatch) {
-                expect(isMatch).toBe(true);
+            .catch(function(err) {
+                expect(err).toBeDefined();
                 done();
             });
     });

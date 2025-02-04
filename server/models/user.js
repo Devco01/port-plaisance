@@ -1,14 +1,12 @@
 var mongoose = require('mongoose');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 
 var userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
         unique: true,
-        trim: true,
-        lowercase: true,
-        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Email invalide']
+        match: [/.+@.+\..+/, 'Email invalide']
     },
     password: {
         type: String,
@@ -22,43 +20,35 @@ var userSchema = new mongoose.Schema({
     },
     nom: {
         type: String,
-        required: true,
-        trim: true
+        required: true
     },
     prenom: {
         type: String,
-        required: true,
-        trim: true
+        required: true
     },
     active: {
         type: Boolean,
         default: true
+    },
+    lastLogin: {
+        type: Date
     }
 }, {
     timestamps: true
 });
 
-// Middleware pour hasher le mot de passe avant la sauvegarde
+// Hash le mot de passe avant la sauvegarde
 userSchema.pre('save', function(next) {
-    var user = this;
-    if (!user.isModified('password')) {
-        return next();
-    }
-
-    bcrypt.genSalt(10)
-        .then(function(salt) {
-            return bcrypt.hash(user.password, salt);
-        })
-        .then(function(hash) {
-            user.password = hash;
-            next();
-        })
-        .catch(function(err) {
-            next(err);
-        });
+    if (!this.isModified('password')) return next();
+    
+    bcrypt.hash(this.password, 10, function(err, hash) {
+        if (err) return next(err);
+        this.password = hash;
+        next();
+    }.bind(this));
 });
 
-// Méthode pour comparer les mots de passe
+// Vérifie le mot de passe
 userSchema.methods.comparePassword = function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };

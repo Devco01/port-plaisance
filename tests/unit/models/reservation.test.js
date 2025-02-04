@@ -1,97 +1,155 @@
-const mongoose = require('mongoose');
-const Reservation = require('../../../server/models/reservation');
-const User = require('../../../server/models/user');
-const Catway = require('../../../server/models/catway');
+var Reservation = require('../../../server/models/reservation');
+var Catway = require('../../../server/models/catway');
+var testDb = require('../../helpers/testDb');
 
-describe('Reservation Model Test', () => {
-    beforeAll(async () => {
-        await mongoose.connect(global.__MONGO_URI__, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+describe('Tests du Modèle Reservation', function() {
+    var testCatway;
+
+    beforeAll(function(done) {
+        testDb.connect()
+            .then(function() {
+                done();
+            })
+            .catch(done);
     });
 
-    afterAll(async () => {
-        await mongoose.connection.close();
+    afterAll(function(done) {
+        testDb.disconnect()
+            .then(function() {
+                done();
+            })
+            .catch(done);
     });
 
-    beforeEach(async () => {
-        await Reservation.deleteMany({});
-        await User.deleteMany({});
-        await Catway.deleteMany({});
+    beforeEach(function(done) {
+        testDb.clearDatabase()
+            .then(function() {
+                return new Catway({
+                    catwayNumber: 'C123',
+                    catwayType: 'long',
+                    catwayState: 'disponible'
+                }).save();
+            })
+            .then(function(catway) {
+                testCatway = catway;
+                done();
+            })
+            .catch(done);
     });
 
-    it('should create & save reservation successfully', async () => {
-        const user = await User.create({
-            email: 'test@test.com',
-            password: 'password123',
-            nom: 'Test',
-            prenom: 'User'
+    it('devrait créer une réservation valide', function(done) {
+        var reservation = new Reservation({
+            catwayNumber: testCatway.catwayNumber,
+            clientName: 'John Doe',
+            boatName: 'Sea Spirit',
+            startDate: new Date('2024-06-01'),
+            endDate: new Date('2024-06-05')
         });
 
-        const catway = await Catway.create({
-            catwayNumber: '1',
-            catwayType: 'long',
-            catwayState: 'disponible'
-        });
-
-        const validReservation = new Reservation({
-            user: user._id,
-            catway: catway._id,
-            startDate: new Date(),
-            endDate: new Date(Date.now() + 86400000)
-        });
-
-        const savedReservation = await validReservation.save();
-        
-        expect(savedReservation._id).toBeDefined();
-        expect(savedReservation.user.toString()).toBe(user._id.toString());
-        expect(savedReservation.catway.toString()).toBe(catway._id.toString());
+        reservation.save()
+            .then(function(saved) {
+                expect(saved.catwayNumber).toBe(testCatway.catwayNumber);
+                expect(saved.clientName).toBe('John Doe');
+                expect(saved.boatName).toBe('Sea Spirit');
+                done();
+            })
+            .catch(done);
     });
 
-    it('should fail to save reservation without required fields', async () => {
-        const reservationWithoutRequiredField = new Reservation({
-            startDate: new Date()
+    it('devrait rejeter une réservation sans catway', function(done) {
+        var reservation = new Reservation({
+            clientName: 'John Doe',
+            boatName: 'Sea Spirit',
+            startDate: new Date('2024-06-01'),
+            endDate: new Date('2024-06-05')
         });
 
-        let err;
-        try {
-            await reservationWithoutRequiredField.save();
-        } catch (error) {
-            err = error;
-        }
-        
-        expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
+        reservation.save()
+            .then(function() {
+                done(new Error('La réservation aurait dû être rejetée'));
+            })
+            .catch(function(error) {
+                expect(error).toBeDefined();
+                expect(error.name).toBe('ValidationError');
+                done();
+            });
     });
 
-    it('should fail to save reservation with end date before start date', async () => {
-        const user = await User.create({
-            email: 'test@test.com',
-            password: 'password123',
-            nom: 'Test',
-            prenom: 'User'
+    it('devrait rejeter une réservation avec des dates invalides', function(done) {
+        var reservation = new Reservation({
+            catwayNumber: testCatway.catwayNumber,
+            clientName: 'John Doe',
+            boatName: 'Sea Spirit',
+            startDate: new Date('2024-06-05'),
+            endDate: new Date('2024-06-01') // Date de fin avant date de début
         });
 
-        const catway = await Catway.create({
-            catwayNumber: '1',
-            catwayType: 'long',
-            catwayState: 'disponible'
+        reservation.save()
+            .then(function() {
+                done(new Error('La réservation aurait dû être rejetée'));
+            })
+            .catch(function(error) {
+                expect(error).toBeDefined();
+                expect(error.name).toBe('ValidationError');
+                done();
+            });
+    });
+
+    it('devrait permettre de mettre à jour une réservation', function(done) {
+        var reservation = new Reservation({
+            catwayNumber: testCatway.catwayNumber,
+            clientName: 'John Doe',
+            boatName: 'Sea Spirit',
+            startDate: new Date('2024-06-01'),
+            endDate: new Date('2024-06-05')
         });
 
-        const invalidReservation = new Reservation({
-            user: user._id,
-            catway: catway._id,
-            startDate: new Date(Date.now() + 86400000),
-            endDate: new Date()
+        reservation.save()
+            .then(function(saved) {
+                saved.clientName = 'Jane Doe';
+                return saved.save();
+            })
+            .then(function(updated) {
+                expect(updated.clientName).toBe('Jane Doe');
+                done();
+            })
+            .catch(done);
+    });
+
+    it('devrait vérifier les chevauchements de dates', function(done) {
+        // Première réservation
+        var reservation1 = new Reservation({
+            catwayNumber: testCatway.catwayNumber,
+            clientName: 'Client 1',
+            boatName: 'Boat 1',
+            startDate: new Date('2024-06-01'),
+            endDate: new Date('2024-06-05')
         });
 
-        let err;
-        try {
-            await invalidReservation.save();
-        } catch (error) {
-            err = error;
-        }
-        
-        expect(err).toBeDefined();
+        // Deuxième réservation avec dates qui se chevauchent
+        var reservation2 = new Reservation({
+            catwayNumber: testCatway.catwayNumber,
+            clientName: 'Client 2',
+            boatName: 'Boat 2',
+            startDate: new Date('2024-06-03'),
+            endDate: new Date('2024-06-07')
+        });
+
+        reservation1.save()
+            .then(function() {
+                return reservation2.save();
+            })
+            .then(function() {
+                done(new Error('La deuxième réservation aurait dû être rejetée'));
+            })
+            .catch(function(error) {
+                try {
+                    expect(error).toBeDefined();
+                    expect(error.message.toLowerCase()).toContain('chevauchement');
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
     });
 }); 

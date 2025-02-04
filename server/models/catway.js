@@ -30,6 +30,14 @@ var catwaySchema = new mongoose.Schema({
     timestamps: true
 });
 
+// Empêcher la modification du type après création
+catwaySchema.pre('save', function(next) {
+    if (!this.isNew && this.isModified('catwayType')) {
+        next(new Error('Le type de catway ne peut pas être modifié'));
+    }
+    next();
+});
+
 // Méthode pour vérifier la disponibilité
 catwaySchema.methods.isAvailable = function() {
     return this.catwayState === 'disponible';
