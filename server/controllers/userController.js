@@ -1,11 +1,11 @@
-var User = require('../models/user');
+var User = require("../models/user");
 
 /**
  * Liste tous les utilisateurs
  */
 exports.getAllUsers = function (req, res) {
     User.find()
-        .select('-password')
+        .select("-password")
         .then(function (users) {
             res.json(users);
         })
@@ -19,12 +19,12 @@ exports.getAllUsers = function (req, res) {
  */
 exports.getUserByEmail = function (req, res) {
     User.findOne({ email: req.params.email })
-        .select('-password')
+        .select("-password")
         .then(function (user) {
             if (!user) {
                 return res
                     .status(404)
-                    .json({ message: 'Utilisateur non trouvé' });
+                    .json({ message: "Utilisateur non trouvé" });
             }
             res.json(user);
         })
@@ -58,12 +58,12 @@ exports.updateUser = function (req, res) {
         new: true,
         runValidators: true
     })
-        .select('-password')
+        .select("-password")
         .then(function (user) {
             if (!user) {
                 return res
                     .status(404)
-                    .json({ message: 'Utilisateur non trouvé' });
+                    .json({ message: "Utilisateur non trouvé" });
             }
             res.json(user);
         })
@@ -81,9 +81,9 @@ exports.deleteUser = function (req, res) {
             if (!user) {
                 return res
                     .status(404)
-                    .json({ message: 'Utilisateur non trouvé' });
+                    .json({ message: "Utilisateur non trouvé" });
             }
-            res.json({ message: 'Utilisateur supprimé avec succès' });
+            res.json({ message: "Utilisateur supprimé avec succès" });
         })
         .catch(function (error) {
             res.status(500).json({ message: error.message });
@@ -103,7 +103,7 @@ exports.login = function (req, res) {
             foundUser = user;
             if (!user || !user.active) {
                 return res.status(401).json({
-                    message: 'Identifiants invalides ou compte désactivé'
+                    message: "Identifiants invalides ou compte désactivé"
                 });
             }
 
@@ -113,7 +113,7 @@ exports.login = function (req, res) {
             if (!isValidPassword) {
                 return res
                     .status(401)
-                    .json({ message: 'Identifiants invalides' });
+                    .json({ message: "Identifiants invalides" });
             }
 
             // Mettre à jour la date de dernière connexion
@@ -125,13 +125,13 @@ exports.login = function (req, res) {
             var token = jwt.sign(
                 { userId: user._id, email: user.email, role: user.role },
                 process.env.JWT_SECRET,
-                { expiresIn: '24h' }
+                { expiresIn: "24h" }
             );
 
             res.json({ token: token });
         })
         .catch(function (error) {
-            res.status(500).json({ message: 'Erreur lors de la connexion' });
+            res.status(500).json({ message: "Erreur lors de la connexion" });
         });
 };
 
@@ -140,5 +140,5 @@ exports.login = function (req, res) {
  */
 exports.logout = function (req, res) {
     // La déconnexion est gérée côté client en supprimant le token
-    res.json({ message: 'Déconnexion réussie' });
+    res.json({ message: "Déconnexion réussie" });
 };

@@ -7,15 +7,15 @@
  */
 function errorHandler(err, req, res, next) {
     // Log de l'erreur en développement
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
         console.error(err.stack);
     }
 
     // Gestion des erreurs de validation Mongoose
-    if (err.name === 'ValidationError') {
+    if (err.name === "ValidationError") {
         return res.status(400).json({
-            status: 'error',
-            message: 'Erreur de validation',
+            status: "error",
+            message: "Erreur de validation",
             details: Object.values(err.errors).map(function (e) {
                 return {
                     field: e.path,
@@ -26,10 +26,10 @@ function errorHandler(err, req, res, next) {
     }
 
     // Gestion des erreurs de cast Mongoose (ID invalide)
-    if (err.name === 'CastError') {
+    if (err.name === "CastError") {
         return res.status(400).json({
-            status: 'error',
-            message: 'Format d\'ID invalide',
+            status: "error",
+            message: "Format d'ID invalide",
             field: err.path
         });
     }
@@ -37,36 +37,36 @@ function errorHandler(err, req, res, next) {
     // Gestion des erreurs de duplication MongoDB
     if (err.code === 11000) {
         return res.status(409).json({
-            status: 'error',
-            message: 'Cette ressource existe déjà',
+            status: "error",
+            message: "Cette ressource existe déjà",
             field: Object.keys(err.keyPattern)[0]
         });
     }
 
     // Gestion des erreurs JWT
-    if (err.name === 'JsonWebTokenError') {
+    if (err.name === "JsonWebTokenError") {
         return res.status(401).json({
-            status: 'error',
-            message: 'Token invalide ou expiré'
+            status: "error",
+            message: "Token invalide ou expiré"
         });
     }
 
-    if (err.name === 'TokenExpiredError') {
+    if (err.name === "TokenExpiredError") {
         return res.status(401).json({
-            status: 'error',
-            message: 'Token expiré'
+            status: "error",
+            message: "Token expiré"
         });
     }
 
     // Si c'est une erreur d'API, renvoyer du JSON
-    if (req.path.startsWith('/api/')) {
+    if (req.path.startsWith("/api/")) {
         var response = {
-            status: 'error',
-            message: err.message || 'Erreur serveur interne'
+            status: "error",
+            message: err.message || "Erreur serveur interne"
         };
 
         // Ajouter les détails en développement
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === "development") {
             response.stack = err.stack;
         }
 
@@ -74,9 +74,9 @@ function errorHandler(err, req, res, next) {
     }
 
     // Sinon, renvoyer une page d'erreur
-    res.status(err.status || 500).render('error', {
-        message: err.message || 'Erreur serveur',
-        error: process.env.NODE_ENV === 'development' ? err : {}
+    res.status(err.status || 500).render("error", {
+        message: err.message || "Erreur serveur",
+        error: process.env.NODE_ENV === "development" ? err : {}
     });
 }
 

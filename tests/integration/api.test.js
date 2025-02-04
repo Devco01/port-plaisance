@@ -1,12 +1,12 @@
-var request = require('supertest');
-var app = require('../../server/app');
-var User = require('../../server/models/user');
-var Catway = require('../../server/models/catway');
-var Reservation = require('../../server/models/reservation');
-var testDb = require('../helpers/testDb');
-var jwt = require('jsonwebtoken');
+var request = require("supertest");
+var app = require("../../server/app");
+var User = require("../../server/models/user");
+var Catway = require("../../server/models/catway");
+var Reservation = require("../../server/models/reservation");
+var testDb = require("../helpers/testDb");
+var jwt = require("jsonwebtoken");
 
-describe('Tests d\'Intégration API', function () {
+describe("Tests d'Intégration API", function () {
     var userToken;
     var adminToken;
     var testCatway;
@@ -17,29 +17,29 @@ describe('Tests d\'Intégration API', function () {
             .then(function () {
                 // Créer un utilisateur test
                 return new User({
-                    email: 'test@test.com',
-                    password: 'Password123!',
-                    role: 'user',
-                    nom: 'Test',
-                    prenom: 'User'
+                    email: "test@test.com",
+                    password: "Password123!",
+                    role: "user",
+                    nom: "Test",
+                    prenom: "User"
                 }).save();
             })
             .then(function () {
                 // Créer un admin test
                 return new User({
-                    email: 'admin@test.com',
-                    password: 'Password123!',
-                    role: 'admin',
-                    nom: 'Admin',
-                    prenom: 'User'
+                    email: "admin@test.com",
+                    password: "Password123!",
+                    role: "admin",
+                    nom: "Admin",
+                    prenom: "User"
                 }).save();
             })
             .then(function () {
                 // Créer un catway test
                 return new Catway({
-                    catwayNumber: 'C123',
-                    catwayType: 'long',
-                    catwayState: 'disponible'
+                    catwayNumber: "C123",
+                    catwayType: "long",
+                    catwayState: "disponible"
                 }).save();
             })
             .then(function (catway) {
@@ -73,23 +73,23 @@ describe('Tests d\'Intégration API', function () {
             .then(function () {
                 return Promise.all([
                     User.create({
-                        email: 'test@example.com',
-                        password: 'Password123!',
-                        role: 'user',
-                        nom: 'Test',
-                        prenom: 'User'
+                        email: "test@example.com",
+                        password: "Password123!",
+                        role: "user",
+                        nom: "Test",
+                        prenom: "User"
                     }),
                     User.create({
-                        email: 'admin@example.com',
-                        password: 'AdminPass123!',
-                        role: 'admin',
-                        nom: 'Admin',
-                        prenom: 'System'
+                        email: "admin@example.com",
+                        password: "AdminPass123!",
+                        role: "admin",
+                        nom: "Admin",
+                        prenom: "System"
                     }),
                     Catway.create({
-                        catwayNumber: 'C123',
-                        catwayType: 'long',
-                        catwayState: 'disponible'
+                        catwayNumber: "C123",
+                        catwayType: "long",
+                        catwayState: "disponible"
                     })
                 ]);
             })
@@ -99,49 +99,49 @@ describe('Tests d\'Intégration API', function () {
 
                 userToken = jwt.sign(
                     { id: user._id, role: user.role },
-                    process.env.JWT_SECRET || 'test_secret'
+                    process.env.JWT_SECRET || "test_secret"
                 );
                 adminToken = jwt.sign(
                     { id: admin._id, role: admin.role },
-                    process.env.JWT_SECRET || 'test_secret'
+                    process.env.JWT_SECRET || "test_secret"
                 );
                 done();
             })
             .catch(done);
     });
 
-    describe('Authentification', function () {
-        it('devrait permettre la connexion avec des identifiants valides', function (done) {
+    describe("Authentification", function () {
+        it("devrait permettre la connexion avec des identifiants valides", function (done) {
             request(app)
-                .post('/api/auth/login')
+                .post("/api/auth/login")
                 .send({
-                    email: 'test@example.com',
-                    password: 'Password123!'
+                    email: "test@example.com",
+                    password: "Password123!"
                 })
                 .expect(200)
                 .end(done);
         });
     });
 
-    describe('Gestion des Catways', function () {
-        it('devrait lister les catways', function (done) {
+    describe("Gestion des Catways", function () {
+        it("devrait lister les catways", function (done) {
             request(app)
-                .get('/api/catways')
-                .set('Authorization', 'Bearer ' + userToken)
+                .get("/api/catways")
+                .set("Authorization", "Bearer " + userToken)
                 .expect(200)
                 .end(done);
         });
     });
 
-    describe('Gestion des Réservations', function () {
+    describe("Gestion des Réservations", function () {
         beforeEach(function (done) {
             // Créer une réservation test
             var reservation = new Reservation({
                 catwayNumber: testCatway.catwayNumber,
-                clientName: 'Test Client',
-                boatName: 'Test Boat',
-                startDate: new Date('2024-06-01'),
-                endDate: new Date('2024-06-05')
+                clientName: "Test Client",
+                boatName: "Test Boat",
+                startDate: new Date("2024-06-01"),
+                endDate: new Date("2024-06-05")
             });
 
             reservation
@@ -152,22 +152,22 @@ describe('Tests d\'Intégration API', function () {
                 .catch(done);
         });
 
-        it('devrait lister les réservations', function (done) {
+        it("devrait lister les réservations", function (done) {
             request(app)
                 .get(
-                    '/api/catways/' + testCatway.catwayNumber + '/reservations'
+                    "/api/catways/" + testCatway.catwayNumber + "/reservations"
                 )
-                .set('Authorization', 'Bearer ' + userToken)
+                .set("Authorization", "Bearer " + userToken)
                 .expect(200)
                 .end(done);
         });
     });
 
-    describe('Gestion des Utilisateurs', function () {
-        it('devrait permettre à l\'admin de lister les utilisateurs', function (done) {
+    describe("Gestion des Utilisateurs", function () {
+        it("devrait permettre à l'admin de lister les utilisateurs", function (done) {
             request(app)
-                .get('/api/users')
-                .set('Authorization', 'Bearer ' + adminToken)
+                .get("/api/users")
+                .set("Authorization", "Bearer " + adminToken)
                 .expect(200)
                 .end(done);
         });

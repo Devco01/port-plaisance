@@ -1,5 +1,5 @@
-var Catway = require('../models/catway');
-var Reservation = require('../models/reservation');
+var Catway = require("../models/catway");
+var Reservation = require("../models/reservation");
 
 /**
  * Liste tous les catways
@@ -11,13 +11,13 @@ module.exports = {
         if (req.query.state) filter.catwayState = req.query.state;
 
         Catway.find(filter)
-            .sort('catwayNumber')
+            .sort("catwayNumber")
             .then(function (catways) {
                 res.json(catways);
             })
             .catch(function (error) {
                 res.status(500).json({
-                    message: 'Erreur lors de la récupération des catways',
+                    message: "Erreur lors de la récupération des catways",
                     error: error.message
                 });
             });
@@ -32,15 +32,15 @@ module.exports = {
                 if (!catway) {
                     return res
                         .status(404)
-                        .json({ message: 'Catway non trouvé' });
+                        .json({ message: "Catway non trouvé" });
                 }
 
                 return Reservation.find({
                     catwayNumber: catway.catwayNumber,
                     endDate: { $gte: new Date() }
                 })
-                    .sort('startDate')
-                    .populate('user', 'email')
+                    .sort("startDate")
+                    .populate("user", "email")
                     .then(function (activeReservations) {
                         var catwayObj = catway.toObject();
                         catwayObj.activeReservations = activeReservations;
@@ -49,7 +49,7 @@ module.exports = {
             })
             .catch(function (error) {
                 res.status(500).json({
-                    message: 'Erreur lors de la récupération du catway',
+                    message: "Erreur lors de la récupération du catway",
                     error: error.message
                 });
             });
@@ -68,11 +68,11 @@ module.exports = {
             .catch(function (error) {
                 if (error.code === 11000) {
                     return res.status(400).json({
-                        message: 'Ce numéro de catway existe déjà'
+                        message: "Ce numéro de catway existe déjà"
                     });
                 }
                 res.status(400).json({
-                    message: 'Erreur lors de la création du catway',
+                    message: "Erreur lors de la création du catway",
                     error: error.message
                 });
             });
@@ -90,13 +90,13 @@ module.exports = {
                 if (!catway) {
                     return res
                         .status(404)
-                        .json({ message: 'Catway non trouvé' });
+                        .json({ message: "Catway non trouvé" });
                 }
                 res.json(catway);
             })
             .catch(function (error) {
                 res.status(400).json({
-                    message: 'Erreur lors de la mise à jour du catway',
+                    message: "Erreur lors de la mise à jour du catway",
                     error: error.message
                 });
             });
@@ -111,13 +111,13 @@ module.exports = {
                 if (!catway) {
                     return res
                         .status(404)
-                        .json({ message: 'Catway non trouvé' });
+                        .json({ message: "Catway non trouvé" });
                 }
-                res.json({ message: 'Catway supprimé avec succès' });
+                res.json({ message: "Catway supprimé avec succès" });
             })
             .catch(function (error) {
                 res.status(500).json({
-                    message: 'Erreur lors de la suppression du catway',
+                    message: "Erreur lors de la suppression du catway",
                     error: error.message
                 });
             });

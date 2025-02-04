@@ -1,12 +1,12 @@
-require('dotenv').config();
-console.log('ImportData - URL MongoDB:', process.env.MONGODB_URL);
-var mongoose = require('mongoose');
-var Catway = require('../models/catway');
-var User = require('../models/user');
-var fs = require('fs');
-var path = require('path');
-var bcrypt = require('bcrypt');
-var Reservation = require('../models/reservation');
+require("dotenv").config();
+console.log("ImportData - URL MongoDB:", process.env.MONGODB_URL);
+var mongoose = require("mongoose");
+var Catway = require("../models/catway");
+var User = require("../models/user");
+var fs = require("fs");
+var path = require("path");
+var bcrypt = require("bcrypt");
+var Reservation = require("../models/reservation");
 
 var importData = function () {
     var mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
@@ -14,10 +14,10 @@ var importData = function () {
     return mongoose
         .connect(mongoURI)
         .then(function () {
-            console.log('✅ Connecté à MongoDB');
+            console.log("✅ Connecté à MongoDB");
             return fs.readFile(
-                path.join(__dirname, '../data/catways.json'),
-                'utf8'
+                path.join(__dirname, "../data/catways.json"),
+                "utf8"
             );
         })
         .then(function (data) {
@@ -25,10 +25,10 @@ var importData = function () {
             return Catway.insertMany(catways);
         })
         .then(function (result) {
-            console.log('✅ Catways importés:', result.length);
+            console.log("✅ Catways importés:", result.length);
             return fs.readFile(
-                path.join(__dirname, '../data/users.json'),
-                'utf8'
+                path.join(__dirname, "../data/users.json"),
+                "utf8"
             );
         })
         .then(function (data) {
@@ -40,10 +40,10 @@ var importData = function () {
             return User.insertMany(hashedUsers);
         })
         .then(function (result) {
-            console.log('✅ Utilisateurs importés:', result.length);
+            console.log("✅ Utilisateurs importés:", result.length);
             return fs.readFile(
-                path.join(__dirname, '../data/reservations.json'),
-                'utf8'
+                path.join(__dirname, "../data/reservations.json"),
+                "utf8"
             );
         })
         .then(function (data) {
@@ -51,11 +51,11 @@ var importData = function () {
             return Reservation.insertMany(reservations);
         })
         .then(function (result) {
-            console.log('✅ Réservations importées:', result.length);
-            console.log('✅ Import terminé avec succès');
+            console.log("✅ Réservations importées:", result.length);
+            console.log("✅ Import terminé avec succès");
         })
         .catch(function (error) {
-            console.error('❌ Erreur lors de l\'import:', error);
+            console.error("❌ Erreur lors de l'import:", error);
             throw error;
         })
         .finally(function () {
@@ -69,9 +69,9 @@ if (require.main === module) {
 }
 
 function importUsers() {
-    var dataPath = path.join(process.env.DATA_PATH || '.', 'users.json');
+    var dataPath = path.join(process.env.DATA_PATH || ".", "users.json");
     return new Promise(function (resolve, reject) {
-        fs.readFile(dataPath, 'utf8', function (err, data) {
+        fs.readFile(dataPath, "utf8", function (err, data) {
             if (err) {
                 reject(err);
                 return;
@@ -93,9 +93,9 @@ function importUsers() {
 
 module.exports = {
     importCatways: function () {
-        var dataPath = path.join(process.env.DATA_PATH || '.', 'catways.json');
+        var dataPath = path.join(process.env.DATA_PATH || ".", "catways.json");
         return new Promise(function (resolve, reject) {
-            fs.readFile(dataPath, 'utf8', function (err, data) {
+            fs.readFile(dataPath, "utf8", function (err, data) {
                 if (err) {
                     reject(err);
                     return;
@@ -108,11 +108,11 @@ module.exports = {
 
     importReservations: function () {
         var dataPath = path.join(
-            process.env.DATA_PATH || '.',
-            'reservations.json'
+            process.env.DATA_PATH || ".",
+            "reservations.json"
         );
         return new Promise(function (resolve, reject) {
-            fs.readFile(dataPath, 'utf8', function (err, data) {
+            fs.readFile(dataPath, "utf8", function (err, data) {
                 if (err) {
                     reject(err);
                     return;

@@ -1,24 +1,24 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
     baseURL:
-        process.env.NODE_ENV === 'production'
-            ? 'https://port-plaisance.onrender.com'
-            : 'http://localhost:3001',
+        process.env.NODE_ENV === "production"
+            ? "https://port-plaisance.onrender.com"
+            : "http://localhost:3001",
     headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json"
     }
 });
 
 // Intercepteur pour ajouter le token aux requêtes
 api.interceptors.request.use(config => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
-        console.log('🔑 Token ajouté aux headers:', {
+        config.headers["Authorization"] = `Bearer ${token}`;
+        console.log("🔑 Token ajouté aux headers:", {
             url: config.url,
             hasToken: !!token,
-            tokenStart: token.substring(0, 20) + '...' // Log sécurisé du token
+            tokenStart: token.substring(0, 20) + "..." // Log sécurisé du token
         });
     }
     return config;
@@ -28,7 +28,7 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
     response => response,
     error => {
-        console.error('🔥 Erreur API:', {
+        console.error("🔥 Erreur API:", {
             url: error.config?.url,
             method: error.config?.method,
             status: error.response?.status,
@@ -39,17 +39,17 @@ api.interceptors.response.use(
 );
 
 export const login = async (email, password) => {
-    const response = await api.post('/api/login', { email, password });
+    const response = await api.post("/api/login", { email, password });
     return response.data;
 };
 
 export const register = async userData => {
-    const response = await api.post('/api/register', userData);
+    const response = await api.post("/api/register", userData);
     return response.data;
 };
 
 export const getCatways = async () => {
-    const response = await api.get('/api/catways');
+    const response = await api.get("/api/catways");
     return response.data;
 };
 
@@ -62,13 +62,13 @@ export const createReservation = async reservationData => {
 };
 
 export const getReservations = async () => {
-    const response = await api.get('/api/catways');
+    const response = await api.get("/api/catways");
     return response.data;
 };
 
 // Méthodes CRUD pour les catways
 export const createCatway = async catwayData => {
-    const response = await api.post('/api/catways', catwayData);
+    const response = await api.post("/api/catways", catwayData);
     return response.data;
 };
 
@@ -98,7 +98,7 @@ export const deleteReservation = async id => {
 
 // Méthodes CRUD pour les utilisateurs
 export const getUsers = async () => {
-    const response = await api.get('/api/users');
+    const response = await api.get("/api/users");
     return response.data;
 };
 

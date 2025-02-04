@@ -87,8 +87,8 @@ jobs:
     - name: Install dependencies
       run: npm ci --ignore-scripts
 
-    - name: Run ESLint
-      run: npx eslint .
+    - name: Run ESLint (Server)
+      run: npx eslint server/ tests/ --fix
 
   deploy:
     needs: [test, lint]

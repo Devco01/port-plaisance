@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Box } from '@mui/material';
-import { login } from '../../services/api';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { TextField, Button, Container, Typography, Box } from "@mui/material";
+import { login } from "../../services/api";
 
 const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async e => {
         e.preventDefault();
         try {
             const data = await login(email, password);
-            localStorage.setItem('token', data.token);
-            navigate('/dashboard');
+            localStorage.setItem("token", data.token);
+            navigate("/dashboard");
         } catch (error) {
-            alert('Erreur de connexion');
+            alert("Erreur de connexion");
         }
     };
 
@@ -24,9 +24,9 @@ const Login = () => {
             <Box
                 sx={{
                     mt: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center"
                 }}
             >
                 <Typography component="h1" variant="h5">

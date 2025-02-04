@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
     Container,
     Typography,
@@ -15,17 +15,17 @@ import {
     DialogContent,
     DialogActions,
     TextField
-} from '@mui/material';
-import config from '../../config/config';
+} from "@mui/material";
+import config from "../../config/config";
 
 const UsersCRUD = () => {
     const [users, setUsers] = useState([]);
     const [open, setOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [currentUser, setCurrentUser] = useState({
-        email: '',
-        password: '',
-        username: ''
+        email: "",
+        password: "",
+        username: ""
     });
 
     useEffect(() => {
@@ -34,19 +34,19 @@ const UsersCRUD = () => {
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem("token");
             const response = await fetch(`${config.apiUrl}/api/users`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 }
             });
             const data = await response.json();
-            console.log('Users récupérés:', data);
+            console.log("Users récupérés:", data);
             setUsers(data);
         } catch (error) {
             console.error(
-                'Erreur lors de la récupération des utilisateurs:',
+                "Erreur lors de la récupération des utilisateurs:",
                 error
             );
         }
@@ -56,14 +56,14 @@ const UsersCRUD = () => {
         if (user) {
             setCurrentUser({
                 ...user,
-                password: '' // On ne récupère jamais le mot de passe
+                password: "" // On ne récupère jamais le mot de passe
             });
             setEditMode(true);
         } else {
             setCurrentUser({
-                email: '',
-                password: '',
-                username: ''
+                email: "",
+                password: "",
+                username: ""
             });
             setEditMode(false);
         }
@@ -73,77 +73,77 @@ const UsersCRUD = () => {
     const handleClose = () => {
         setOpen(false);
         setCurrentUser({
-            email: '',
-            password: '',
-            username: ''
+            email: "",
+            password: "",
+            username: ""
         });
         setEditMode(false);
     };
 
     const handleSubmit = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem("token");
             if (editMode) {
                 const response = await fetch(
                     `${config.apiUrl}/api/users/${currentUser.email}`,
                     {
-                        method: 'PUT',
+                        method: "PUT",
                         headers: {
-                            'Content-Type': 'application/json',
+                            "Content-Type": "application/json",
                             Authorization: `Bearer ${token}`
                         },
                         body: JSON.stringify(currentUser)
                     }
                 );
                 if (!response.ok)
-                    throw new Error('Erreur lors de la mise à jour');
+                    throw new Error("Erreur lors de la mise à jour");
             } else {
                 const response = await fetch(`${config.apiUrl}/api/users`, {
-                    method: 'POST',
+                    method: "POST",
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify(currentUser)
                 });
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(
-                        error.message || 'Erreur lors de la création'
+                        error.message || "Erreur lors de la création"
                     );
                 }
             }
             fetchUsers();
             handleClose();
         } catch (error) {
-            console.error('Erreur lors de la sauvegarde:', error);
-            alert('Erreur lors de la sauvegarde: ' + error.message);
+            console.error("Erreur lors de la sauvegarde:", error);
+            alert("Erreur lors de la sauvegarde: " + error.message);
         }
     };
 
     const handleDelete = async email => {
         if (
             window.confirm(
-                'Êtes-vous sûr de vouloir supprimer cet utilisateur ?'
+                "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
             )
         ) {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem("token");
                 const response = await fetch(
                     `${config.apiUrl}/api/users/${email}`,
                     {
-                        method: 'DELETE',
+                        method: "DELETE",
                         headers: {
                             Authorization: `Bearer ${token}`
                         }
                     }
                 );
                 if (!response.ok)
-                    throw new Error('Erreur lors de la suppression');
+                    throw new Error("Erreur lors de la suppression");
                 fetchUsers();
             } catch (error) {
-                console.error('Erreur lors de la suppression:', error);
-                alert('Erreur lors de la suppression: ' + error.message);
+                console.error("Erreur lors de la suppression:", error);
+                alert("Erreur lors de la suppression: " + error.message);
             }
         }
     };
@@ -200,7 +200,7 @@ const UsersCRUD = () => {
                 <DialogTitle>
                     {editMode
                         ? "Modifier l'Utilisateur"
-                        : 'Ajouter un Utilisateur'}
+                        : "Ajouter un Utilisateur"}
                 </DialogTitle>
                 <DialogContent>
                     <TextField
@@ -248,7 +248,7 @@ const UsersCRUD = () => {
                 <DialogActions>
                     <Button onClick={handleClose}>Annuler</Button>
                     <Button onClick={handleSubmit} color="primary">
-                        {editMode ? 'Modifier' : 'Ajouter'}
+                        {editMode ? "Modifier" : "Ajouter"}
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -1,7 +1,7 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-var auth = require('../middleware/auth');
-var userController = require('../controllers/userController');
+var auth = require("../middleware/auth");
+var userController = require("../controllers/userController");
 
 /**
  * @swagger
@@ -41,7 +41,7 @@ var userController = require('../controllers/userController');
  *     summary: Liste tous les utilisateurs
  *     tags: [Users]
  */
-router.get('/', auth.auth, auth.isAdmin, userController.getAllUsers);
+router.get("/", auth.auth, auth.isAdmin, userController.getAllUsers);
 
 /**
  * @swagger
@@ -51,7 +51,7 @@ router.get('/', auth.auth, auth.isAdmin, userController.getAllUsers);
  *     tags: [Users]
  */
 router.get(
-    '/:email',
+    "/:email",
     auth.auth,
     auth.isOwnerOrAdmin(),
     userController.getUserByEmail
@@ -64,7 +64,7 @@ router.get(
  *     summary: Crée un nouvel utilisateur
  *     tags: [Users]
  */
-router.post('/', auth.auth, auth.isAdmin, userController.createUser);
+router.post("/", auth.auth, auth.isAdmin, userController.createUser);
 
 /**
  * @swagger
@@ -74,7 +74,7 @@ router.post('/', auth.auth, auth.isAdmin, userController.createUser);
  *     tags: [Users]
  */
 router.put(
-    '/:email',
+    "/:email",
     auth.auth,
     auth.isOwnerOrAdmin(),
     userController.updateUser
@@ -87,16 +87,16 @@ router.put(
  *     summary: Supprime un utilisateur
  *     tags: [Users]
  */
-router.delete('/:email', auth.auth, auth.isAdmin, userController.deleteUser);
+router.delete("/:email", auth.auth, auth.isAdmin, userController.deleteUser);
 
-router.get('/:id', auth.auth, function (req, res) {
+router.get("/:id", auth.auth, function (req, res) {
     User.findById(req.params.id)
-        .select('-password')
+        .select("-password")
         .then(function (user) {
             if (!user) {
                 return res
                     .status(404)
-                    .json({ message: 'Utilisateur non trouvé' });
+                    .json({ message: "Utilisateur non trouvé" });
             }
             res.json(user);
         })

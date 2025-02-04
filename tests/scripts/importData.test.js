@@ -1,12 +1,12 @@
-var Catway = require('../../server/models/catway');
-var Reservation = require('../../server/models/reservation');
-var importData = require('../../server/scripts/importData');
-var testDb = require('../helpers/testDb');
-var fs = require('fs');
-var path = require('path');
+var Catway = require("../../server/models/catway");
+var Reservation = require("../../server/models/reservation");
+var importData = require("../../server/scripts/importData");
+var testDb = require("../helpers/testDb");
+var fs = require("fs");
+var path = require("path");
 
-describe('Tests d\'Importation des Données', function () {
-    var fixturesPath = path.join(__dirname, '..', 'fixtures');
+describe("Tests d'Importation des Données", function () {
+    var fixturesPath = path.join(__dirname, "..", "fixtures");
 
     beforeAll(function () {
         // Créer le dossier fixtures s'il n'existe pas
@@ -16,25 +16,25 @@ describe('Tests d\'Importation des Données', function () {
 
         // Créer les fichiers de test
         fs.writeFileSync(
-            path.join(fixturesPath, 'catways.json'),
+            path.join(fixturesPath, "catways.json"),
             JSON.stringify([
                 {
-                    catwayNumber: 'C01',
-                    catwayType: 'long',
-                    catwayState: 'disponible'
+                    catwayNumber: "C01",
+                    catwayType: "long",
+                    catwayState: "disponible"
                 }
             ])
         );
 
         fs.writeFileSync(
-            path.join(fixturesPath, 'reservations.json'),
+            path.join(fixturesPath, "reservations.json"),
             JSON.stringify([
                 {
-                    catwayNumber: 'C01',
-                    clientName: 'Test Client',
-                    boatName: 'Test Boat',
-                    startDate: '2024-06-01',
-                    endDate: '2024-06-07'
+                    catwayNumber: "C01",
+                    clientName: "Test Client",
+                    boatName: "Test Boat",
+                    startDate: "2024-06-01",
+                    endDate: "2024-06-07"
                 }
             ])
         );
@@ -44,8 +44,8 @@ describe('Tests d\'Importation des Données', function () {
 
     afterAll(function () {
         // Nettoyer les fichiers de test
-        fs.unlinkSync(path.join(fixturesPath, 'catways.json'));
-        fs.unlinkSync(path.join(fixturesPath, 'reservations.json'));
+        fs.unlinkSync(path.join(fixturesPath, "catways.json"));
+        fs.unlinkSync(path.join(fixturesPath, "reservations.json"));
         fs.rmdirSync(fixturesPath);
 
         return testDb.disconnect();
@@ -55,9 +55,9 @@ describe('Tests d\'Importation des Données', function () {
         return testDb.clearDatabase();
     });
 
-    it('devrait importer les catways correctement', function () {
+    it("devrait importer les catways correctement", function () {
         // Simuler un fichier de données
-        process.env.DATA_PATH = './tests/fixtures';
+        process.env.DATA_PATH = "./tests/fixtures";
 
         return importData
             .importCatways()
@@ -70,9 +70,9 @@ describe('Tests d\'Importation des Données', function () {
             });
     });
 
-    it('devrait importer les réservations correctement', function () {
+    it("devrait importer les réservations correctement", function () {
         // Simuler un fichier de données
-        process.env.DATA_PATH = './tests/fixtures';
+        process.env.DATA_PATH = "./tests/fixtures";
 
         return importData
             .importReservations()
@@ -85,8 +85,8 @@ describe('Tests d\'Importation des Données', function () {
             });
     });
 
-    it('devrait gérer les erreurs d\'importation', function () {
-        process.env.DATA_PATH = '/chemin/invalide';
+    it("devrait gérer les erreurs d'importation", function () {
+        process.env.DATA_PATH = "/chemin/invalide";
 
         return importData.importCatways().catch(function (error) {
             expect(error).toBeDefined();

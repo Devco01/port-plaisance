@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var MongoMemoryServer = require('mongodb-memory-server-core').MongoMemoryServer;
+var mongoose = require("mongoose");
+var MongoMemoryServer = require("mongodb-memory-server-core").MongoMemoryServer;
 
 var mongod = null;
 var connection = null;
@@ -52,7 +52,7 @@ module.exports = {
 
     clearDatabase: function () {
         if (!mongoose.connection.db) {
-            return Promise.reject(new Error('Not connected to database'));
+            return Promise.reject(new Error("Not connected to database"));
         }
 
         var collections = mongoose.connection.collections;
@@ -69,7 +69,7 @@ module.exports = {
 };
 
 // Gestion propre de la fermeture
-process.on('SIGTERM', function () {
+process.on("SIGTERM", function () {
     if (mongoose.connection.db) {
         mongoose.connection.close(function () {
             process.exit(0);

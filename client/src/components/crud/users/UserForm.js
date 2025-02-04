@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
     Container,
     Typography,
@@ -7,17 +7,17 @@ import {
     TextField,
     Button,
     Paper
-} from '@mui/material';
-import { createUser, updateUser, getUser } from '../../../services/api';
+} from "@mui/material";
+import { createUser, updateUser, getUser } from "../../../services/api";
 
 const UserForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        nom: '',
-        prenom: ''
+        email: "",
+        password: "",
+        nom: "",
+        prenom: ""
     });
 
     useEffect(() => {
@@ -27,7 +27,7 @@ const UserForm = () => {
                     const userData = await getUser(id);
                     setFormData({
                         ...userData,
-                        password: '' // On ne récupère jamais le mot de passe
+                        password: "" // On ne récupère jamais le mot de passe
                     });
                 } catch (error) {
                     console.error(
@@ -53,9 +53,9 @@ const UserForm = () => {
             } else {
                 await createUser(formData);
             }
-            navigate('/users');
+            navigate("/users");
         } catch (error) {
-            console.error('Erreur lors de la sauvegarde:', error);
+            console.error("Erreur lors de la sauvegarde:", error);
         }
     };
 
@@ -63,7 +63,7 @@ const UserForm = () => {
         <Container maxWidth="sm">
             <Box sx={{ mt: 4 }}>
                 <Typography variant="h4" gutterBottom>
-                    {id ? "Modifier l'Utilisateur" : 'Nouvel Utilisateur'}
+                    {id ? "Modifier l'Utilisateur" : "Nouvel Utilisateur"}
                 </Typography>
                 <Paper sx={{ p: 3 }}>
                     <form onSubmit={handleSubmit}>
@@ -97,8 +97,8 @@ const UserForm = () => {
                             required={!id}
                             helperText={
                                 id
-                                    ? 'Laissez vide pour ne pas modifier le mot de passe'
-                                    : ''
+                                    ? "Laissez vide pour ne pas modifier le mot de passe"
+                                    : ""
                             }
                         />
                         <TextField
@@ -127,17 +127,17 @@ const UserForm = () => {
                             margin="normal"
                             required
                         />
-                        <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+                        <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
                             <Button
                                 variant="contained"
                                 color="primary"
                                 type="submit"
                             >
-                                {id ? 'Modifier' : 'Créer'}
+                                {id ? "Modifier" : "Créer"}
                             </Button>
                             <Button
                                 variant="outlined"
-                                onClick={() => navigate('/users')}
+                                onClick={() => navigate("/users")}
                             >
                                 Annuler
                             </Button>

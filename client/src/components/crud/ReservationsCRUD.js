@@ -1,5 +1,5 @@
-import config from '../../config/config';
-import React, { useState, useEffect } from 'react';
+import config from "../../config/config";
+import React, { useState, useEffect } from "react";
 import {
     Container,
     Typography,
@@ -16,18 +16,18 @@ import {
     DialogContent,
     DialogActions,
     TextField
-} from '@mui/material';
+} from "@mui/material";
 
 const ReservationsCRUD = () => {
     const [reservations, setReservations] = useState([]);
     const [open, setOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [currentReservation, setCurrentReservation] = useState({
-        catwayNumber: '',
-        clientName: '',
-        boatName: '',
-        startDate: '',
-        endDate: ''
+        catwayNumber: "",
+        clientName: "",
+        boatName: "",
+        startDate: "",
+        endDate: ""
     });
 
     useEffect(() => {
@@ -36,25 +36,25 @@ const ReservationsCRUD = () => {
 
     const fetchReservations = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem("token");
             // D'abord, récupérer tous les catways
             const catwaysResponse = await fetch(
                 `${config.apiUrl}/api/catways`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json"
                     }
                 }
             );
             const catways = await catwaysResponse.json();
-            console.log('Catways récupérés:', catways);
+            console.log("Catways récupérés:", catways);
 
             // Ensuite, récupérer les réservations pour chaque catway
             const allReservations = [];
             for (const catway of catways) {
                 console.log(
-                    'Récupération réservations pour catway:',
+                    "Récupération réservations pour catway:",
                     catway.catwayNumber
                 );
                 const response = await fetch(
@@ -62,22 +62,22 @@ const ReservationsCRUD = () => {
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json'
+                            "Content-Type": "application/json"
                         }
                     }
                 );
                 const reservations = await response.json();
-                console.log('Réservations reçues:', reservations);
+                console.log("Réservations reçues:", reservations);
                 reservations.forEach(res => {
                     res.catwayNumber = catway.catwayNumber;
                 });
                 allReservations.push(...reservations);
             }
-            console.log('Toutes les réservations:', allReservations);
+            console.log("Toutes les réservations:", allReservations);
             setReservations(allReservations);
         } catch (error) {
             console.error(
-                'Erreur lors de la récupération des réservations:',
+                "Erreur lors de la récupération des réservations:",
                 error
             );
         }
@@ -87,17 +87,17 @@ const ReservationsCRUD = () => {
         if (reservation) {
             setCurrentReservation({
                 ...reservation,
-                startDate: reservation.startDate.split('T')[0],
-                endDate: reservation.endDate.split('T')[0]
+                startDate: reservation.startDate.split("T")[0],
+                endDate: reservation.endDate.split("T")[0]
             });
             setEditMode(true);
         } else {
             setCurrentReservation({
-                catwayNumber: '',
-                clientName: '',
-                boatName: '',
-                startDate: '',
-                endDate: ''
+                catwayNumber: "",
+                clientName: "",
+                boatName: "",
+                startDate: "",
+                endDate: ""
             });
             setEditMode(false);
         }
@@ -107,32 +107,32 @@ const ReservationsCRUD = () => {
     const handleClose = () => {
         setOpen(false);
         setCurrentReservation({
-            catwayNumber: '',
-            clientName: '',
-            boatName: '',
-            startDate: '',
-            endDate: ''
+            catwayNumber: "",
+            clientName: "",
+            boatName: "",
+            startDate: "",
+            endDate: ""
         });
         setEditMode(false);
     };
 
     const handleSubmit = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem("token");
             if (editMode) {
                 const response = await fetch(
                     `${config.apiUrl}/api/catways/${currentReservation.catwayNumber}/reservations/${currentReservation._id}`,
                     {
-                        method: 'PUT',
+                        method: "PUT",
                         headers: {
-                            'Content-Type': 'application/json',
+                            "Content-Type": "application/json",
                             Authorization: `Bearer ${token}`
                         },
                         body: JSON.stringify(currentReservation)
                     }
                 );
                 if (!response.ok)
-                    throw new Error('Erreur lors de la mise à jour');
+                    throw new Error("Erreur lors de la mise à jour");
             } else {
                 // Vérifier que le catway existe d'abord
                 const catwayResponse = await fetch(
@@ -140,7 +140,7 @@ const ReservationsCRUD = () => {
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json'
+                            "Content-Type": "application/json"
                         }
                     }
                 );
@@ -150,15 +150,15 @@ const ReservationsCRUD = () => {
                 );
 
                 if (!catway) {
-                    throw new Error('Numéro de catway invalide');
+                    throw new Error("Numéro de catway invalide");
                 }
 
                 const response = await fetch(
                     `${config.apiUrl}/api/catways/${currentReservation.catwayNumber}/reservations`,
                     {
-                        method: 'POST',
+                        method: "POST",
                         headers: {
-                            'Content-Type': 'application/json',
+                            "Content-Type": "application/json",
                             Authorization: `Bearer ${token}`
                         },
                         body: JSON.stringify({
@@ -173,42 +173,42 @@ const ReservationsCRUD = () => {
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(
-                        error.message || 'Erreur lors de la création'
+                        error.message || "Erreur lors de la création"
                     );
                 }
             }
             fetchReservations();
             handleClose();
         } catch (error) {
-            console.error('Erreur lors de la sauvegarde:', error);
-            alert('Erreur lors de la sauvegarde: ' + error.message);
+            console.error("Erreur lors de la sauvegarde:", error);
+            alert("Erreur lors de la sauvegarde: " + error.message);
         }
     };
 
     const handleDelete = async id => {
         if (
             window.confirm(
-                'Êtes-vous sûr de vouloir supprimer cette réservation ?'
+                "Êtes-vous sûr de vouloir supprimer cette réservation ?"
             )
         ) {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem("token");
                 const reservation = reservations.find(r => r._id === id);
                 const response = await fetch(
                     `${config.apiUrl}/api/catways/${reservation.catwayNumber}/reservations/${id}`,
                     {
-                        method: 'DELETE',
+                        method: "DELETE",
                         headers: {
                             Authorization: `Bearer ${token}`
                         }
                     }
                 );
                 if (!response.ok)
-                    throw new Error('Erreur lors de la suppression');
+                    throw new Error("Erreur lors de la suppression");
                 fetchReservations();
             } catch (error) {
-                console.error('Erreur lors de la suppression:', error);
-                alert('Erreur lors de la suppression: ' + error.message);
+                console.error("Erreur lors de la suppression:", error);
+                alert("Erreur lors de la suppression: " + error.message);
             }
         }
     };
@@ -282,8 +282,8 @@ const ReservationsCRUD = () => {
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>
                     {editMode
-                        ? 'Modifier la Réservation'
-                        : 'Ajouter une Réservation'}
+                        ? "Modifier la Réservation"
+                        : "Ajouter une Réservation"}
                 </DialogTitle>
                 <DialogContent>
                     <TextField
@@ -362,7 +362,7 @@ const ReservationsCRUD = () => {
                 <DialogActions>
                     <Button onClick={handleClose}>Annuler</Button>
                     <Button onClick={handleSubmit} color="primary">
-                        {editMode ? 'Modifier' : 'Ajouter'}
+                        {editMode ? "Modifier" : "Ajouter"}
                     </Button>
                 </DialogActions>
             </Dialog>

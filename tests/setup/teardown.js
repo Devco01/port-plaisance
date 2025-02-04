@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 
 module.exports = function () {
     return mongoose.connection
@@ -7,7 +7,7 @@ module.exports = function () {
             return Promise.resolve();
         })
         .catch(function (err) {
-            console.error('Erreur lors de la fermeture de la connexion:', err);
+            console.error("Erreur lors de la fermeture de la connexion:", err);
             return Promise.resolve();
         });
 };

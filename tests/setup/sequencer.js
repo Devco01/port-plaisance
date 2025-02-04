@@ -1,4 +1,4 @@
-var TestSequencer = require('@jest/test-sequencer').default;
+var TestSequencer = require("@jest/test-sequencer").default;
 
 /**
  * Séquenceur personnalisé pour l'exécution des tests
@@ -15,11 +15,11 @@ CustomSequencer.prototype = Object.create(TestSequencer.prototype);
  */
 CustomSequencer.prototype.sort = function (tests) {
     var testOrder = [
-        'config/db.test.js',
-        'config/swagger.test.js',
-        'unit/models',
-        'unit/middleware',
-        'integration'
+        "config/db.test.js",
+        "config/swagger.test.js",
+        "unit/models",
+        "unit/middleware",
+        "integration"
     ];
 
     return tests.sort(function (testA, testB) {

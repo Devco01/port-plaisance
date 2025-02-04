@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
     Container,
     Typography,
@@ -10,11 +10,11 @@ import {
     TableHead,
     TableRow,
     Button
-} from '@mui/material';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { getReservations, deleteReservation } from '../../../services/api';
-import Navbar from '../../Navbar';
+} from "@mui/material";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { getReservations, deleteReservation } from "../../../services/api";
+import Navbar from "../../Navbar";
 
 const ReservationList = () => {
     const [reservations, setReservations] = useState([]);
@@ -28,21 +28,21 @@ const ReservationList = () => {
             const data = await getReservations();
             setReservations(data);
         } catch (error) {
-            console.error('Erreur chargement réservations:', error);
+            console.error("Erreur chargement réservations:", error);
         }
     };
 
     const handleDelete = async (id, catwayId) => {
         if (
             window.confirm(
-                'Êtes-vous sûr de vouloir supprimer cette réservation ?'
+                "Êtes-vous sûr de vouloir supprimer cette réservation ?"
             )
         ) {
             try {
                 await deleteReservation(id, catwayId);
                 loadReservations();
             } catch (error) {
-                console.error('Erreur suppression réservation:', error);
+                console.error("Erreur suppression réservation:", error);
             }
         }
     };
@@ -90,14 +90,14 @@ const ReservationList = () => {
                                         <TableCell>
                                             {format(
                                                 new Date(reservation.startDate),
-                                                'dd/MM/yyyy',
+                                                "dd/MM/yyyy",
                                                 { locale: fr }
                                             )}
                                         </TableCell>
                                         <TableCell>
                                             {format(
                                                 new Date(reservation.endDate),
-                                                'dd/MM/yyyy',
+                                                "dd/MM/yyyy",
                                                 { locale: fr }
                                             )}
                                         </TableCell>

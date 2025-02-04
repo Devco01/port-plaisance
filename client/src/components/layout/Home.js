@@ -1,8 +1,8 @@
-import React from 'react';
-import { Container, Typography, Box, Button, Paper, Grid } from '@mui/material';
-import { Link } from 'react-router-dom';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import LoginIcon from '@mui/icons-material/Login';
+import React from "react";
+import { Container, Typography, Box, Button, Paper, Grid } from "@mui/material";
+import { Link } from "react-router-dom";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import LoginIcon from "@mui/icons-material/Login";
 
 const Home = () => {
     return (
@@ -13,7 +13,7 @@ const Home = () => {
                     component="h1"
                     gutterBottom
                     align="center"
-                    sx={{ fontWeight: 'bold', mb: 4 }}
+                    sx={{ fontWeight: "bold", mb: 4 }}
                 >
                     Port de Plaisance Russell
                 </Typography>
@@ -54,8 +54,8 @@ const Home = () => {
                             sx={{
                                 px: 4,
                                 py: 1.5,
-                                fontSize: '1.1rem',
-                                fontWeight: 'bold'
+                                fontSize: "1.1rem",
+                                fontWeight: "bold"
                             }}
                         >
                             Se connecter
@@ -74,7 +74,7 @@ const Home = () => {
                             sx={{
                                 px: 4,
                                 py: 1.5,
-                                fontSize: '1.1rem'
+                                fontSize: "1.1rem"
                             }}
                         >
                             Documentation API

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
     TextField,
     Button,
@@ -6,17 +6,17 @@ import {
     Alert,
     Container,
     Typography
-} from '@mui/material';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import config from '../../config/config';
+} from "@mui/material";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import config from "../../config/config";
 
 const Register = () => {
     const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        confirmPassword: ''
+        email: "",
+        password: "",
+        confirmPassword: ""
     });
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async e => {
@@ -25,25 +25,25 @@ const Register = () => {
             const url = `${config.apiUrl}/api/users/register`;
             console.log("Tentative d'inscription à:", url);
             const response = await fetch(url, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(formData)
             });
 
-            console.log('Réponse status:', response.status);
+            console.log("Réponse status:", response.status);
             const data = await response.json();
-            console.log('Réponse data:', data);
+            console.log("Réponse data:", data);
 
             if (response.ok) {
-                localStorage.setItem('token', data.token);
-                navigate('/dashboard');
+                localStorage.setItem("token", data.token);
+                navigate("/dashboard");
             } else {
                 setError(data.msg);
             }
         } catch (error) {
-            console.error('Erreur détaillée:', error);
+            console.error("Erreur détaillée:", error);
             setError("Erreur lors de l'inscription");
         }
     };

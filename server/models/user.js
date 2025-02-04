@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var bcrypt = require('bcryptjs');
+var mongoose = require("mongoose");
+var bcrypt = require("bcryptjs");
 
 var userSchema = new mongoose.Schema(
     {
@@ -7,20 +7,20 @@ var userSchema = new mongoose.Schema(
             type: String,
             required: true,
             unique: true,
-            match: [/.+@.+\..+/, 'Email invalide']
+            match: [/.+@.+\..+/, "Email invalide"]
         },
         password: {
             type: String,
             required: true,
             minlength: [
                 8,
-                'Le mot de passe doit contenir au moins 8 caractères'
+                "Le mot de passe doit contenir au moins 8 caractères"
             ]
         },
         role: {
             type: String,
-            enum: ['user', 'admin'],
-            default: 'user'
+            enum: ["user", "admin"],
+            default: "user"
         },
         nom: {
             type: String,
@@ -44,8 +44,8 @@ var userSchema = new mongoose.Schema(
 );
 
 // Hash le mot de passe avant la sauvegarde
-userSchema.pre('save', function (next) {
-    if (!this.isModified('password')) return next();
+userSchema.pre("save", function (next) {
+    if (!this.isModified("password")) return next();
 
     bcrypt.hash(
         this.password,
@@ -70,6 +70,6 @@ userSchema.methods.toPublic = function () {
     return obj;
 };
 
-var User = mongoose.model('User', userSchema);
+var User = mongoose.model("User", userSchema);
 
 module.exports = User;

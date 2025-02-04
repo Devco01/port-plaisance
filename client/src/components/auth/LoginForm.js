@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
     TextField,
     Button,
@@ -10,31 +10,31 @@ import {
     InputAdornment,
     IconButton,
     CircularProgress
-} from '@mui/material';
-import { useNavigate, Link } from 'react-router-dom';
-import EmailIcon from '@mui/icons-material/Email';
-import LockIcon from '@mui/icons-material/Lock';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
-import { login } from '../../services/authService';
+} from "@mui/material";
+import { useNavigate, Link } from "react-router-dom";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
+import { login } from "../../services/authService";
 
 const LoginForm = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async e => {
         e.preventDefault();
-        setError('');
+        setError("");
         setLoading(true);
 
         try {
             const response = await login(email, password);
-            console.log('✅ Réponse du serveur:', {
+            console.log("✅ Réponse du serveur:", {
                 success: !!response,
                 hasToken: !!response?.token,
                 user: {
@@ -42,14 +42,14 @@ const LoginForm = () => {
                     role: response?.user?.role
                 }
             });
-            navigate('/dashboard');
+            navigate("/dashboard");
         } catch (err) {
-            console.error('❌ Erreur de connexion:', {
+            console.error("❌ Erreur de connexion:", {
                 message: err.message,
                 status: err.response?.status,
                 data: err.response?.data
             });
-            setError(err.response?.data?.message || 'Erreur de connexion');
+            setError(err.response?.data?.message || "Erreur de connexion");
         } finally {
             setLoading(false);
         }
@@ -59,10 +59,10 @@ const LoginForm = () => {
         <Container maxWidth="sm">
             <Box
                 sx={{
-                    minHeight: '100vh',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
+                    minHeight: "100vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
                     py: 4
                 }}
             >
@@ -70,9 +70,9 @@ const LoginForm = () => {
                     elevation={3}
                     sx={{
                         p: 4,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center'
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center"
                     }}
                 >
                     <DirectionsBoatIcon
@@ -88,7 +88,7 @@ const LoginForm = () => {
                         component="h1"
                         gutterBottom
                         sx={{
-                            fontWeight: 'bold',
+                            fontWeight: "bold",
                             mb: 3
                         }}
                     >
@@ -99,7 +99,7 @@ const LoginForm = () => {
                         <Alert
                             severity="error"
                             sx={{
-                                width: '100%',
+                                width: "100%",
                                 mb: 3
                             }}
                         >
@@ -111,8 +111,8 @@ const LoginForm = () => {
                         component="form"
                         onSubmit={handleSubmit}
                         sx={{
-                            width: '100%',
-                            '& .MuiTextField-root': { mb: 2 }
+                            width: "100%",
+                            "& .MuiTextField-root": { mb: 2 }
                         }}
                     >
                         <TextField
@@ -133,7 +133,7 @@ const LoginForm = () => {
                         <TextField
                             fullWidth
                             label="Mot de passe"
-                            type={showPassword ? 'text' : 'password'}
+                            type={showPassword ? "text" : "password"}
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                             InputProps={{
@@ -170,18 +170,18 @@ const LoginForm = () => {
                             sx={{
                                 mt: 2,
                                 py: 1.5,
-                                fontSize: '1.1rem',
-                                fontWeight: 'bold'
+                                fontSize: "1.1rem",
+                                fontWeight: "bold"
                             }}
                         >
                             {loading ? (
                                 <CircularProgress size={24} color="inherit" />
                             ) : (
-                                'Se connecter'
+                                "Se connecter"
                             )}
                         </Button>
 
-                        <Box sx={{ mt: 2, textAlign: 'center' }}>
+                        <Box sx={{ mt: 2, textAlign: "center" }}>
                             <Typography variant="body2" sx={{ mb: 1 }}>
                                 Pas encore de compte ?
                             </Typography>
@@ -195,7 +195,7 @@ const LoginForm = () => {
                             </Button>
                         </Box>
 
-                        <Box sx={{ mt: 3, textAlign: 'center' }}>
+                        <Box sx={{ mt: 3, textAlign: "center" }}>
                             <Button component={Link} to="/" color="primary">
                                 Retour à l'accueil
                             </Button>

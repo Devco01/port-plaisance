@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
     Container,
     Typography,
@@ -8,16 +8,16 @@ import {
     MenuItem,
     Button,
     Paper
-} from '@mui/material';
-import { createCatway, updateCatway, getCatways } from '../../../services/api';
+} from "@mui/material";
+import { createCatway, updateCatway, getCatways } from "../../../services/api";
 
 const CatwayForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [formData, setFormData] = useState({
-        catwayNumber: '',
-        catwayType: 'court',
-        catwayState: 'disponible'
+        catwayNumber: "",
+        catwayType: "court",
+        catwayState: "disponible"
     });
 
     useEffect(() => {
@@ -31,7 +31,7 @@ const CatwayForm = () => {
                     }
                 } catch (error) {
                     console.error(
-                        'Erreur lors de la récupération du catway:',
+                        "Erreur lors de la récupération du catway:",
                         error
                     );
                 }
@@ -48,9 +48,9 @@ const CatwayForm = () => {
             } else {
                 await createCatway(formData);
             }
-            navigate('/catways');
+            navigate("/catways");
         } catch (error) {
-            console.error('Erreur lors de la sauvegarde:', error);
+            console.error("Erreur lors de la sauvegarde:", error);
         }
     };
 
@@ -58,7 +58,7 @@ const CatwayForm = () => {
         <Container maxWidth="sm">
             <Box sx={{ mt: 4 }}>
                 <Typography variant="h4" gutterBottom>
-                    {id ? 'Modifier le Catway' : 'Nouveau Catway'}
+                    {id ? "Modifier le Catway" : "Nouveau Catway"}
                 </Typography>
                 <Paper sx={{ p: 3 }}>
                     <form onSubmit={handleSubmit}>
@@ -111,17 +111,17 @@ const CatwayForm = () => {
                             <MenuItem value="occupé">Occupé</MenuItem>
                             <MenuItem value="maintenance">Maintenance</MenuItem>
                         </TextField>
-                        <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+                        <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
                             <Button
                                 variant="contained"
                                 color="primary"
                                 type="submit"
                             >
-                                {id ? 'Modifier' : 'Créer'}
+                                {id ? "Modifier" : "Créer"}
                             </Button>
                             <Button
                                 variant="outlined"
-                                onClick={() => navigate('/catways')}
+                                onClick={() => navigate("/catways")}
                             >
                                 Annuler
                             </Button>

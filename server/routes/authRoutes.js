@@ -1,9 +1,9 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-var bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
-var User = require('../models/user');
-var authMiddleware = require('../middleware/auth');
+var bcrypt = require("bcryptjs");
+var jwt = require("jsonwebtoken");
+var User = require("../models/user");
+var authMiddleware = require("../middleware/auth");
 
 /**
  * @swagger
@@ -64,7 +64,7 @@ var authMiddleware = require('../middleware/auth');
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post('/login', function (req, res) {
+router.post("/login", function (req, res) {
     var email = req.body.email;
     var password = req.body.password;
 
@@ -73,27 +73,27 @@ router.post('/login', function (req, res) {
             if (!user) {
                 return res
                     .status(401)
-                    .json({ message: 'Email ou mot de passe incorrect' });
+                    .json({ message: "Email ou mot de passe incorrect" });
             }
             return bcrypt
                 .compare(password, user.password)
                 .then(function (isMatch) {
                     if (!isMatch) {
                         return res.status(401).json({
-                            message: 'Email ou mot de passe incorrect'
+                            message: "Email ou mot de passe incorrect"
                         });
                     }
                     var token = jwt.sign(
                         { id: user._id, role: user.role },
                         process.env.JWT_SECRET,
-                        { expiresIn: '24h' }
+                        { expiresIn: "24h" }
                     );
                     var userResponse = user.toObject();
                     delete userResponse.password;
                     res.json({
                         user: userResponse,
                         token: token,
-                        message: 'Connexion réussie'
+                        message: "Connexion réussie"
                     });
                 });
         })
@@ -124,9 +124,9 @@ router.post('/login', function (req, res) {
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get('/logout', authMiddleware.auth, function (req, res) {
-    res.clearCookie('token');
-    res.json({ message: 'Déconnexion réussie' });
+router.get("/logout", authMiddleware.auth, function (req, res) {
+    res.clearCookie("token");
+    res.json({ message: "Déconnexion réussie" });
 });
 
 /**
@@ -136,9 +136,9 @@ router.get('/logout', authMiddleware.auth, function (req, res) {
  *     summary: Récupère les informations de l'utilisateur connecté
  *     tags: [Auth]
  */
-router.get('/me', authMiddleware.auth, function (req, res) {
+router.get("/me", authMiddleware.auth, function (req, res) {
     User.findById(req.user.id)
-        .select('-password')
+        .select("-password")
         .then(function (user) {
             res.json(user);
         })
@@ -154,7 +154,7 @@ router.get('/me', authMiddleware.auth, function (req, res) {
  *     summary: Change le mot de passe de l'utilisateur connecté
  *     tags: [Auth]
  */
-router.post('/change-password', authMiddleware.auth, function (req, res) {
+router.post("/change-password", authMiddleware.auth, function (req, res) {
     var currentPassword = req.body.currentPassword;
     var newPassword = req.body.newPassword;
     var user;
@@ -168,7 +168,7 @@ router.post('/change-password', authMiddleware.auth, function (req, res) {
             if (!isMatch) {
                 return res
                     .status(401)
-                    .json({ message: 'Mot de passe actuel incorrect' });
+                    .json({ message: "Mot de passe actuel incorrect" });
             }
 
             // Vérifier le format du nouveau mot de passe
@@ -176,7 +176,7 @@ router.post('/change-password', authMiddleware.auth, function (req, res) {
             if (!passwordRegex.test(newPassword)) {
                 return res.status(400).json({
                     message:
-                        'Le nouveau mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre'
+                        "Le nouveau mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre"
                 });
             }
 
@@ -190,7 +190,7 @@ router.post('/change-password', authMiddleware.auth, function (req, res) {
             return user.save();
         })
         .then(function () {
-            res.json({ message: 'Mot de passe modifié avec succès' });
+            res.json({ message: "Mot de passe modifié avec succès" });
         })
         .catch(function (error) {
             res.status(500).json({ message: error.message });

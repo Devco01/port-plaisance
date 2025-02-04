@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 import {
     Container,
     Typography,
@@ -14,14 +14,14 @@ import {
     Grid,
     Card,
     CardContent
-} from '@mui/material';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import PersonIcon from '@mui/icons-material/Person';
-import EmailIcon from '@mui/icons-material/Email';
-import EventIcon from '@mui/icons-material/Event';
-import config from '../../config/config';
-import { jwtDecode } from 'jwt-decode';
+} from "@mui/material";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import PersonIcon from "@mui/icons-material/Person";
+import EmailIcon from "@mui/icons-material/Email";
+import EventIcon from "@mui/icons-material/Event";
+import config from "../../config/config";
+import { jwtDecode } from "jwt-decode";
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
@@ -34,7 +34,7 @@ const Dashboard = () => {
         // Récupérer les réservations en cours
         const fetchCurrentReservations = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem("token");
                 // D'abord, récupérer tous les catways
                 const catwaysResponse = await fetch(
                     `${config.apiUrl}/api/catways`,
@@ -76,7 +76,7 @@ const Dashboard = () => {
                 setCurrentReservations(currentReservations);
             } catch (error) {
                 console.error(
-                    'Erreur lors de la récupération des réservations:',
+                    "Erreur lors de la récupération des réservations:",
                     error
                 );
             }
@@ -84,7 +84,7 @@ const Dashboard = () => {
 
         // Récupérer les infos de l'utilisateur connecté
         const fetchUserInfo = async () => {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem("token");
             const decoded = jwtDecode(token);
             setUser(decoded.user);
         };
@@ -95,7 +95,7 @@ const Dashboard = () => {
     }, []); // Retirer today des dépendances
 
     const formatDate = date => {
-        return format(new Date(date), 'dd/MM/yyyy');
+        return format(new Date(date), "dd/MM/yyyy");
     };
 
     return (
@@ -115,7 +115,7 @@ const Dashboard = () => {
                                     <Typography variant="h6">Date</Typography>
                                 </Box>
                                 <Typography variant="body1">
-                                    {format(today, 'EEEE dd MMMM yyyy', {
+                                    {format(today, "EEEE dd MMMM yyyy", {
                                         locale: fr
                                     })}
                                 </Typography>

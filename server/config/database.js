@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 
 var connection = null;
 
@@ -12,7 +12,7 @@ module.exports = {
             .connect(
                 uri ||
                     process.env.MONGODB_URI ||
-                    'mongodb://localhost:27017/port-plaisance',
+                    "mongodb://localhost:27017/port-plaisance",
                 {
                     useNewUrlParser: true,
                     useUnifiedTopology: true

@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var reservationSchema = new Schema({
@@ -8,7 +8,7 @@ var reservationSchema = new Schema({
     },
     userId: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: "User"
     },
     clientName: {
         type: String,
@@ -29,13 +29,13 @@ var reservationSchema = new Schema({
             validator: function (endDate) {
                 return endDate > this.startDate;
             },
-            message: 'La date de fin doit être postérieure à la date de début'
+            message: "La date de fin doit être postérieure à la date de début"
         }
     },
     status: {
         type: String,
-        enum: ['pending', 'confirmed', 'cancelled'],
-        default: 'pending'
+        enum: ["pending", "confirmed", "cancelled"],
+        default: "pending"
     },
     createdAt: {
         type: Date,
@@ -44,12 +44,12 @@ var reservationSchema = new Schema({
 });
 
 // Vérifie les chevauchements avant la sauvegarde
-reservationSchema.pre('save', function (next) {
+reservationSchema.pre("save", function (next) {
     var reservation = this;
 
     // Vérifie si les dates se chevauchent avec une réservation existante
     mongoose
-        .model('Reservation')
+        .model("Reservation")
         .findOne({
             catwayNumber: reservation.catwayNumber,
             _id: { $ne: reservation._id },
@@ -68,7 +68,7 @@ reservationSchema.pre('save', function (next) {
             if (existingReservation) {
                 next(
                     new Error(
-                        'Chevauchement : une réservation existe déjà pour cette période'
+                        "Chevauchement : une réservation existe déjà pour cette période"
                     )
                 );
             } else {
@@ -86,7 +86,7 @@ reservationSchema.statics.checkAvailability = function (
 ) {
     return this.find({
         catwayNumber: catwayNumber,
-        status: 'confirmed',
+        status: "confirmed",
         $or: [
             {
                 startDate: { $lte: endDate },
@@ -96,4 +96,4 @@ reservationSchema.statics.checkAvailability = function (
     }).exec();
 };
 
-module.exports = mongoose.model('Reservation', reservationSchema);
+module.exports = mongoose.model("Reservation", reservationSchema);

@@ -1,9 +1,9 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-var Catway = require('../models/catway');
-var Reservation = require('../models/reservation');
-var authMiddleware = require('../middleware/auth');
-var _catwayController = require('../controllers/catwayController');
+var Catway = require("../models/catway");
+var Reservation = require("../models/reservation");
+var authMiddleware = require("../middleware/auth");
+var _catwayController = require("../controllers/catwayController");
 
 /**
  * @swagger
@@ -64,7 +64,7 @@ var _catwayController = require('../controllers/catwayController');
  *               items:
  *                 $ref: '#/components/schemas/Catway'
  */
-router.get('/', authMiddleware.auth, function (req, res, next) {
+router.get("/", authMiddleware.auth, function (req, res, next) {
     Catway.find()
         .then(function (catways) {
             res.json(catways);
@@ -94,11 +94,11 @@ router.get('/', authMiddleware.auth, function (req, res, next) {
  *             schema:
  *               $ref: '#/components/schemas/Catway'
  */
-router.get('/:id', authMiddleware.auth, function (req, res, next) {
+router.get("/:id", authMiddleware.auth, function (req, res, next) {
     Catway.findOne({ catwayNumber: req.params.id })
         .then(function (catway) {
             if (!catway) {
-                return res.status(404).json({ message: 'Catway non trouvé' });
+                return res.status(404).json({ message: "Catway non trouvé" });
             }
             res.json(catway);
         })
@@ -121,7 +121,7 @@ router.get('/:id', authMiddleware.auth, function (req, res, next) {
  *             $ref: '#/components/schemas/Catway'
  */
 router.post(
-    '/',
+    "/",
     authMiddleware.auth,
     authMiddleware.isAdmin,
     function (req, res, next) {
@@ -157,7 +157,7 @@ router.post(
  *             $ref: '#/components/schemas/Catway'
  */
 router.put(
-    '/:id',
+    "/:id",
     authMiddleware.auth,
     authMiddleware.isAdmin,
     function (req, res, next) {
@@ -166,7 +166,7 @@ router.put(
         })
             .then(function (updated) {
                 if (!updated) {
-                    return res.status(404).json({ error: 'Catway non trouvé' });
+                    return res.status(404).json({ error: "Catway non trouvé" });
                 }
                 res.json(updated);
             })
@@ -190,7 +190,7 @@ router.put(
  *           type: string
  */
 router.delete(
-    '/:id',
+    "/:id",
     authMiddleware.auth,
     authMiddleware.isAdmin,
     function (req, res, next) {
@@ -198,16 +198,16 @@ router.delete(
             .then(function (reservation) {
                 if (reservation) {
                     return res.status(400).json({
-                        error: 'Impossible de supprimer un catway avec des réservations actives'
+                        error: "Impossible de supprimer un catway avec des réservations actives"
                     });
                 }
                 return Catway.findOneAndDelete({ catwayNumber: req.params.id });
             })
             .then(function (deleted) {
                 if (!deleted) {
-                    return res.status(404).json({ error: 'Catway non trouvé' });
+                    return res.status(404).json({ error: "Catway non trouvé" });
                 }
-                res.json({ message: 'Catway supprimé avec succès' });
+                res.json({ message: "Catway supprimé avec succès" });
             })
             .catch(next);
     }
@@ -239,7 +239,7 @@ router.delete(
  *                 $ref: '#/components/schemas/Reservation'
  */
 router.get(
-    '/:catwayNumber/reservations',
+    "/:catwayNumber/reservations",
     authMiddleware.auth,
     function (req, res, next) {
         Reservation.find({ catwayNumber: req.params.catwayNumber })
@@ -282,7 +282,7 @@ router.get(
  *         description: Réservation ou catway non trouvé
  */
 router.get(
-    '/:catwayNumber/reservations/:idReservation',
+    "/:catwayNumber/reservations/:idReservation",
     authMiddleware.auth,
     function (req, res, next) {
         Reservation.findOne({
@@ -293,7 +293,7 @@ router.get(
                 if (!reservation) {
                     return res
                         .status(404)
-                        .json({ message: 'Réservation non trouvée' });
+                        .json({ message: "Réservation non trouvée" });
                 }
                 res.json(reservation);
             })
@@ -355,7 +355,7 @@ router.get(
  *         description: Catway non trouvé
  */
 router.post(
-    '/:catwayNumber/reservations',
+    "/:catwayNumber/reservations",
     authMiddleware.auth,
     function (req, res, next) {
         var reservation = new Reservation(req.body);
@@ -425,7 +425,7 @@ router.post(
  *         description: Réservation ou catway non trouvé
  */
 router.put(
-    '/:catwayNumber/reservations/:idReservation',
+    "/:catwayNumber/reservations/:idReservation",
     authMiddleware.auth,
     function (req, res, next) {
         Reservation.findOneAndUpdate(
@@ -440,7 +440,7 @@ router.put(
                 if (!reservation) {
                     return res
                         .status(404)
-                        .json({ message: 'Réservation non trouvée' });
+                        .json({ message: "Réservation non trouvée" });
                 }
                 res.json(reservation);
             })
@@ -484,7 +484,7 @@ router.put(
  *         description: Réservation ou catway non trouvé
  */
 router.delete(
-    '/:catwayNumber/reservations/:idReservation',
+    "/:catwayNumber/reservations/:idReservation",
     authMiddleware.auth,
     function (req, res, next) {
         Reservation.findOneAndDelete({
@@ -495,9 +495,9 @@ router.delete(
                 if (!reservation) {
                     return res
                         .status(404)
-                        .json({ message: 'Réservation non trouvée' });
+                        .json({ message: "Réservation non trouvée" });
                 }
-                res.json({ message: 'Réservation supprimée avec succès' });
+                res.json({ message: "Réservation supprimée avec succès" });
             })
             .catch(next);
     }
@@ -518,7 +518,7 @@ router.delete(
  *       200:
  *         description: Liste des réservations
  */
-router.get('/:id/reservations', authMiddleware.auth, function (req, res, next) {
+router.get("/:id/reservations", authMiddleware.auth, function (req, res, next) {
     Reservation.find({ catwayNumber: req.params.id })
         .then(function (reservations) {
             res.json(reservations);
@@ -548,7 +548,7 @@ router.get('/:id/reservations', authMiddleware.auth, function (req, res, next) {
  *         description: Réservation créée
  */
 router.post(
-    '/:id/reservations',
+    "/:id/reservations",
     authMiddleware.auth,
     function (req, res, next) {
         var reservation = new Reservation({

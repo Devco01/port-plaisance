@@ -1,8 +1,8 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-var Reservation = require('../models/reservation');
-var auth = require('../middleware/auth');
-var Catway = require('../models/catway');
+var Reservation = require("../models/reservation");
+var auth = require("../middleware/auth");
+var Catway = require("../models/catway");
 
 /**
  * @swagger
@@ -50,17 +50,17 @@ var Catway = require('../models/catway');
  *     tags: [Réservations]
  *     summary: Récupérer toutes les réservations d'un catway
  */
-router.get('/catways/:id/reservations', function (req, res, next) {
+router.get("/catways/:id/reservations", function (req, res, next) {
     auth(req, res, function () {
         Catway.findById(req.params.id)
             .then(function (catway) {
                 if (!catway) {
                     return res
                         .status(404)
-                        .json({ message: 'Catway non trouvé' });
+                        .json({ message: "Catway non trouvé" });
                 }
                 return Reservation.find({ catwayId: req.params.id }).sort(
-                    '-startDate'
+                    "-startDate"
                 );
             })
             .then(function (reservations) {
@@ -77,7 +77,7 @@ router.get('/catways/:id/reservations', function (req, res, next) {
  *     summary: Récupérer une réservation spécifique
  */
 router.get(
-    '/catways/:id/reservations/:idReservation',
+    "/catways/:id/reservations/:idReservation",
     function (req, res, next) {
         auth(req, res, function () {
             Reservation.findOne({
@@ -88,7 +88,7 @@ router.get(
                     if (!reservation) {
                         return res
                             .status(404)
-                            .json({ message: 'Réservation non trouvée' });
+                            .json({ message: "Réservation non trouvée" });
                     }
                     res.json(reservation);
                 })
@@ -106,7 +106,7 @@ router.get(
  *     security:
  *       - bearerAuth: []
  */
-router.get('/user', function (req, res, next) {
+router.get("/user", function (req, res, next) {
     auth(req, res, function () {
         Reservation.find({ userId: req.user._id })
             .sort({ startDate: -1 })
@@ -126,7 +126,7 @@ router.get('/user', function (req, res, next) {
  *     security:
  *       - bearerAuth: []
  */
-router.get('/current', function (req, res, next) {
+router.get("/current", function (req, res, next) {
     auth(req, res, function () {
         var today = new Date();
         Reservation.find({
@@ -147,14 +147,14 @@ router.get('/current', function (req, res, next) {
  *     summary: Crée une nouvelle réservation
  *     tags: [Réservations]
  */
-router.post('/catways/:id/reservations', function (req, res, next) {
+router.post("/catways/:id/reservations", function (req, res, next) {
     auth(req, res, function () {
         Catway.findById(req.params.id)
             .then(function (catway) {
                 if (!catway) {
                     return res
                         .status(404)
-                        .json({ message: 'Catway non trouvé' });
+                        .json({ message: "Catway non trouvé" });
                 }
                 var reservation = new Reservation(req.body);
                 reservation.catwayId = req.params.id;
@@ -174,7 +174,7 @@ router.post('/catways/:id/reservations', function (req, res, next) {
  *     summary: Modifier une réservation existante
  */
 router.put(
-    '/catways/:id/reservations/:idReservation',
+    "/catways/:id/reservations/:idReservation",
     function (req, res, next) {
         auth(req, res, function () {
             Reservation.findOneAndUpdate(
@@ -189,7 +189,7 @@ router.put(
                     if (!reservation) {
                         return res
                             .status(404)
-                            .json({ message: 'Réservation non trouvée' });
+                            .json({ message: "Réservation non trouvée" });
                     }
                     res.json(reservation);
                 })
@@ -205,7 +205,7 @@ router.put(
  *     summary: Supprimer une réservation
  */
 router.delete(
-    '/catways/:id/reservations/:idReservation',
+    "/catways/:id/reservations/:idReservation",
     function (req, res, next) {
         auth(req, res, function () {
             Reservation.findOneAndDelete({
@@ -216,9 +216,9 @@ router.delete(
                     if (!reservation) {
                         return res
                             .status(404)
-                            .json({ message: 'Réservation non trouvée' });
+                            .json({ message: "Réservation non trouvée" });
                     }
-                    res.json({ message: 'Réservation supprimée avec succès' });
+                    res.json({ message: "Réservation supprimée avec succès" });
                 })
                 .catch(next);
         });
@@ -234,7 +234,7 @@ router.delete(
  *     security:
  *       - bearerAuth: []
  */
-router.get('/', function (req, res, next) {
+router.get("/", function (req, res, next) {
     auth(req, res, function () {
         Reservation.find()
             .then(function (reservations) {
@@ -253,14 +253,14 @@ router.get('/', function (req, res, next) {
  *     security:
  *       - bearerAuth: []
  */
-router.get('/:id', function (req, res, next) {
+router.get("/:id", function (req, res, next) {
     auth(req, res, function () {
         Reservation.findById(req.params.id)
             .then(function (reservation) {
                 if (!reservation) {
                     return res
                         .status(404)
-                        .json({ message: 'Réservation non trouvée' });
+                        .json({ message: "Réservation non trouvée" });
                 }
                 res.json(reservation);
             })
@@ -283,14 +283,14 @@ router.get('/:id', function (req, res, next) {
  *           schema:
  *             $ref: '#/components/schemas/Reservation'
  */
-router.post('/', function (req, res, next) {
+router.post("/", function (req, res, next) {
     auth(req, res, function () {
         Catway.findOne({ catwayNumber: req.body.catwayNumber })
             .then(function (catway) {
                 if (!catway) {
                     return res
                         .status(404)
-                        .json({ message: 'Catway non trouvé' });
+                        .json({ message: "Catway non trouvé" });
                 }
                 var reservation = new Reservation(req.body);
                 return reservation.save();
@@ -317,14 +317,14 @@ router.post('/', function (req, res, next) {
  *         schema:
  *           type: string
  */
-router.put('/:id', function (req, res, next) {
+router.put("/:id", function (req, res, next) {
     auth(req, res, function () {
         Reservation.findByIdAndUpdate(req.params.id, req.body, { new: true })
             .then(function (reservation) {
                 if (!reservation) {
                     return res
                         .status(404)
-                        .json({ message: 'Réservation non trouvée' });
+                        .json({ message: "Réservation non trouvée" });
                 }
                 res.json(reservation);
             })

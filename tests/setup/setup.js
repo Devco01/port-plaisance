@@ -1,4 +1,4 @@
-var MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer;
+var MongoMemoryServer = require("mongodb-memory-server").MongoMemoryServer;
 
 module.exports = function () {
     return MongoMemoryServer.create().then(function (mongoServer) {

@@ -24,8 +24,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "npx eslint --config eslint.config.js src",
-    "lint:fix": "npx eslint --config eslint.config.js src --fix"
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix"
   },
   "eslintConfig": {
     "extends": [
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.7",
-    "@babel/eslint-parser": "^7.26.5",
+    "@babel/eslint-parser": "^7.22.15",
     "@babel/preset-env": "^7.26.7",
     "@babel/preset-react": "^7.26.3",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
@@ -56,8 +56,8 @@
     "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsx-a11y": "^6.8.0",
-    "eslint-plugin-react": "^7.37.4",
-    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "^15.14.0"
   }
 }
