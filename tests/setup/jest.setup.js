@@ -1,22 +1,36 @@
 var mongoose = require('mongoose');
 
-beforeEach(function(done) {
-    mongoose.connection.db.collections()
-        .then(function(collections) {
-            return Promise.all(
-                collections.map(function(collection) {
-                    return collection.deleteMany({});
-                })
-            );
-        })
-        .then(function() {
-            done();
-        });
-});
+var beforeAllFn = function() {
+    return new Promise(function(resolve) {
+        if (!mongoose.connection.readyState) {
+            mongoose.connect(global.__MONGO_URI__)
+                .then(function() { resolve(); });
+        } else {
+            resolve();
+        }
+    });
+};
 
-afterAll(function(done) {
-    mongoose.connection.close()
-        .then(function() {
-            done();
-        });
-}); 
+var afterAllFn = function() {
+    return mongoose.disconnect();
+};
+
+var beforeEachFn = function() {
+    return new Promise(function(resolve) {
+        if (mongoose.connection.db) {
+            mongoose.connection.db.collections()
+                .then(function(collections) {
+                    Promise.all(collections.map(function(collection) {
+                        return collection.deleteMany({});
+                    }))
+                        .then(function() { resolve(); });
+                });
+        } else {
+            resolve();
+        }
+    });
+};
+
+beforeAll(beforeAllFn);
+afterAll(afterAllFn);
+beforeEach(beforeEachFn); 
