@@ -3,7 +3,12 @@ module.exports = {
     testTimeout: 30000,
     setupFilesAfterEnv: ['<rootDir>/tests/setup/jest.setup.js'],
     globalTeardown: '<rootDir>/tests/setup/teardown.js',
-    testPathIgnorePatterns: ['/node_modules/', '/client/'],
+    testPathIgnorePatterns: [
+        '/node_modules/',
+        '/client/',
+        '/coverage/',
+        '/build/'
+    ],
     transform: {
         '^.+\\.js$': 'babel-jest'
     },

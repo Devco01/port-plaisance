@@ -3,36 +3,26 @@ module.exports = {
     env: {
         node: true,
         es6: true,
-        jest: true,
-        browser: true
+        jest: true
     },
     extends: ['eslint:recommended'],
     parserOptions: {
         ecmaVersion: 2020,
-        sourceType: 'module',
-        ecmaFeatures: {
-            jsx: true
-        }
+        sourceType: 'module'
     },
     ignorePatterns: [
         'client/**/*',
         'build/**',
         'dist/**',
         'coverage/**',
-        'node_modules/**',
-        '*.config.js'
+        'node_modules/**'
     ],
     rules: {
-        indent: ['error', 4],
+        'indent': ['error', 4],
         'linebreak-style': ['off'],
-        quotes: ['error', 'single'],
-        semi: ['error', 'always'],
-        'no-var': 'error',
-        'prefer-const': 'error'
-    },
-    settings: {
-        react: {
-            version: 'detect'
-        }
+        'quotes': ['error', 'single', { 'avoidEscape': true }],
+        'semi': ['error', 'always'],
+        'no-var': 'off',
+        'prefer-const': 'off'
     }
 };
