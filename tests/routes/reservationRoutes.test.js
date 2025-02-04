@@ -1,121 +1,142 @@
-const request = require('supertest');
-const mongoose = require('mongoose');
-const app = require('../../server/app');
-const Catway = require('../../server/models/catway');
-const Reservation = require('../../server/models/reservation');
-const User = require('../../server/models/User');
-const jwt = require('jsonwebtoken');
+var request = require('supertest');
+var mongoose = require('mongoose');
+var app = require('../../server/app');
+var Catway = require('../../server/models/catway');
+var Reservation = require('../../server/models/reservation');
+var User = require('../../server/models/user');
+var jwt = require('jsonwebtoken');
 
-describe('Reservation API Routes', () => {
-    let token;
-    let testCatway;
-    const testReservation = {
+describe('Reservation API Routes', function() {
+    var token;
+    var testCatway;
+    var testReservation = {
         clientName: "John Doe",
         boatName: "Sea Spirit",
         startDate: new Date('2024-06-01'),
         endDate: new Date('2024-06-07')
     };
 
-    beforeAll(async () => {
-        await mongoose.connect(global.__MONGO_URI__, {
+    beforeAll(function(done) {
+        mongoose.connect(global.__MONGO_URI__, {
             useNewUrlParser: true,
             useUnifiedTopology: true
-        });
-
-        const user = await User.create({
-            username: 'testuser',
-            email: 'test@test.com',
-            password: 'Test123!',
-            role: 'user'
-        });
-        token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-
-        // Créer un catway pour les tests
-        testCatway = await Catway.create({
-            catwayNumber: "A1",
-            catwayType: "long",
-            catwayState: "disponible"
-        });
+        })
+            .then(function() {
+                return User.create({
+                    email: 'test@test.com',
+                    password: 'Test123!',
+                    role: 'user',
+                    nom: 'Test',
+                    prenom: 'User'
+                });
+            })
+            .then(function(user) {
+                token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+                return Catway.create({
+                    catwayNumber: "A1",
+                    catwayType: "long",
+                    catwayState: "disponible"
+                });
+            })
+            .then(function(catway) {
+                testCatway = catway;
+                done();
+            });
     });
 
-    afterAll(async () => {
-        await mongoose.connection.close();
+    afterAll(function(done) {
+        mongoose.connection.close()
+            .then(function() { done(); });
     });
 
-    beforeEach(async () => {
-        await Reservation.deleteMany({});
+    beforeEach(function(done) {
+        Reservation.deleteMany({})
+            .then(function() { done(); });
     });
 
-    describe('GET /api/catways/:id/reservations', () => {
-        test('devrait retourner les réservations d\'un catway', async () => {
-            const reservation = await Reservation.create({
-                ...testReservation,
+    describe('GET /api/catways/:id/reservations', function() {
+        it('devrait retourner les réservations d\'un catway', function(done) {
+            var reservationData = Object.assign({}, testReservation, {
                 catwayNumber: testCatway.catwayNumber
             });
 
-            const res = await request(app)
-                .get(`/api/catways/${testCatway.catwayNumber}/reservations`)
-                .set('Authorization', `Bearer ${token}`);
-
-            expect(res.status).toBe(200);
-            expect(Array.isArray(res.body)).toBeTruthy();
-            expect(res.body.length).toBe(1);
-            expect(res.body[0].catwayNumber).toBe(testCatway.catwayNumber);
+            Reservation.create(reservationData)
+                .then(function() {
+                    return request(app)
+                        .get('/api/catways/' + testCatway.catwayNumber + '/reservations')
+                        .set('Authorization', 'Bearer ' + token);
+                })
+                .then(function(res) {
+                    expect(res.status).toBe(200);
+                    expect(Array.isArray(res.body)).toBe(true);
+                    expect(res.body.length).toBe(1);
+                    expect(res.body[0].catwayNumber).toBe(testCatway.catwayNumber);
+                    done();
+                });
         });
 
-        test('devrait retourner 404 pour un catway inexistant', async () => {
-            const res = await request(app)
+        it('devrait retourner 404 pour un catway inexistant', function(done) {
+            request(app)
                 .get('/api/catways/INVALID/reservations')
-                .set('Authorization', `Bearer ${token}`);
-
-            expect(res.status).toBe(404);
+                .set('Authorization', 'Bearer ' + token)
+                .expect(404, done);
         });
     });
 
-    describe('POST /api/catways/:id/reservations', () => {
-        test('devrait créer une nouvelle réservation', async () => {
-            const res = await request(app)
-                .post(`/api/catways/${testCatway.catwayNumber}/reservations`)
-                .set('Authorization', `Bearer ${token}`)
-                .send(testReservation);
+    describe('POST /api/catways/:id/reservations', function() {
+        it('devrait créer une nouvelle réservation', function(done) {
+            request(app)
+                .post('/api/catways/' + testCatway.catwayNumber + '/reservations')
+                .set('Authorization', 'Bearer ' + token)
+                .send(testReservation)
+                .expect(201)
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    expect(res.body.catwayNumber).toBe(testCatway.catwayNumber);
+                    expect(res.body.clientName).toBe(testReservation.clientName);
 
-            expect(res.status).toBe(201);
-            expect(res.body.catwayNumber).toBe(testCatway.catwayNumber);
-            expect(res.body.clientName).toBe(testReservation.clientName);
-
-            const reservation = await Reservation.findById(res.body._id);
-            expect(reservation).toBeTruthy();
-        });
-
-        test('devrait rejeter une réservation avec des dates invalides', async () => {
-            const res = await request(app)
-                .post(`/api/catways/${testCatway.catwayNumber}/reservations`)
-                .set('Authorization', `Bearer ${token}`)
-                .send({
-                    ...testReservation,
-                    startDate: new Date('2024-06-07'),
-                    endDate: new Date('2024-06-01')
+                    Reservation.findById(res.body._id)
+                        .then(function(reservation) {
+                            expect(reservation).toBeTruthy();
+                            done();
+                        });
                 });
-
-            expect(res.status).toBe(400);
         });
 
-        test('devrait rejeter une réservation pour un catway déjà réservé', async () => {
-            await Reservation.create({
-                ...testReservation,
+        it('devrait rejeter une réservation avec des dates invalides', function(done) {
+            var invalidReservation = Object.assign({}, testReservation, {
+                startDate: new Date('2024-06-07'),
+                endDate: new Date('2024-06-01')
+            });
+
+            request(app)
+                .post('/api/catways/' + testCatway.catwayNumber + '/reservations')
+                .set('Authorization', 'Bearer ' + token)
+                .send(invalidReservation)
+                .expect(400, done);
+        });
+
+        it('devrait rejeter une réservation pour un catway déjà réservé', function(done) {
+            var existingReservation = Object.assign({}, testReservation, {
                 catwayNumber: testCatway.catwayNumber
             });
 
-            const res = await request(app)
-                .post(`/api/catways/${testCatway.catwayNumber}/reservations`)
-                .set('Authorization', `Bearer ${token}`)
-                .send({
-                    ...testReservation,
-                    startDate: new Date('2024-06-03'),
-                    endDate: new Date('2024-06-05')
-                });
+            Reservation.create(existingReservation)
+                .then(function() {
+                    var overlappingReservation = Object.assign({}, testReservation, {
+                        startDate: new Date('2024-06-03'),
+                        endDate: new Date('2024-06-05')
+                    });
 
-            expect(res.status).toBe(400);
+                    return request(app)
+                        .post('/api/catways/' + testCatway.catwayNumber + '/reservations')
+                        .set('Authorization', 'Bearer ' + token)
+                        .send(overlappingReservation);
+                })
+                .then(function(res) {
+                    expect(res.status).toBe(400);
+                    done();
+                });
         });
     });
 
@@ -137,21 +158,41 @@ describe('Reservation API Routes', () => {
         });
     });
 
-    describe('DELETE /api/catways/:id/reservations/:idReservation', () => {
-        test('devrait supprimer une réservation', async () => {
-            const reservation = await Reservation.create({
-                ...testReservation,
+    describe('DELETE /api/catways/:id/reservations/:reservationId', function() {
+        var testReservationId;
+
+        beforeEach(function(done) {
+            var reservationData = Object.assign({}, testReservation, {
                 catwayNumber: testCatway.catwayNumber
             });
 
-            const res = await request(app)
-                .delete(`/api/catways/${testCatway.catwayNumber}/reservations/${reservation._id}`)
-                .set('Authorization', `Bearer ${token}`);
+            Reservation.create(reservationData)
+                .then(function(reservation) {
+                    testReservationId = reservation._id;
+                    done();
+                });
+        });
 
-            expect(res.status).toBe(200);
+        it('devrait supprimer une réservation existante', function(done) {
+            request(app)
+                .delete('/api/catways/' + testCatway.catwayNumber + '/reservations/' + testReservationId)
+                .set('Authorization', 'Bearer ' + token)
+                .expect(200)
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    Reservation.findById(testReservationId)
+                        .then(function(reservation) {
+                            expect(reservation).toBeNull();
+                            done();
+                        });
+                });
+        });
 
-            const deletedReservation = await Reservation.findById(reservation._id);
-            expect(deletedReservation).toBeNull();
+        it('devrait retourner 404 pour une réservation inexistante', function(done) {
+            request(app)
+                .delete('/api/catways/' + testCatway.catwayNumber + '/reservations/invalid_id')
+                .set('Authorization', 'Bearer ' + token)
+                .expect(404, done);
         });
     });
 }); 

@@ -1,31 +1,40 @@
 "use strict";
 
-var reactPlugin = require('eslint-plugin-react');
-var reactHooksPlugin = require('eslint-plugin-react-hooks');
-
 module.exports = {
-    "env": {
-        "node": true,
-        "es6": true
+    languageOptions: {
+        ecmaVersion: 5,
+        sourceType: 'commonjs',
+        globals: {
+            // Test globals
+            describe: 'readonly',
+            it: 'readonly',
+            expect: 'readonly',
+            beforeAll: 'readonly',
+            afterAll: 'readonly',
+            beforeEach: 'readonly',
+            afterEach: 'readonly',
+            done: 'readonly',
+            // Node globals
+            process: 'readonly',
+            require: 'readonly',
+            module: 'readonly',
+            __dirname: 'readonly',
+            console: 'readonly'
+        }
     },
-    "extends": "eslint:recommended",
-    "rules": {
-        "no-var": "off",  // Permettre l'utilisation de var
-        "prefer-const": "off", // Ne pas forcer l'utilisation de const
-        "prefer-arrow-callback": "off", // Permettre les fonctions classiques
-        "func-names": "off", // Permettre les fonctions anonymes
-        // Configuration React/Client
+    rules: {
+        'no-var': 'off',
+        'prefer-const': 'off',
+        'prefer-arrow-callback': 'off',
+        'func-names': 'off',
         'indent': ['error', 4],
         'linebreak-style': ['off'],
         'quotes': ['error', 'single'],
         'semi': ['error', 'always'],
         'no-unused-vars': ['warn', { 
-            varsIgnorePattern: '^(React|_|[A-Z][a-zA-Z]*)',
+            varsIgnorePattern: '^(_|[A-Z][a-zA-Z]*)',
             args: 'none'
         }],
-        'no-console': 'off',
-        'react/prop-types': 'off',
-        'react-hooks/rules-of-hooks': 'error',
-        'react-hooks/exhaustive-deps': 'warn'
+        'no-console': 'off'
     }
 }; 

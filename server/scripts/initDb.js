@@ -1,6 +1,5 @@
 require('dotenv').config();
 var mongoose = require('mongoose');
-var bcrypt = require('bcryptjs');
 var User = require('../models/user');
 var Catway = require('../models/catway');
 var Reservation = require('../models/reservation');

@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../../server');
-const User = require('../../server/models/User');
+const User = require('../../server/models/user');
 const Catway = require('../../server/models/catway');
 const Reservation = require('../../server/models/reservation');
 const jwt = require('jsonwebtoken');

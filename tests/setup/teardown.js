@@ -1,15 +1,27 @@
-const mongoose = require('mongoose');
+var mongoose = require('mongoose');
 
-module.exports = async () => {
-    // Nettoyage de la base de données
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await global.__MONGO_SERVER__.stop();
+function teardown() {
+    return new Promise(function(resolve, reject) {
+        if (mongoose.connection.readyState !== 0) {
+            mongoose.disconnect()
+                .then(function() {
+                    if (global.__MONGO_SERVER__) {
+                        global.__MONGO_SERVER__.stop()
+                            .then(function() {
+                                delete global.__MONGO_SERVER__;
+                                delete global.__MONGO_URI__;
+                                resolve();
+                            })
+                            .catch(reject);
+                    } else {
+                        resolve();
+                    }
+                })
+                .catch(reject);
+        } else {
+            resolve();
+        }
+    });
+}
 
-    // Nettoyage des variables globales
-    delete global.__MONGO_URI__;
-    delete global.__MONGO_SERVER__;
-    delete global.createTestUser;
-    delete global.createTestCatway;
-    delete global.createTestReservation;
-}; 
+module.exports = teardown; 

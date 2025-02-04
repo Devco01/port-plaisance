@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../../server/app');
 const Catway = require('../../server/models/catway');
-const User = require('../../server/models/User');
+const User = require('../../server/models/user');
 const jwt = require('jsonwebtoken');
 
 describe('Catway API Routes', () => {

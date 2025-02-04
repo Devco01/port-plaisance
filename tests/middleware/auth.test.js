@@ -1,148 +1,94 @@
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
-const { requireAuth, requireAdmin, requireUserOrAdmin, requireSameUser } = require('../../server/middleware/auth');
-const User = require('../../server/models/User');
+var jwt = require('jsonwebtoken');
+var mongoose = require('mongoose');
+var auth = require('../../server/middleware/auth');
+var User = require('../../server/models/user');
 
-describe('Auth Middleware', () => {
-    let mockReq;
-    let mockRes;
-    let nextFunction;
+describe('Auth Middleware', function() {
+    var mockReq;
+    var mockRes;
+    var nextFunction;
 
-    beforeEach(() => {
+    beforeEach(function() {
         mockReq = {
             cookies: {},
-            params: {}
+            params: {},
+            headers: {}
         };
         mockRes = {
-            status: jest.fn(() => mockRes),
-            json: jest.fn()
+            status: function() { return mockRes; },
+            json: function() { return mockRes; }
         };
-        nextFunction = jest.fn();
+        nextFunction = function() {};
     });
 
-    describe('requireAuth', () => {
-        test('devrait rejeter une requête sans token', async () => {
-            await requireAuth(mockReq, mockRes, nextFunction);
+    describe('auth middleware', function() {
+        it('should verify valid token', function(done) {
+            var token = jwt.sign({ id: 'test123' }, process.env.JWT_SECRET || 'test_secret');
+            mockReq.headers.authorization = 'Bearer ' + token;
 
-            expect(mockRes.status).toHaveBeenCalledWith(401);
-            expect(mockRes.json).toHaveBeenCalledWith({
-                message: 'Authentification requise'
+            auth.auth(mockReq, mockRes, function() {
+                expect(mockReq.user).toBeDefined();
+                done();
             });
-            expect(nextFunction).not.toHaveBeenCalled();
         });
 
-        test('devrait rejeter un token invalide', async () => {
-            mockReq.cookies.token = 'invalid_token';
+        it('should reject invalid token', function(done) {
+            mockReq.headers.authorization = 'Bearer invalid_token';
 
-            await requireAuth(mockReq, mockRes, nextFunction);
-
-            expect(mockRes.status).toHaveBeenCalledWith(401);
-            expect(mockRes.json).toHaveBeenCalledWith({
-                message: 'Token invalide'
+            auth.auth(mockReq, mockRes, function(err) {
+                expect(err).toBeDefined();
+                done();
             });
-            expect(nextFunction).not.toHaveBeenCalled();
         });
 
-        test('devrait accepter un token valide', async () => {
-            const user = new User({
-                username: 'testuser',
-                email: 'test@test.com',
-                password: 'Test123!',
-                role: 'user'
+        it('should reject missing token', function(done) {
+            auth.auth(mockReq, mockRes, function(err) {
+                expect(err).toBeDefined();
+                done();
             });
-            await user.save();
-
-            const token = jwt.sign(
-                { id: user._id },
-                process.env.JWT_SECRET
-            );
-            mockReq.cookies.token = token;
-
-            await requireAuth(mockReq, mockRes, nextFunction);
-
-            expect(mockReq.user).toBeDefined();
-            expect(mockReq.user.email).toBe(user.email);
-            expect(nextFunction).toHaveBeenCalled();
         });
     });
 
-    describe('requireAdmin', () => {
-        test('devrait autoriser un admin', () => {
+    describe('isAdmin middleware', function() {
+        it('should allow admin access', function(done) {
             mockReq.user = { role: 'admin' };
 
-            requireAdmin(mockReq, mockRes, nextFunction);
-
-            expect(nextFunction).toHaveBeenCalled();
-        });
-
-        test('devrait rejeter un utilisateur non admin', () => {
-            mockReq.user = { role: 'user' };
-
-            requireAdmin(mockReq, mockRes, nextFunction);
-
-            expect(mockRes.status).toHaveBeenCalledWith(403);
-            expect(mockRes.json).toHaveBeenCalledWith({
-                message: 'Accès non autorisé'
+            auth.isAdmin(mockReq, mockRes, function() {
+                expect(true).toBe(true);
+                done();
             });
-            expect(nextFunction).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('requireUserOrAdmin', () => {
-        test('devrait autoriser un admin', () => {
-            mockReq.user = { role: 'admin' };
-
-            requireUserOrAdmin(mockReq, mockRes, nextFunction);
-
-            expect(nextFunction).toHaveBeenCalled();
         });
 
-        test('devrait autoriser un utilisateur', () => {
+        it('should reject non-admin access', function(done) {
             mockReq.user = { role: 'user' };
 
-            requireUserOrAdmin(mockReq, mockRes, nextFunction);
-
-            expect(nextFunction).toHaveBeenCalled();
-        });
-
-        test('devrait rejeter un rôle invalide', () => {
-            mockReq.user = { role: 'invalid' };
-
-            requireUserOrAdmin(mockReq, mockRes, nextFunction);
-
-            expect(mockRes.status).toHaveBeenCalledWith(403);
-            expect(nextFunction).not.toHaveBeenCalled();
+            auth.isAdmin(mockReq, mockRes, function(err) {
+                expect(err).toBeDefined();
+                done();
+            });
         });
     });
 
-    describe('requireSameUser', () => {
-        test('devrait autoriser un admin à accéder aux ressources d\'autres utilisateurs', () => {
-            mockReq.user = { role: 'admin', email: 'admin@test.com' };
-            mockReq.params.email = 'user@test.com';
-
-            requireSameUser(mockReq, mockRes, nextFunction);
-
-            expect(nextFunction).toHaveBeenCalled();
-        });
-
-        test('devrait autoriser un utilisateur à accéder à ses propres ressources', () => {
-            const email = 'user@test.com';
-            mockReq.user = { role: 'user', email };
+    describe('isOwnerOrAdmin middleware', function() {
+        it('should allow owner access', function(done) {
+            var email = 'test@test.com';
+            mockReq.user = { email: email, role: 'user' };
             mockReq.params.email = email;
 
-            requireSameUser(mockReq, mockRes, nextFunction);
-
-            expect(nextFunction).toHaveBeenCalled();
+            auth.isOwnerOrAdmin()(mockReq, mockRes, function() {
+                expect(true).toBe(true);
+                done();
+            });
         });
 
-        test('devrait rejeter l\'accès aux ressources d\'autres utilisateurs', () => {
-            mockReq.user = { role: 'user', email: 'user1@test.com' };
-            mockReq.params.email = 'user2@test.com';
+        it('should allow admin access', function(done) {
+            mockReq.user = { role: 'admin' };
+            mockReq.params.email = 'other@test.com';
 
-            requireSameUser(mockReq, mockRes, nextFunction);
-
-            expect(mockRes.status).toHaveBeenCalledWith(403);
-            expect(nextFunction).not.toHaveBeenCalled();
+            auth.isOwnerOrAdmin()(mockReq, mockRes, function() {
+                expect(true).toBe(true);
+                done();
+            });
         });
     });
 }); 

@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
+var jwt = require('jsonwebtoken');
 
-const generateToken = (userData) => {
+var generateToken = function(userData) {
     return jwt.sign(
         userData,
         process.env.JWT_SECRET || 'test_secret',
@@ -9,5 +9,5 @@ const generateToken = (userData) => {
 };
 
 module.exports = {
-    generateToken
+    generateToken: generateToken
 }; 

@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
-var jwt = require('jsonwebtoken');
 var User = require('../models/user');
 var auth = require('../middleware/auth');
 var isAdmin = require('../middleware/isAdmin');
@@ -165,13 +164,9 @@ router.put('/:email', auth, function(req, res) {
             { new: true }
         ).select('-password')
             .then(function(user) {
-
-
-
-        if (!user) {
-            return res.status(404).json({ message: 'Utilisateur non trouvé' });
-        }
-
+                if (!user) {
+                    return res.status(404).json({ message: 'Utilisateur non trouvé' });
+                }
                 res.json(user);
             })
             .catch(function(error) {
@@ -191,30 +186,38 @@ router.put('/:email', auth, function(req, res) {
  *     tags: [Users]
  */
 router.delete('/:email', auth, isAdmin, function(req, res) {
-    try {
-        User.findOne({ email: req.params.email })
-            .then(function(user) {
-                if (!user) {
+    User.findOne({ email: req.params.email })
+        .then(function(user) {
+            if (!user) {
+                return res.status(404).json({ message: 'Utilisateur non trouvé' });
+            }
 
-            return res.status(404).json({ message: 'Utilisateur non trouvé' });
-        }
+            if (user.role === 'admin') {
+                return res.status(403).json({ message: 'Impossible de supprimer un administrateur' });
+            }
 
-        // Empêcher la suppression d'un admin
-        if (user.role === 'admin') {
-            return res.status(403).json({ message: 'Impossible de supprimer un administrateur' });
-        }
-
-        user.remove();
-        res.json({ message: 'Utilisateur supprimé avec succès' });
-
-            })
-            .catch(function(error) {
-                res.status(400).json({ message: error.message });
-            });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+            return user.remove();
+        })
+        .then(function() {
+            res.json({ message: 'Utilisateur supprimé avec succès' });
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
+        });
 });
 
+router.get('/:id', auth, function(req, res) {
+    User.findById(req.params.id)
+        .select('-password')
+        .then(function(user) {
+            if (!user) {
+                return res.status(404).json({ message: 'Utilisateur non trouvé' });
+            }
+            res.json(user);
+        })
+        .catch(function(error) {
+            res.status(500).json({ message: error.message });
+        });
+});
 
 module.exports = router;

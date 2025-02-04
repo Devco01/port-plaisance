@@ -1,25 +1,22 @@
-const Reservation = require('../models/reservation');
-const Catway = require('../models/catway');
-const User = require('../models/user');
+var Reservation = require('../models/reservation');
+var Catway = require('../models/catway');
+var User = require('../models/user');
 
 /**
  * Liste toutes les réservations d'un catway
  */
-exports.getReservations = async (req, res) => {
-    try {
-        const { status, startDate, endDate } = req.query;
-        const filter = { catwayNumber: req.params.catwayId };
+exports.getReservations = function(req, res) {
+    var filter = { catwayNumber: req.params.catwayId };
 
-        // Vérifier si le catway existe
-        const catway = await Catway.findOne({ catwayNumber: req.params.catwayId });
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
+    Catway.findOne({ catwayNumber: req.params.catwayId })
+        .then(function(catway) {
+            if (!catway) {
+                return res.status(404).json({ message: 'Catway non trouvé' });
+            }
 
-        // Filtrer par statut
-        if (status) {
-            const now = new Date();
-            switch (status) {
+            if (req.query.status) {
+                var now = new Date();
+                switch (req.query.status) {
                 case 'active':
                     filter.startDate = { $lte: now };
                     filter.endDate = { $gte: now };
@@ -30,211 +27,263 @@ exports.getReservations = async (req, res) => {
                 case 'past':
                     filter.endDate = { $lt: now };
                     break;
+                }
             }
-        }
 
-        // Filtrer par période
-        if (startDate && endDate) {
-            filter.$or = [
-                { startDate: { $gte: new Date(startDate), $lte: new Date(endDate) } },
-                { endDate: { $gte: new Date(startDate), $lte: new Date(endDate) } }
-            ];
-        }
-
-        const reservations = await Reservation.find(filter)
-            .sort({ startDate: 1 })
-            .populate('user', 'username email');
-
-        res.json(reservations);
-    } catch (error) {
-        res.status(500).json({ 
-            message: 'Erreur lors de la récupération des réservations' 
+            return Reservation.find(filter)
+                .sort({ startDate: 1 })
+                .populate('user', 'username email');
+        })
+        .then(function(reservations) {
+            res.json(reservations);
+        })
+        .catch(function(error) {
+            var status = error.name === 'ValidationError' ? 400 : 500;
+            res.status(status).json({ 
+                message: error.message || 'Erreur lors de la récupération des réservations'
+            });
         });
-    }
 };
 
 /**
  * Récupère une réservation spécifique
  */
-exports.getReservationById = async (req, res) => {
-    try {
-        const reservation = await Reservation.findOne({
-            _id: req.params.id,
-            catwayNumber: req.params.catwayId
-        }).populate('user', 'username email');
+exports.getReservationById = function(req, res) {
+    Reservation.findOne({
+        _id: req.params.id,
+        catwayNumber: req.params.catwayId
+    })
+        .populate('user', 'username email')
+        .then(function(reservation) {
+            if (!reservation) {
+                return res.status(404).json({ message: 'Réservation non trouvée' });
+            }
 
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
+            // Vérifier les droits d'accès
+            if (req.user.role !== 'admin' && req.user.email !== reservation.user.email) {
+                return res.status(403).json({ message: 'Accès non autorisé' });
+            }
 
-        // Vérifier les droits d'accès
-        if (req.user.role !== 'admin' && req.user.email !== reservation.user.email) {
-            return res.status(403).json({ message: 'Accès non autorisé' });
-        }
-
-        res.json(reservation);
-    } catch (error) {
-        res.status(500).json({ 
-            message: 'Erreur lors de la récupération de la réservation' 
+            res.json(reservation);
+        })
+        .catch(function(error) {
+            var status = error.name === 'ValidationError' ? 400 : 500;
+            res.status(status).json({ 
+                message: error.message || 'Erreur lors de la récupération de la réservation'
+            });
         });
-    }
 };
 
 /**
  * Crée une nouvelle réservation
  */
-exports.createReservation = async (req, res) => {
-    try {
-        const { startDate, endDate, boatName, boatLength } = req.body;
-        const catwayNumber = req.params.catwayId;
+exports.createReservation = function(req, res) {
+    var startDate = new Date(req.body.startDate);
+    var endDate = new Date(req.body.endDate);
+    var boatName = req.body.boatName;
+    var boatLength = req.body.boatLength;
+    var catwayNumber = req.params.catwayId;
+    var foundCatway;
 
-        // Vérifier si le catway existe et est disponible
-        const catway = await Catway.findOne({ catwayNumber })
-            .populate('activeReservations');
-
-        if (!catway) {
-            return res.status(404).json({ message: 'Catway non trouvé' });
-        }
-
-        // Vérifier la taille du bateau
-        if (!catway.canAccommodateBoat(boatLength)) {
-            return res.status(400).json({ 
-                message: 'Le bateau est trop grand pour ce catway' 
-            });
-        }
-
-        // Vérifier la disponibilité
-        if (!catway.isAvailable(new Date(startDate), new Date(endDate))) {
-            return res.status(400).json({ 
-                message: 'Le catway n\'est pas disponible pour ces dates' 
-            });
-        }
-
-        const reservation = new Reservation({
-            catwayNumber,
-            user: req.user._id,
-            boatName,
-            boatLength,
-            startDate,
-            endDate
-        });
-
-        await reservation.save();
-
-        // Mettre à jour l'état du catway
-        catway.catwayState = 'occupé';
-        await catway.save();
-
-        res.status(201).json(reservation);
-    } catch (error) {
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({ 
-                message: 'Données invalides', 
-                errors: error.errors 
-            });
-        }
-        res.status(500).json({ 
-            message: 'Erreur lors de la création de la réservation' 
+    // Vérifier les dates
+    if (endDate <= startDate) {
+        return res.status(400).json({ 
+            message: 'La date de fin doit être après la date de début' 
         });
     }
+
+    if (startDate < new Date()) {
+        return res.status(400).json({ 
+            message: 'La date de début ne peut pas être dans le passé' 
+        });
+    }
+
+    Catway.findOne({ catwayNumber: catwayNumber })
+        .populate('activeReservations')
+        .then(function(catway) {
+            foundCatway = catway;
+            if (!catway) {
+                throw new Error('Catway non trouvé');
+            }
+
+            // Vérifier la taille du bateau
+            if (!catway.canAccommodateBoat(boatLength)) {
+                throw new Error('Le bateau est trop grand pour ce catway');
+            }
+
+            // Vérifier la disponibilité
+            if (!catway.isAvailable(startDate, endDate)) {
+                throw new Error('Le catway n\'est pas disponible pour ces dates');
+            }
+
+            var reservation = new Reservation({
+                catwayNumber: catwayNumber,
+                user: req.user._id,
+                boatName: boatName,
+                boatLength: boatLength,
+                startDate: startDate,
+                endDate: endDate
+            });
+
+            return reservation.save();
+        })
+        .then(function(reservation) {
+            // Mettre à jour l'état du catway
+            foundCatway.catwayState = 'occupé';
+            return foundCatway.save().then(function() {
+                return reservation;
+            });
+        })
+        .then(function(reservation) {
+            res.status(201).json(reservation);
+        })
+        .catch(function(error) {
+            if (error.name === 'ValidationError') {
+                return res.status(400).json({ 
+                    message: 'Données invalides', 
+                    errors: error.errors 
+                });
+            }
+            res.status(400).json({ message: error.message });
+        });
 };
 
 /**
  * Modifie une réservation
  */
-exports.updateReservation = async (req, res) => {
-    try {
-        const reservation = await Reservation.findOne({
-            _id: req.params.id,
-            catwayNumber: req.params.catwayId
-        });
+exports.updateReservation = function(req, res) {
+    var reservation;
+    var catway;
 
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
+    // Vérifier les dates si modifiées
+    if (req.body.startDate || req.body.endDate) {
+        var startDate = new Date(req.body.startDate);
+        var endDate = new Date(req.body.endDate);
+        var now = new Date();
 
-        // Vérifier les droits d'accès
-        if (req.user.role !== 'admin' && req.user.email !== reservation.user.email) {
-            return res.status(403).json({ message: 'Accès non autorisé' });
-        }
-
-        // Vérifier les nouvelles dates si modifiées
-        if (req.body.startDate || req.body.endDate) {
-            const catway = await Catway.findOne({ catwayNumber: req.params.catwayId })
-                .populate('activeReservations');
-
-            const newStartDate = new Date(req.body.startDate || reservation.startDate);
-            const newEndDate = new Date(req.body.endDate || reservation.endDate);
-
-            const otherReservations = catway.activeReservations.filter(r => 
-                r._id.toString() !== reservation._id.toString()
-            );
-
-            const hasConflict = otherReservations.some(r => 
-                newStartDate <= r.endDate && newEndDate >= r.startDate
-            );
-
-            if (hasConflict) {
-                return res.status(400).json({ 
-                    message: 'Ces dates sont déjà réservées' 
-                });
-            }
-        }
-
-        Object.assign(reservation, req.body);
-        await reservation.save();
-
-        res.json(reservation);
-    } catch (error) {
-        if (error.name === 'ValidationError') {
+        if (endDate <= startDate) {
             return res.status(400).json({ 
-                message: 'Données invalides', 
-                errors: error.errors 
+                message: 'La date de fin doit être après la date de début' 
             });
         }
-        res.status(500).json({ 
-            message: 'Erreur lors de la modification de la réservation' 
-        });
+
+        if (startDate < now) {
+            return res.status(400).json({ 
+                message: 'La date de début ne peut pas être dans le passé' 
+            });
+        }
     }
+
+    Reservation.findOne({
+        _id: req.params.id,
+        catwayNumber: req.params.catwayId
+    })
+        .populate('user', 'username email')
+        .then(function(foundReservation) {
+            if (!foundReservation) {
+                throw new Error('Réservation non trouvée');
+            }
+
+            // Vérifier les droits d'accès
+            if (req.user.role !== 'admin' && req.user.email !== foundReservation.user.email) {
+                throw new Error('Accès non autorisé');
+            }
+
+            reservation = foundReservation;
+
+            // Vérifier les nouvelles dates si modifiées
+            if (req.body.startDate || req.body.endDate) {
+                return Catway.findOne({ catwayNumber: reservation.catwayNumber })
+                    .populate('activeReservations');
+            }
+            return null;
+        })
+        .then(function(foundCatway) {
+            if (foundCatway) {
+                catway = foundCatway;
+                var newStartDate = new Date(req.body.startDate || reservation.startDate);
+                var newEndDate = new Date(req.body.endDate || reservation.endDate);
+
+                var otherReservations = catway.activeReservations.filter(function(r) {
+                    return r._id.toString() !== reservation._id.toString();
+                });
+
+                var hasConflict = otherReservations.some(function(r) {
+                    return newStartDate <= r.endDate && newEndDate >= r.startDate;
+                });
+
+                if (hasConflict) {
+                    throw new Error('Ces dates sont déjà réservées');
+                }
+            }
+
+            Object.assign(reservation, req.body);
+            return reservation.save();
+        })
+        .then(function(updatedReservation) {
+            res.json(updatedReservation);
+        })
+        .catch(function(error) {
+            if (error.name === 'ValidationError') {
+                return res.status(400).json({ 
+                    message: 'Données invalides', 
+                    errors: error.errors 
+                });
+            }
+            res.status(400).json({ message: error.message });
+        });
 };
 
 /**
  * Supprime une réservation
  */
-exports.deleteReservation = async (req, res) => {
-    try {
-        const reservation = await Reservation.findOne({
-            _id: req.params.id,
-            catwayNumber: req.params.catwayId
+exports.deleteReservation = function(req, res) {
+    var foundReservation;
+    var foundCatway;
+
+    Reservation.findOne({
+        _id: req.params.id,
+        catwayNumber: req.params.catwayId
+    })
+        .populate('user', 'username email')
+        .then(function(reservation) {
+            if (!reservation) {
+                throw new Error('Réservation non trouvée');
+            }
+
+            foundReservation = reservation;
+
+            // Vérifier les droits d'accès
+            if (req.user.role !== 'admin' && req.user.email !== reservation.user.email) {
+                throw new Error('Accès non autorisé');
+            }
+
+            return Catway.findOne({ catwayNumber: req.params.catwayId });
+        })
+        .then(function(catway) {
+            if (!catway) {
+                throw new Error('Catway non trouvé');
+            }
+            foundCatway = catway;
+
+            return foundReservation.remove();
+        })
+        .then(function() {
+            // Mettre à jour l'état du catway si nécessaire
+            if (foundCatway.activeReservations.length === 0) {
+                foundCatway.catwayState = 'disponible';
+                return foundCatway.save();
+            }
+        })
+        .then(function() {
+            res.json({ message: 'Réservation supprimée avec succès' });
+        })
+        .catch(function(error) {
+            var status = error.message.includes('non trouvé') ? 404 :
+                error.message.includes('non autorisé') ? 403 : 500;
+
+            res.status(status).json({ 
+                message: error.message 
+            });
         });
-
-        if (!reservation) {
-            return res.status(404).json({ message: 'Réservation non trouvée' });
-        }
-
-        // Vérifier les droits d'accès
-        if (req.user.role !== 'admin' && req.user.email !== reservation.user.email) {
-            return res.status(403).json({ message: 'Accès non autorisé' });
-        }
-
-        await reservation.remove();
-
-        // Mettre à jour l'état du catway si nécessaire
-        const catway = await Catway.findOne({ catwayNumber: req.params.catwayId });
-        const hasActiveReservations = await Reservation.exists({
-            catwayNumber: req.params.catwayId,
-            endDate: { $gte: new Date() }
-        });
-
-        if (!hasActiveReservations) {
-            catway.catwayState = 'disponible';
-            await catway.save();
-        }
-
-        res.json({ message: 'Réservation supprimée avec succès' });
-    } catch (error) {
-        res.status(500).json({ 
-            message: 'Erreur lors de la suppression de la réservation' 
-        });
-    }
 }; 
