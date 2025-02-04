@@ -10,7 +10,7 @@
     "test:auth": "jest tests/auth",
     "test:crud": "jest tests/crud",
     "lint": "eslint server/",
-    "lint:fix": "eslint . --fix",
+    "lint:fix": "eslint server/ --fix",
     "start:server": "cd server && PORT=3001 node server.js",
     "dev:server": "cd server && PORT=3001 nodemon server.js",
     "start:client": "cd client && npm start",
@@ -22,11 +22,11 @@
     "dev": "PORT=3001 nodemon server/server.js",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
     "prepare": "husky install",
-    "validate": "npm run lint && npm run test",
+    "validate": "npm run lint && npm test",
     "seed": "node server/scripts/initDb.js"
   },
   "keywords": [],
-  "author": "Votre nom",
+  "author": "Devco01",
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
@@ -57,9 +57,14 @@
     "swagger-ui-express": "^4.6.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.7",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/preset-env": "^7.26.7",
+    "@babel/preset-react": "^7.26.3",
     "@jest/test-sequencer": "^29.7.0",
+    "babel-jest": "^29.7.0",
     "eslint": "^8.56.0",
+    "husky": "^8.0.0",
     "jest": "^29.7.0",
     "mongodb-memory-server": "^8.12.2",
     "nodemon": "^3.1.9",
