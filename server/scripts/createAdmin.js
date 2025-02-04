@@ -38,7 +38,7 @@ var createAdminUser = function () {
         })
         .catch(function (error) {
             console.error(
-                'Erreur lors de la création de l\'administrateur:',
+                "Erreur lors de la création de l'administrateur:",
                 error
             );
         })
