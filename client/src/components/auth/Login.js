@@ -8,7 +8,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async e => {
         e.preventDefault();
         try {
             const data = await login(email, password);
@@ -21,7 +21,14 @@ const Login = () => {
 
     return (
         <Container maxWidth="sm">
-            <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box
+                sx={{
+                    mt: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                }}
+            >
                 <Typography component="h1" variant="h5">
                     Connexion
                 </Typography>
@@ -32,7 +39,7 @@ const Login = () => {
                         fullWidth
                         label="Email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={e => setEmail(e.target.value)}
                     />
                     <TextField
                         margin="normal"
@@ -41,7 +48,7 @@ const Login = () => {
                         label="Mot de passe"
                         type="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={e => setPassword(e.target.value)}
                     />
                     <Button
                         type="submit"
@@ -66,4 +73,3 @@ const Login = () => {
 };
 
 export default Login;
-

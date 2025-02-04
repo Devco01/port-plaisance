@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Alert, Container, Typography } from '@mui/material';
+import {
+    TextField,
+    Button,
+    Box,
+    Alert,
+    Container,
+    Typography
+} from '@mui/material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import config from '../../config/config';
 
@@ -12,11 +19,11 @@ const Register = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async e => {
         e.preventDefault();
         try {
             const url = `${config.apiUrl}/api/users/register`;
-            console.log('Tentative d\'inscription à:', url);
+            console.log("Tentative d'inscription à:", url);
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -37,7 +44,7 @@ const Register = () => {
             }
         } catch (error) {
             console.error('Erreur détaillée:', error);
-            setError('Erreur lors de l\'inscription');
+            setError("Erreur lors de l'inscription");
         }
     };
 
@@ -47,26 +54,37 @@ const Register = () => {
                 <Typography variant="h4" gutterBottom>
                     Inscription
                 </Typography>
-                
+
                 <Box component="form" onSubmit={handleSubmit}>
-                    {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-                    
+                    {error && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                            {error}
+                        </Alert>
+                    )}
+
                     <TextField
                         fullWidth
                         label="Email"
                         type="email"
                         margin="normal"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={e =>
+                            setFormData({ ...formData, email: e.target.value })
+                        }
                     />
-                    
+
                     <TextField
                         fullWidth
                         label="Mot de passe"
                         type="password"
                         margin="normal"
                         value={formData.password}
-                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        onChange={e =>
+                            setFormData({
+                                ...formData,
+                                password: e.target.value
+                            })
+                        }
                     />
 
                     <TextField
@@ -75,10 +93,15 @@ const Register = () => {
                         type="password"
                         margin="normal"
                         value={formData.confirmPassword}
-                        onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                        onChange={e =>
+                            setFormData({
+                                ...formData,
+                                confirmPassword: e.target.value
+                            })
+                        }
                     />
-                    
-                    <Button 
+
+                    <Button
                         type="submit"
                         variant="contained"
                         fullWidth

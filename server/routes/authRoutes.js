@@ -79,11 +79,9 @@ router.post('/login', function (req, res) {
                 .compare(password, user.password)
                 .then(function (isMatch) {
                     if (!isMatch) {
-                        return res
-                            .status(401)
-                            .json({
-                                message: 'Email ou mot de passe incorrect'
-                            });
+                        return res.status(401).json({
+                            message: 'Email ou mot de passe incorrect'
+                        });
                     }
                     var token = jwt.sign(
                         { id: user._id, role: user.role },
