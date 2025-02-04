@@ -16,7 +16,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libcrypto++-dev libssl-dev libssl1.1
+        sudo apt-get install -y libcrypto++-dev libssl-dev
 
     - name: Use Node.js
       uses: actions/setup-node@v2

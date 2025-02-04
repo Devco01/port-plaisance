@@ -6,7 +6,7 @@ var Reservation = require('../../server/models/reservation');
 var testDb = require('../helpers/testDb');
 var jwt = require('jsonwebtoken');
 
-describe('Tests d\'Intégration API', function () {
+describe("Tests d'Intégration API", function () {
     var userToken;
     var adminToken;
     var testCatway;
@@ -164,7 +164,7 @@ describe('Tests d\'Intégration API', function () {
     });
 
     describe('Gestion des Utilisateurs', function () {
-        it('devrait permettre à l\'admin de lister les utilisateurs', function (done) {
+        it("devrait permettre à l'admin de lister les utilisateurs", function (done) {
             request(app)
                 .get('/api/users')
                 .set('Authorization', 'Bearer ' + adminToken)

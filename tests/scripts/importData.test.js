@@ -5,7 +5,7 @@ var testDb = require('../helpers/testDb');
 var fs = require('fs');
 var path = require('path');
 
-describe('Tests d\'Importation des Données', function () {
+describe("Tests d'Importation des Données", function () {
     var fixturesPath = path.join(__dirname, '..', 'fixtures');
 
     beforeAll(function () {
@@ -85,7 +85,7 @@ describe('Tests d\'Importation des Données', function () {
             });
     });
 
-    it('devrait gérer les erreurs d\'importation', function () {
+    it("devrait gérer les erreurs d'importation", function () {
         process.env.DATA_PATH = '/chemin/invalide';
 
         return importData.importCatways().catch(function (error) {

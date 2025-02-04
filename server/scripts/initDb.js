@@ -47,7 +47,7 @@ var initDb = function () {
             console.log('✅ Initialisation terminée');
         })
         .catch(function (error) {
-            console.error('❌ Erreur lors de l\'initialisation:', error);
+            console.error("❌ Erreur lors de l'initialisation:", error);
             throw error;
         })
         .finally(function () {

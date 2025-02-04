@@ -55,7 +55,7 @@ var importData = function () {
             console.log('✅ Import terminé avec succès');
         })
         .catch(function (error) {
-            console.error('❌ Erreur lors de l\'import:', error);
+            console.error("❌ Erreur lors de l'import:", error);
             throw error;
         })
         .finally(function () {

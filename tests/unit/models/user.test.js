@@ -138,7 +138,7 @@ describe('Tests du Modèle User', function () {
         });
     });
 
-    it('devrait empêcher les doublons d\'email', function (done) {
+    it("devrait empêcher les doublons d'email", function (done) {
         var user1 = new User({
             email: 'test@example.com',
             password: 'Password123!',

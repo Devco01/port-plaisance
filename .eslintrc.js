@@ -18,10 +18,10 @@ module.exports = {
         'node_modules/**'
     ],
     rules: {
-        'indent': ['error', 4],
+        indent: ['error', 4],
         'linebreak-style': ['off'],
-        'quotes': ['error', 'single', { 'avoidEscape': true }],
-        'semi': ['error', 'always'],
+        quotes: ['error', 'single', { avoidEscape: true }],
+        semi: ['error', 'always'],
         'no-var': 'off',
         'prefer-const': 'off'
     }

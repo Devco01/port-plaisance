@@ -29,7 +29,7 @@ function errorHandler(err, req, res, next) {
     if (err.name === 'CastError') {
         return res.status(400).json({
             status: 'error',
-            message: 'Format d\'ID invalide',
+            message: "Format d'ID invalide",
             field: err.path
         });
     }

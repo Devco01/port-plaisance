@@ -127,7 +127,7 @@ describe('Tests du Modèle Catway', function () {
             });
     });
 
-    it('devrait mettre à jour l\'état du catway', function (done) {
+    it("devrait mettre à jour l'état du catway", function (done) {
         var catway = new Catway({
             catwayNumber: 'C123',
             catwayType: 'long',

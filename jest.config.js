@@ -9,6 +9,11 @@ module.exports = {
         '/coverage/',
         '/build/'
     ],
+    modulePathIgnorePatterns: [
+        '<rootDir>/client/',
+        '<rootDir>/coverage/',
+        '<rootDir>/build/'
+    ],
     transform: {
         '^.+\\.js$': 'babel-jest'
     },

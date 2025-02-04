@@ -29,4 +29,7 @@ client/dist/
 *.bundle.js
 
 # Dossiers spécifiques
-tests/ 
+tests/
+
+# Fichiers spécifiques
+data/ 
