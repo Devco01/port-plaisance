@@ -2,27 +2,25 @@ module.exports = {
     root: true,
     env: {
         node: true,
-        es6: true,
         jest: true
     },
-    extends: ['eslint:recommended'],
     parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module'
+        ecmaVersion: 2020
     },
-    ignorePatterns: [
-        'client/**/*',
-        'build/**',
-        'dist/**',
-        'coverage/**',
-        'node_modules/**'
-    ],
+    extends: ['eslint:recommended'],
     rules: {
         indent: ['error', 4],
         'linebreak-style': ['off'],
-        quotes: ['error', 'single', { avoidEscape: true }],
+        quotes: ['error', 'double'],
         semi: ['error', 'always'],
-        'no-var': 'off',
-        'prefer-const': 'off'
-    }
+        'no-var': 'off'
+    },
+    ignorePatterns: [
+        'client/**/*',
+        'coverage/**/*',
+        'build/**/*',
+        'node_modules/**/*',
+        '*.config.js',
+        'data/**/*'
+    ]
 };

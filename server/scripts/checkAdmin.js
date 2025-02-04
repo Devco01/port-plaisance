@@ -15,7 +15,7 @@ User.findOne({ role: 'admin' })
     })
     .catch(function (error) {
         console.error(
-            "❌ Erreur lors de la vérification de l'administrateur:",
+            '❌ Erreur lors de la vérification de l\'administrateur:',
             error
         );
         process.exit(1);

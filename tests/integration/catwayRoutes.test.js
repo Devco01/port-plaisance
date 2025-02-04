@@ -6,7 +6,7 @@ var Reservation = require('../../server/models/reservation');
 var testDb = require('../helpers/testDb');
 var jwt = require('jsonwebtoken');
 
-describe("Tests d'Intégration des Routes Catway", function () {
+describe('Tests d\'Intégration des Routes Catway', function () {
     var userToken;
     var adminToken;
     var testCatway;
@@ -155,7 +155,7 @@ describe("Tests d'Intégration des Routes Catway", function () {
                 .end(done);
         });
 
-        it("devrait empêcher la suppression d'un catway avec des réservations", function (done) {
+        it('devrait empêcher la suppression d\'un catway avec des réservations', function (done) {
             var reservation = new Reservation({
                 catwayNumber: testCatway.catwayNumber,
                 clientName: 'Test Client',

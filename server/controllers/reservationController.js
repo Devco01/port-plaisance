@@ -17,16 +17,16 @@ exports.getReservations = function (req, res) {
             if (req.query.status) {
                 var now = new Date();
                 switch (req.query.status) {
-                    case 'active':
-                        filter.startDate = { $lte: now };
-                        filter.endDate = { $gte: now };
-                        break;
-                    case 'upcoming':
-                        filter.startDate = { $gt: now };
-                        break;
-                    case 'past':
-                        filter.endDate = { $lt: now };
-                        break;
+                case 'active':
+                    filter.startDate = { $lte: now };
+                    filter.endDate = { $gte: now };
+                    break;
+                case 'upcoming':
+                    filter.startDate = { $gt: now };
+                    break;
+                case 'past':
+                    filter.endDate = { $lt: now };
+                    break;
                 }
             }
 
@@ -123,7 +123,7 @@ exports.createReservation = function (req, res) {
             // Vérifier la disponibilité
             if (!catway.isAvailable(startDate, endDate)) {
                 throw new Error(
-                    "Le catway n'est pas disponible pour ces dates"
+                    'Le catway n\'est pas disponible pour ces dates'
                 );
             }
 
@@ -308,8 +308,8 @@ exports.deleteReservation = function (req, res) {
             var status = error.message.includes('non trouvé')
                 ? 404
                 : error.message.includes('non autorisé')
-                  ? 403
-                  : 500;
+                    ? 403
+                    : 500;
 
             res.status(status).json({
                 message: error.message
@@ -374,8 +374,8 @@ module.exports = {
                 var status = error.message.includes('non trouvé')
                     ? 404
                     : error.message.includes('non disponible')
-                      ? 400
-                      : 500;
+                        ? 400
+                        : 500;
 
                 res.status(status).json({ message: error.message });
             });
@@ -468,8 +468,8 @@ module.exports = {
                 var status = error.message.includes('non trouvé')
                     ? 404
                     : error.message.includes('non autorisé')
-                      ? 403
-                      : 500;
+                        ? 403
+                        : 500;
 
                 res.status(status).json({ message: error.message });
             });

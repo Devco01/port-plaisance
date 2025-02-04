@@ -14,22 +14,15 @@ babel.config.js
 # Dossiers spécifiques
 views/
 public/
+data/
 
 # Fichiers spécifiques
 *.ejs
 swagger.js
 
-# Dossiers spécifiques
-client/src/components/auth/
-client/build/
-client/dist/
-
 # Fichiers spécifiques
 *.min.js
 *.bundle.js
-
-# Dossiers spécifiques
-tests/
 
 # Fichiers spécifiques
 data/ 

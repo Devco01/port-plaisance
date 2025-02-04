@@ -68,7 +68,7 @@ describe('Tests Unitaires des Middlewares Auth', function () {
     });
 
     describe('Middleware isOwnerOrAdmin', function () {
-        it("devrait autoriser l'accès au propriétaire", function () {
+        it('devrait autoriser l\'accès au propriétaire', function () {
             var email = 'test@test.com';
             mockReq.user = { email: email, role: 'user' };
             mockReq.params.email = email;
@@ -77,7 +77,7 @@ describe('Tests Unitaires des Middlewares Auth', function () {
             expect(mockNext).toHaveBeenCalled();
         });
 
-        it("devrait autoriser l'accès à un admin", function () {
+        it('devrait autoriser l\'accès à un admin', function () {
             mockReq.user = { role: 'admin' };
             mockReq.params.email = 'autre@test.com';
 

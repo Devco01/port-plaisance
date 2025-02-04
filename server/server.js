@@ -13,14 +13,14 @@ if (!process.env.MONGODB_URI && !process.env.MONGODB_URL) {
 }
 
 // Log des variables d'environnement au démarrage
-console.log("Variables d'environnement:", {
+console.log('Variables d\'environnement:', {
     NODE_ENV: process.env.NODE_ENV,
     PORT: process.env.PORT,
     MONGODB: process.env.MONGODB_URL
         ? ' Défini via MONGODB_URL'
         : process.env.MONGODB_URI
-          ? ' Défini via MONGODB_URI'
-          : ' Non défini',
+            ? ' Défini via MONGODB_URI'
+            : ' Non défini',
 
     MONGODB_URL: process.env.MONGODB_URL,
     ENV_FILE: require('path').resolve(process.cwd(), '.env')
