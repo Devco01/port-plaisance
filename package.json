@@ -11,7 +11,7 @@
     "test:crud": "jest tests/crud",
     "lint:server": "eslint --config .eslintrc.server.js server/",
     "lint:client": "cd client && npm run lint:fix",
-    "lint": "npm run lint:server && npm run lint:client",
+    "lint": "eslint server/ tests/ --fix && cd client && npm run lint",
     "lint:fix": "npm run lint:server -- --fix && npm run lint:client",
     "start:server": "cd server && PORT=3001 node server.js",
     "dev:server": "cd server && PORT=3001 nodemon server.js",
