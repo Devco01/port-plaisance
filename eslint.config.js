@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 module.exports = {
     languageOptions: {
@@ -27,14 +27,17 @@ module.exports = {
         'prefer-const': 'off',
         'prefer-arrow-callback': 'off',
         'func-names': 'off',
-        'indent': ['error', 4],
+        indent: ['error', 4],
         'linebreak-style': ['off'],
-        'quotes': ['error', 'single'],
-        'semi': ['error', 'always'],
-        'no-unused-vars': ['warn', { 
-            varsIgnorePattern: '^(_|[A-Z][a-zA-Z]*)',
-            args: 'none'
-        }],
+        quotes: ['error', 'single'],
+        semi: ['error', 'always'],
+        'no-unused-vars': [
+            'warn',
+            {
+                varsIgnorePattern: '^(_|[A-Z][a-zA-Z]*)',
+                args: 'none'
+            }
+        ],
         'no-console': 'off'
     }
-}; 
+};

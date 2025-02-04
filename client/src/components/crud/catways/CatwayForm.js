@@ -30,14 +30,17 @@ const CatwayForm = () => {
                         setFormData(catway);
                     }
                 } catch (error) {
-                    console.error('Erreur lors de la récupération du catway:', error);
+                    console.error(
+                        'Erreur lors de la récupération du catway:',
+                        error
+                    );
                 }
             };
             fetchCatway();
         }
     }, [id]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async e => {
         e.preventDefault();
         try {
             if (id) {
@@ -64,10 +67,12 @@ const CatwayForm = () => {
                             label="Numéro"
                             type="number"
                             value={formData.catwayNumber}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                catwayNumber: e.target.value
-                            })}
+                            onChange={e =>
+                                setFormData({
+                                    ...formData,
+                                    catwayNumber: e.target.value
+                                })
+                            }
                             margin="normal"
                             required
                         />
@@ -76,10 +81,12 @@ const CatwayForm = () => {
                             select
                             label="Type"
                             value={formData.catwayType}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                catwayType: e.target.value
-                            })}
+                            onChange={e =>
+                                setFormData({
+                                    ...formData,
+                                    catwayType: e.target.value
+                                })
+                            }
                             margin="normal"
                             required
                         >
@@ -91,10 +98,12 @@ const CatwayForm = () => {
                             select
                             label="État"
                             value={formData.catwayState}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                catwayState: e.target.value
-                            })}
+                            onChange={e =>
+                                setFormData({
+                                    ...formData,
+                                    catwayState: e.target.value
+                                })
+                            }
                             margin="normal"
                             required
                         >
@@ -124,4 +133,4 @@ const CatwayForm = () => {
     );
 };
 
-export default CatwayForm; 
+export default CatwayForm;

@@ -4,12 +4,13 @@ var User = require('../models/user');
 var Catway = require('../models/catway');
 var Reservation = require('../models/reservation');
 
-var initDb = function() {
+var initDb = function () {
     var mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
     console.log('🔄 Initialisation de la base de données...');
 
-    return mongoose.connect(mongoURI)
-        .then(function() {
+    return mongoose
+        .connect(mongoURI)
+        .then(function () {
             console.log('✅ Connecté à MongoDB');
             return Promise.all([
                 User.deleteMany({}),
@@ -17,7 +18,7 @@ var initDb = function() {
                 Reservation.deleteMany({})
             ]);
         })
-        .then(function() {
+        .then(function () {
             console.log('✅ Collections nettoyées');
 
             // Créer les catways par défaut
@@ -31,7 +32,7 @@ var initDb = function() {
             }
             return Catway.insertMany(catways);
         })
-        .then(function(result) {
+        .then(function (result) {
             console.log('✅ Catways créés:', result.length);
             return User.create({
                 email: 'admin@portplaisance.fr',
@@ -41,15 +42,15 @@ var initDb = function() {
                 prenom: 'Port Russell'
             });
         })
-        .then(function() {
+        .then(function () {
             console.log('✅ Utilisateur admin créé');
             console.log('✅ Initialisation terminée');
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.error('❌ Erreur lors de l\'initialisation:', error);
             throw error;
         })
-        .finally(function() {
+        .finally(function () {
             mongoose.disconnect();
         });
 };
@@ -59,4 +60,4 @@ if (require.main === module) {
     initDb();
 }
 
-module.exports = initDb; 
+module.exports = initDb;

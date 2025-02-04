@@ -5,73 +5,73 @@ var mongod = null;
 var connection = null;
 
 module.exports = {
-    connect: function() {
+    connect: function () {
         if (connection) {
             return Promise.resolve(connection);
         }
 
         return MongoMemoryServer.create()
-            .then(function(server) {
+            .then(function (server) {
                 mongod = server;
                 return mongod.getUri();
             })
-            .then(function(uri) {
+            .then(function (uri) {
                 // Fermer toute connexion existante
                 if (mongoose.connection.readyState !== 0) {
-                    return mongoose.connection.close()
-                        .then(function() {
-                            return mongoose.connect(uri, {
-                                useNewUrlParser: true,
-                                useUnifiedTopology: true
-                            });
+                    return mongoose.connection.close().then(function () {
+                        return mongoose.connect(uri, {
+                            useNewUrlParser: true,
+                            useUnifiedTopology: true
                         });
+                    });
                 }
                 return mongoose.connect(uri, {
                     useNewUrlParser: true,
                     useUnifiedTopology: true
                 });
             })
-            .then(function(conn) {
+            .then(function (conn) {
                 connection = conn;
                 return connection;
             });
     },
 
-    disconnect: function() {
-        return mongoose.connection.close()
-            .then(function() {
+    disconnect: function () {
+        return mongoose.connection
+            .close()
+            .then(function () {
                 if (mongod) {
                     return mongod.stop();
                 }
             })
-            .then(function() {
+            .then(function () {
                 connection = null;
                 mongod = null;
             });
     },
 
-    clearDatabase: function() {
+    clearDatabase: function () {
         if (!mongoose.connection.db) {
             return Promise.reject(new Error('Not connected to database'));
         }
-        
+
         var collections = mongoose.connection.collections;
         var promises = [];
-        
+
         for (var key in collections) {
             if (collections.hasOwnProperty(key)) {
                 promises.push(collections[key].deleteMany({}));
             }
         }
-        
+
         return Promise.all(promises);
     }
 };
 
 // Gestion propre de la fermeture
-process.on('SIGTERM', function() {
+process.on('SIGTERM', function () {
     if (mongoose.connection.db) {
-        mongoose.connection.close(function() {
+        mongoose.connection.close(function () {
             process.exit(0);
         });
     } else {

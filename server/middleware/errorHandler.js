@@ -16,7 +16,7 @@ function errorHandler(err, req, res, next) {
         return res.status(400).json({
             status: 'error',
             message: 'Erreur de validation',
-            details: Object.values(err.errors).map(function(e) {
+            details: Object.values(err.errors).map(function (e) {
                 return {
                     field: e.path,
                     message: e.message
@@ -80,4 +80,4 @@ function errorHandler(err, req, res, next) {
     });
 }
 
-module.exports = errorHandler; 
+module.exports = errorHandler;

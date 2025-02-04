@@ -1,7 +1,9 @@
 module.exports = {
     // Configuration de la base de données
     db: {
-        uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/port_plaisance',
+        uri:
+            process.env.MONGODB_URI ||
+            'mongodb://localhost:27017/port_plaisance',
         options: {
             useNewUrlParser: true,
             useUnifiedTopology: true
@@ -42,4 +44,4 @@ module.exports = {
         data: process.env.DATA_PATH || './data',
         uploads: process.env.UPLOADS_PATH || './uploads'
     }
-}; 
+};

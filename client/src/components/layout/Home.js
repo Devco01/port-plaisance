@@ -8,10 +8,10 @@ const Home = () => {
     return (
         <Container maxWidth="md">
             <Box my={8}>
-                <Typography 
-                    variant="h3" 
-                    component="h1" 
-                    gutterBottom 
+                <Typography
+                    variant="h3"
+                    component="h1"
+                    gutterBottom
                     align="center"
                     sx={{ fontWeight: 'bold', mb: 4 }}
                 >
@@ -23,16 +23,15 @@ const Home = () => {
                         À propos de l'application
                     </Typography>
                     <Typography paragraph>
-                        Bienvenue sur l'application de gestion du Port de Plaisance Russell. 
-                        Cette plateforme permet la gestion complète des catways et des réservations 
-                        du port.
+                        Bienvenue sur l'application de gestion du Port de
+                        Plaisance Russell. Cette plateforme permet la gestion
+                        complète des catways et des réservations du port.
                     </Typography>
-                    <Typography paragraph>
-                        Notre système permet de :
-                    </Typography>
+                    <Typography paragraph>Notre système permet de :</Typography>
                     <Box component="ul" sx={{ pl: 3 }}>
                         <Typography component="li" paragraph>
-                            Gérer les catways (petits appontements pour amarrer les bateaux)
+                            Gérer les catways (petits appontements pour amarrer
+                            les bateaux)
                         </Typography>
                         <Typography component="li" paragraph>
                             Gérer les réservations des emplacements
@@ -45,15 +44,15 @@ const Home = () => {
 
                 <Grid container spacing={3} justifyContent="center">
                     <Grid item>
-                        <Button 
-                            component={Link} 
-                            to="/login" 
-                            variant="contained" 
+                        <Button
+                            component={Link}
+                            to="/login"
+                            variant="contained"
                             color="primary"
                             size="large"
                             startIcon={<LoginIcon />}
-                            sx={{ 
-                                px: 4, 
+                            sx={{
+                                px: 4,
                                 py: 1.5,
                                 fontSize: '1.1rem',
                                 fontWeight: 'bold'
@@ -63,17 +62,17 @@ const Home = () => {
                         </Button>
                     </Grid>
                     <Grid item>
-                        <Button 
-                            component="a" 
-                            href="http://localhost:8000/api-docs" 
-                            variant="outlined" 
+                        <Button
+                            component="a"
+                            href="http://localhost:8000/api-docs"
+                            variant="outlined"
                             color="primary"
                             size="large"
                             startIcon={<MenuBookIcon />}
                             target="_blank"
                             rel="noopener noreferrer"
-                            sx={{ 
-                                px: 4, 
+                            sx={{
+                                px: 4,
                                 py: 1.5,
                                 fontSize: '1.1rem'
                             }}
@@ -87,4 +86,4 @@ const Home = () => {
     );
 };
 
-export default Home; 
+export default Home;

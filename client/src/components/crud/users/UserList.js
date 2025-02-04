@@ -28,12 +28,19 @@ const UserList = () => {
             const data = await getUsers();
             setUsers(data);
         } catch (error) {
-            console.error('Erreur lors de la récupération des utilisateurs:', error);
+            console.error(
+                'Erreur lors de la récupération des utilisateurs:',
+                error
+            );
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+    const handleDelete = async id => {
+        if (
+            window.confirm(
+                'Êtes-vous sûr de vouloir supprimer cet utilisateur ?'
+            )
+        ) {
             try {
                 await deleteUser(id);
                 fetchUsers();
@@ -68,7 +75,7 @@ const UserList = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {users.map((user) => (
+                            {users.map(user => (
                                 <TableRow key={user._id}>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{user.nom}</TableCell>
@@ -76,14 +83,20 @@ const UserList = () => {
                                     <TableCell>
                                         <Button
                                             color="primary"
-                                            onClick={() => navigate(`/users/edit/${user._id}`)}
+                                            onClick={() =>
+                                                navigate(
+                                                    `/users/edit/${user._id}`
+                                                )
+                                            }
                                             sx={{ mr: 1 }}
                                         >
                                             Modifier
                                         </Button>
                                         <Button
                                             color="error"
-                                            onClick={() => handleDelete(user._id)}
+                                            onClick={() =>
+                                                handleDelete(user._id)
+                                            }
                                         >
                                             Supprimer
                                         </Button>
@@ -98,4 +111,4 @@ const UserList = () => {
     );
 };
 
-export default UserList; 
+export default UserList;

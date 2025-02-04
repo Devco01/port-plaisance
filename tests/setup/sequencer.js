@@ -13,7 +13,7 @@ CustomSequencer.prototype = Object.create(TestSequencer.prototype);
  * @param {Array} tests - Liste des tests à exécuter
  * @returns {Array} Tests ordonnés
  */
-CustomSequencer.prototype.sort = function(tests) {
+CustomSequencer.prototype.sort = function (tests) {
     var testOrder = [
         'config/db.test.js',
         'config/swagger.test.js',
@@ -22,7 +22,7 @@ CustomSequencer.prototype.sort = function(tests) {
         'integration'
     ];
 
-    return tests.sort(function(testA, testB) {
+    return tests.sort(function (testA, testB) {
         var indexA = getTestIndex(testA.path, testOrder);
         var indexB = getTestIndex(testB.path, testOrder);
         return indexA - indexB;
@@ -37,7 +37,7 @@ CustomSequencer.prototype.sort = function(tests) {
  */
 function getTestIndex(testPath, order) {
     var index = 999;
-    order.forEach(function(path, i) {
+    order.forEach(function (path, i) {
         if (testPath.includes(path)) {
             index = i;
         }
@@ -49,8 +49,8 @@ function getTestIndex(testPath, order) {
  * Active le cache des résultats
  * @returns {CustomSequencer} Instance du séquenceur
  */
-CustomSequencer.prototype.cacheResults = function() {
+CustomSequencer.prototype.cacheResults = function () {
     return this;
 };
 
-module.exports = CustomSequencer; 
+module.exports = CustomSequencer;

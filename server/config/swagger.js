@@ -36,12 +36,20 @@ var options = {
                     properties: {
                         catwayNumber: { type: 'string' },
                         catwayType: { type: 'string', enum: ['long', 'short'] },
-                        catwayState: { type: 'string', enum: ['disponible', 'occupé', 'maintenance'] }
+                        catwayState: {
+                            type: 'string',
+                            enum: ['disponible', 'occupé', 'maintenance']
+                        }
                     }
                 },
                 Reservation: {
                     type: 'object',
-                    required: ['catwayNumber', 'clientName', 'startDate', 'endDate'],
+                    required: [
+                        'catwayNumber',
+                        'clientName',
+                        'startDate',
+                        'endDate'
+                    ],
                     properties: {
                         catwayNumber: { type: 'string' },
                         clientName: { type: 'string' },
@@ -59,10 +67,17 @@ var options = {
 var specs = swaggerJsdoc(options);
 var app = express();
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-    customCss: fs.readFileSync(path.join(__dirname, '../../public/css/swagger-custom.css'), 'utf8'),
-    customSiteTitle: 'API Port de Plaisance Russell - Documentation',
-    customfavIcon: '/images/favicon.ico'
-}));
+app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(specs, {
+        customCss: fs.readFileSync(
+            path.join(__dirname, '../../public/css/swagger-custom.css'),
+            'utf8'
+        ),
+        customSiteTitle: 'API Port de Plaisance Russell - Documentation',
+        customfavIcon: '/images/favicon.ico'
+    })
+);
 
-module.exports = specs; 
+module.exports = specs;

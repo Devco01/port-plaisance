@@ -1,43 +1,43 @@
 // Nouveau fichier pour les styles communs
 export const buttonStyles = {
     add: {
-        variant: "contained",
-        color: "primary",
-        sx: { 
+        variant: 'contained',
+        color: 'primary',
+        sx: {
             mb: 2,
             minWidth: '180px',
             height: '40px'
         }
     },
     edit: {
-        variant: "outlined",
-        color: "primary",
-        sx: { 
+        variant: 'outlined',
+        color: 'primary',
+        sx: {
             mr: 1,
             minWidth: '100px',
             height: '36px'
         }
     },
     delete: {
-        variant: "outlined",
-        color: "error",
-        sx: { 
+        variant: 'outlined',
+        color: 'error',
+        sx: {
             minWidth: '100px',
             height: '36px'
         }
     },
     cancel: {
-        variant: "outlined",
-        color: "inherit",
-        sx: { 
+        variant: 'outlined',
+        color: 'inherit',
+        sx: {
             minWidth: '100px',
             height: '36px'
         }
     },
     save: {
-        variant: "contained",
-        color: "primary",
-        sx: { 
+        variant: 'contained',
+        color: 'primary',
+        sx: {
             minWidth: '100px',
             height: '36px'
         }
@@ -73,4 +73,4 @@ export const tableStyles = {
             minWidth: '220px'
         }
     }
-}; 
+};

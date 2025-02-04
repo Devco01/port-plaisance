@@ -64,19 +64,26 @@ var authMiddleware = require('../middleware/auth');
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post('/login', function(req, res) {
+router.post('/login', function (req, res) {
     var email = req.body.email;
     var password = req.body.password;
 
     User.findOne({ email: email })
-        .then(function(user) {
+        .then(function (user) {
             if (!user) {
-                return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+                return res
+                    .status(401)
+                    .json({ message: 'Email ou mot de passe incorrect' });
             }
-            return bcrypt.compare(password, user.password)
-                .then(function(isMatch) {
+            return bcrypt
+                .compare(password, user.password)
+                .then(function (isMatch) {
                     if (!isMatch) {
-                        return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+                        return res
+                            .status(401)
+                            .json({
+                                message: 'Email ou mot de passe incorrect'
+                            });
                     }
                     var token = jwt.sign(
                         { id: user._id, role: user.role },
@@ -92,7 +99,7 @@ router.post('/login', function(req, res) {
                     });
                 });
         })
-        .catch(function(error) {
+        .catch(function (error) {
             res.status(500).json({ message: error.message });
         });
 });
@@ -119,7 +126,7 @@ router.post('/login', function(req, res) {
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get('/logout', authMiddleware.auth, function(req, res) {
+router.get('/logout', authMiddleware.auth, function (req, res) {
     res.clearCookie('token');
     res.json({ message: 'Déconnexion réussie' });
 });
@@ -131,13 +138,13 @@ router.get('/logout', authMiddleware.auth, function(req, res) {
  *     summary: Récupère les informations de l'utilisateur connecté
  *     tags: [Auth]
  */
-router.get('/me', authMiddleware.auth, function(req, res) {
+router.get('/me', authMiddleware.auth, function (req, res) {
     User.findById(req.user.id)
         .select('-password')
-        .then(function(user) {
+        .then(function (user) {
             res.json(user);
         })
-        .catch(function(error) {
+        .catch(function (error) {
             res.status(500).json({ message: error.message });
         });
 });
@@ -149,44 +156,47 @@ router.get('/me', authMiddleware.auth, function(req, res) {
  *     summary: Change le mot de passe de l'utilisateur connecté
  *     tags: [Auth]
  */
-router.post('/change-password', authMiddleware.auth, function(req, res) {
+router.post('/change-password', authMiddleware.auth, function (req, res) {
     var currentPassword = req.body.currentPassword;
     var newPassword = req.body.newPassword;
     var user;
 
     User.findById(req.user.id)
-        .then(function(foundUser) {
+        .then(function (foundUser) {
             user = foundUser;
             return bcrypt.compare(currentPassword, user.password);
         })
-        .then(function(isMatch) {
+        .then(function (isMatch) {
             if (!isMatch) {
-                return res.status(401).json({ message: 'Mot de passe actuel incorrect' });
+                return res
+                    .status(401)
+                    .json({ message: 'Mot de passe actuel incorrect' });
             }
 
             // Vérifier le format du nouveau mot de passe
             var passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
             if (!passwordRegex.test(newPassword)) {
-                return res.status(400).json({ 
-                    message: 'Le nouveau mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre' 
+                return res.status(400).json({
+                    message:
+                        'Le nouveau mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre'
                 });
             }
 
             return bcrypt.genSalt(10);
         })
-        .then(function(salt) {
+        .then(function (salt) {
             return bcrypt.hash(newPassword, salt);
         })
-        .then(function(hashedPassword) {
+        .then(function (hashedPassword) {
             user.password = hashedPassword;
             return user.save();
         })
-        .then(function() {
+        .then(function () {
             res.json({ message: 'Mot de passe modifié avec succès' });
         })
-        .catch(function(error) {
+        .catch(function (error) {
             res.status(500).json({ message: error.message });
         });
 });
 
-module.exports = router; 
+module.exports = router;

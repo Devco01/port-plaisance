@@ -1,7 +1,9 @@
-module.exports = function(req, res, next) {
+module.exports = function (req, res, next) {
     try {
         if (!req.user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res
+                .status(401)
+                .json({ error: 'Utilisateur non authentifié' });
         }
 
         if (req.user.role !== 'admin') {
@@ -12,4 +14,4 @@ module.exports = function(req, res, next) {
     } catch (err) {
         next(err);
     }
-}; 
+};

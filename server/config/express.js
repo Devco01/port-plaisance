@@ -12,7 +12,7 @@ var expressLayouts = require('express-ejs-layouts');
  * Configure l'application Express
  * @param {Express.Application} app - L'application Express
  */
-var configureExpress = function(app) {
+var configureExpress = function (app) {
     // Middleware de base
     app.use(logger('dev'));
     app.use(express.json());
@@ -38,21 +38,23 @@ var configureExpress = function(app) {
     app.use(express.static(path.join(__dirname, '../public')));
 
     // Configuration des sessions
-    app.use(session({
-        secret: process.env.SESSION_SECRET || 'secret',
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 24 * 60 * 60 * 1000 // 24 heures
-        }
-    }));
+    app.use(
+        session({
+            secret: process.env.SESSION_SECRET || 'secret',
+            resave: false,
+            saveUninitialized: false,
+            cookie: {
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 24 * 60 * 60 * 1000 // 24 heures
+            }
+        })
+    );
 
     // Configuration des messages flash
     app.use(flash());
 
     // Variables globales pour les vues
-    app.use(function(req, res, next) {
+    app.use(function (req, res, next) {
         res.locals.success_msg = req.flash('success_msg');
         res.locals.error_msg = req.flash('error_msg');
         res.locals.error = req.flash('error');
@@ -61,4 +63,4 @@ var configureExpress = function(app) {
     });
 };
 
-module.exports = configureExpress; 
+module.exports = configureExpress;

@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Paper, Table, TableBody, TableCell, TableHead, TableRow, Button } from '@mui/material';
+import {
+    Container,
+    Typography,
+    Box,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    Button
+} from '@mui/material';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getReservations, deleteReservation } from '../../../services/api';
@@ -22,7 +33,11 @@ const ReservationList = () => {
     };
 
     const handleDelete = async (id, catwayId) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
+        if (
+            window.confirm(
+                'Êtes-vous sûr de vouloir supprimer cette réservation ?'
+            )
+        ) {
             try {
                 await deleteReservation(id, catwayId);
                 loadReservations();
@@ -40,7 +55,12 @@ const ReservationList = () => {
                     <Typography variant="h4" gutterBottom>
                         Gestion des Réservations
                     </Typography>
-                    <Button variant="contained" color="primary" href="/reservations/new" sx={{ mb: 2 }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        href="/reservations/new"
+                        sx={{ mb: 2 }}
+                    >
                         Nouvelle Réservation
                     </Button>
                     <Paper>
@@ -56,27 +76,46 @@ const ReservationList = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {reservations.map((reservation) => (
+                                {reservations.map(reservation => (
                                     <TableRow key={reservation._id}>
-                                        <TableCell>{reservation.catwayNumber}</TableCell>
-                                        <TableCell>{reservation.clientName}</TableCell>
-                                        <TableCell>{reservation.boatName}</TableCell>
                                         <TableCell>
-                                            {format(new Date(reservation.startDate), 'dd/MM/yyyy', { locale: fr })}
+                                            {reservation.catwayNumber}
                                         </TableCell>
                                         <TableCell>
-                                            {format(new Date(reservation.endDate), 'dd/MM/yyyy', { locale: fr })}
+                                            {reservation.clientName}
                                         </TableCell>
                                         <TableCell>
-                                            <Button 
+                                            {reservation.boatName}
+                                        </TableCell>
+                                        <TableCell>
+                                            {format(
+                                                new Date(reservation.startDate),
+                                                'dd/MM/yyyy',
+                                                { locale: fr }
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {format(
+                                                new Date(reservation.endDate),
+                                                'dd/MM/yyyy',
+                                                { locale: fr }
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button
                                                 color="primary"
                                                 href={`/reservations/${reservation._id}/edit`}
                                             >
                                                 Modifier
                                             </Button>
-                                            <Button 
+                                            <Button
                                                 color="error"
-                                                onClick={() => handleDelete(reservation._id, reservation.catwayNumber)}
+                                                onClick={() =>
+                                                    handleDelete(
+                                                        reservation._id,
+                                                        reservation.catwayNumber
+                                                    )
+                                                }
                                             >
                                                 Supprimer
                                             </Button>
@@ -92,4 +131,4 @@ const ReservationList = () => {
     );
 };
 
-export default ReservationList; 
+export default ReservationList;

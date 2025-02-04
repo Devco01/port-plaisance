@@ -26,7 +26,7 @@ var reservationSchema = new Schema({
         type: Date,
         required: true,
         validate: {
-            validator: function(endDate) {
+            validator: function (endDate) {
                 return endDate > this.startDate;
             },
             message: 'La date de fin doit être postérieure à la date de début'
@@ -44,27 +44,33 @@ var reservationSchema = new Schema({
 });
 
 // Vérifie les chevauchements avant la sauvegarde
-reservationSchema.pre('save', function(next) {
+reservationSchema.pre('save', function (next) {
     var reservation = this;
-    
+
     // Vérifie si les dates se chevauchent avec une réservation existante
-    mongoose.model('Reservation').findOne({
-        catwayNumber: reservation.catwayNumber,
-        _id: { $ne: reservation._id },
-        $or: [
-            {
-                startDate: { $lt: reservation.endDate },
-                endDate: { $gt: reservation.startDate }
-            },
-            {
-                startDate: { $lte: reservation.startDate },
-                endDate: { $gte: reservation.endDate }
-            }
-        ]
-    })
-        .then(function(existingReservation) {
+    mongoose
+        .model('Reservation')
+        .findOne({
+            catwayNumber: reservation.catwayNumber,
+            _id: { $ne: reservation._id },
+            $or: [
+                {
+                    startDate: { $lt: reservation.endDate },
+                    endDate: { $gt: reservation.startDate }
+                },
+                {
+                    startDate: { $lte: reservation.startDate },
+                    endDate: { $gte: reservation.endDate }
+                }
+            ]
+        })
+        .then(function (existingReservation) {
             if (existingReservation) {
-                next(new Error('Chevauchement : une réservation existe déjà pour cette période'));
+                next(
+                    new Error(
+                        'Chevauchement : une réservation existe déjà pour cette période'
+                    )
+                );
             } else {
                 next();
             }
@@ -73,7 +79,11 @@ reservationSchema.pre('save', function(next) {
 });
 
 // Vérifier la disponibilité du catway
-reservationSchema.statics.checkAvailability = function(catwayNumber, startDate, endDate) {
+reservationSchema.statics.checkAvailability = function (
+    catwayNumber,
+    startDate,
+    endDate
+) {
     return this.find({
         catwayNumber: catwayNumber,
         status: 'confirmed',

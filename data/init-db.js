@@ -7,7 +7,9 @@ const initializeDB = async () => {
         console.log('🔄 Initialisation de la base de données...');
 
         // Créer l'admin par défaut
-        const adminExists = await User.findOne({ email: 'admin@portplaisance.fr' });
+        const adminExists = await User.findOne({
+            email: 'admin@portplaisance.fr'
+        });
         if (!adminExists) {
             const hashedPassword = await bcrypt.hash('PortAdmin2024!', 10);
             await User.create({
@@ -46,9 +48,9 @@ const initializeDB = async () => {
 
         console.log('✅ Base de données initialisée avec succès');
     } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
+        console.error("❌ Erreur lors de l'initialisation:", error);
         throw error;
     }
 };
 
-module.exports = initializeDB; 
+module.exports = initializeDB;

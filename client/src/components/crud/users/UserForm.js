@@ -30,14 +30,17 @@ const UserForm = () => {
                         password: '' // On ne récupère jamais le mot de passe
                     });
                 } catch (error) {
-                    console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+                    console.error(
+                        "Erreur lors de la récupération de l'utilisateur:",
+                        error
+                    );
                 }
             };
             fetchUser();
         }
     }, [id]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async e => {
         e.preventDefault();
         try {
             if (id) {
@@ -60,7 +63,7 @@ const UserForm = () => {
         <Container maxWidth="sm">
             <Box sx={{ mt: 4 }}>
                 <Typography variant="h4" gutterBottom>
-                    {id ? 'Modifier l\'Utilisateur' : 'Nouvel Utilisateur'}
+                    {id ? "Modifier l'Utilisateur" : 'Nouvel Utilisateur'}
                 </Typography>
                 <Paper sx={{ p: 3 }}>
                     <form onSubmit={handleSubmit}>
@@ -69,10 +72,12 @@ const UserForm = () => {
                             label="Email"
                             type="email"
                             value={formData.email}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                email: e.target.value
-                            })}
+                            onChange={e =>
+                                setFormData({
+                                    ...formData,
+                                    email: e.target.value
+                                })
+                            }
                             margin="normal"
                             required
                             disabled={!!id}
@@ -82,22 +87,30 @@ const UserForm = () => {
                             label="Mot de passe"
                             type="password"
                             value={formData.password}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                password: e.target.value
-                            })}
+                            onChange={e =>
+                                setFormData({
+                                    ...formData,
+                                    password: e.target.value
+                                })
+                            }
                             margin="normal"
                             required={!id}
-                            helperText={id ? "Laissez vide pour ne pas modifier le mot de passe" : ""}
+                            helperText={
+                                id
+                                    ? 'Laissez vide pour ne pas modifier le mot de passe'
+                                    : ''
+                            }
                         />
                         <TextField
                             fullWidth
                             label="Nom"
                             value={formData.nom}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                nom: e.target.value
-                            })}
+                            onChange={e =>
+                                setFormData({
+                                    ...formData,
+                                    nom: e.target.value
+                                })
+                            }
                             margin="normal"
                             required
                         />
@@ -105,10 +118,12 @@ const UserForm = () => {
                             fullWidth
                             label="Prénom"
                             value={formData.prenom}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                prenom: e.target.value
-                            })}
+                            onChange={e =>
+                                setFormData({
+                                    ...formData,
+                                    prenom: e.target.value
+                                })
+                            }
                             margin="normal"
                             required
                         />
@@ -134,4 +149,4 @@ const UserForm = () => {
     );
 };
 
-export default UserForm; 
+export default UserForm;

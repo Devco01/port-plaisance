@@ -12,53 +12,55 @@ process.env.MONGODB_URI = 'mongodb://localhost:27017/test_db';
 
 // Liste des fichiers de test qui n'ont pas besoin de la base de données
 
-beforeAll(function(done) {
-    testDb.connect()
-        .then(function() {
+beforeAll(function (done) {
+    testDb
+        .connect()
+        .then(function () {
             done();
         })
-        .catch(function(err) {
+        .catch(function (err) {
             console.error('Erreur de connexion à la base de test:', err);
             done(err);
         });
 });
 
-afterAll(function(done) {
-    mongoose.connection.close()
-        .then(function() {
+afterAll(function (done) {
+    mongoose.connection
+        .close()
+        .then(function () {
             done();
         })
-        .catch(function(err) {
+        .catch(function (err) {
             console.error('Erreur de déconnexion:', err);
             done(err);
         });
 });
 
-beforeEach(function(done) {
+beforeEach(function (done) {
     if (!mongoose.connection.db) {
         return done();
     }
-    
+
     var collections = mongoose.connection.collections;
     Promise.all(
-        Object.keys(collections).map(function(key) {
+        Object.keys(collections).map(function (key) {
             return collections[key].deleteMany({});
         })
     )
-        .then(function() {
+        .then(function () {
             done();
         })
-        .catch(function(err) {
+        .catch(function (err) {
             console.error('Erreur de nettoyage de la base:', err);
             done(err);
         });
 });
 
-afterEach(function() {
+afterEach(function () {
     console.log('Test terminé');
 });
 
 // Gestion des erreurs non capturées pendant les tests
-process.on('unhandledRejection', function(error) {
+process.on('unhandledRejection', function (error) {
     console.error('Unhandled Promise Rejection:', error);
-}); 
+});

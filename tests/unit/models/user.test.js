@@ -1,32 +1,35 @@
 var User = require('../../../server/models/user');
 var testDb = require('../../helpers/testDb');
 
-describe('Tests du Modèle User', function() {
-    beforeAll(function(done) {
-        testDb.connect()
-            .then(function() {
+describe('Tests du Modèle User', function () {
+    beforeAll(function (done) {
+        testDb
+            .connect()
+            .then(function () {
                 done();
             })
             .catch(done);
     });
 
-    afterAll(function(done) {
-        testDb.disconnect()
-            .then(function() {
+    afterAll(function (done) {
+        testDb
+            .disconnect()
+            .then(function () {
                 done();
             })
             .catch(done);
     });
 
-    beforeEach(function(done) {
-        testDb.clearDatabase()
-            .then(function() {
+    beforeEach(function (done) {
+        testDb
+            .clearDatabase()
+            .then(function () {
                 done();
             })
             .catch(done);
     });
 
-    it('devrait créer un utilisateur valide', function(done) {
+    it('devrait créer un utilisateur valide', function (done) {
         var validUser = new User({
             email: 'test@example.com',
             password: 'Password123!',
@@ -35,8 +38,9 @@ describe('Tests du Modèle User', function() {
             prenom: 'User'
         });
 
-        validUser.save()
-            .then(function(savedUser) {
+        validUser
+            .save()
+            .then(function (savedUser) {
                 expect(savedUser.email).toBe('test@example.com');
                 expect(savedUser.role).toBe('user');
                 expect(savedUser.nom).toBe('Test');
@@ -46,7 +50,7 @@ describe('Tests du Modèle User', function() {
             .catch(done);
     });
 
-    it('devrait hasher le mot de passe avant la sauvegarde', function(done) {
+    it('devrait hasher le mot de passe avant la sauvegarde', function (done) {
         var user = new User({
             email: 'test@example.com',
             password: 'Password123!',
@@ -56,7 +60,7 @@ describe('Tests du Modèle User', function() {
         });
 
         user.save()
-            .then(function(savedUser) {
+            .then(function (savedUser) {
                 expect(savedUser.password).not.toBe('Password123!');
                 expect(savedUser.password).toHaveLength(60);
                 done();
@@ -64,7 +68,7 @@ describe('Tests du Modèle User', function() {
             .catch(done);
     });
 
-    it('devrait valider le mot de passe correctement', function(done) {
+    it('devrait valider le mot de passe correctement', function (done) {
         var user = new User({
             email: 'test@example.com',
             password: 'Password123!',
@@ -74,17 +78,17 @@ describe('Tests du Modèle User', function() {
         });
 
         user.save()
-            .then(function(saved) {
+            .then(function (saved) {
                 return saved.comparePassword('Password123!');
             })
-            .then(function(isMatch) {
+            .then(function (isMatch) {
                 expect(isMatch).toBe(true);
                 done();
             })
             .catch(done);
     });
 
-    it('devrait rejeter un mot de passe incorrect', function(done) {
+    it('devrait rejeter un mot de passe incorrect', function (done) {
         var user = new User({
             email: 'test@example.com',
             password: 'Password123!',
@@ -94,17 +98,17 @@ describe('Tests du Modèle User', function() {
         });
 
         user.save()
-            .then(function(saved) {
+            .then(function (saved) {
                 return saved.comparePassword('WrongPassword');
             })
-            .then(function(isMatch) {
+            .then(function (isMatch) {
                 expect(isMatch).toBe(false);
                 done();
             })
             .catch(done);
     });
 
-    it('devrait rejeter un email invalide', function(done) {
+    it('devrait rejeter un email invalide', function (done) {
         var user = new User({
             email: 'invalid-email',
             password: 'Password123!',
@@ -113,14 +117,13 @@ describe('Tests du Modèle User', function() {
             prenom: 'User'
         });
 
-        user.save()
-            .catch(function(err) {
-                expect(err).toBeDefined();
-                done();
-            });
+        user.save().catch(function (err) {
+            expect(err).toBeDefined();
+            done();
+        });
     });
 
-    it('devrait rejeter un mot de passe trop court', function(done) {
+    it('devrait rejeter un mot de passe trop court', function (done) {
         var user = new User({
             email: 'test@example.com',
             password: 'short',
@@ -129,14 +132,13 @@ describe('Tests du Modèle User', function() {
             prenom: 'User'
         });
 
-        user.save()
-            .catch(function(err) {
-                expect(err).toBeDefined();
-                done();
-            });
+        user.save().catch(function (err) {
+            expect(err).toBeDefined();
+            done();
+        });
     });
 
-    it('devrait empêcher les doublons d\'email', function(done) {
+    it("devrait empêcher les doublons d'email", function (done) {
         var user1 = new User({
             email: 'test@example.com',
             password: 'Password123!',
@@ -153,13 +155,14 @@ describe('Tests du Modèle User', function() {
             prenom: 'User2'
         });
 
-        user1.save()
-            .then(function() {
+        user1
+            .save()
+            .then(function () {
                 return user2.save();
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 expect(err).toBeDefined();
                 done();
             });
     });
-}); 
+});

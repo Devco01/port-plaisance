@@ -50,7 +50,12 @@ router.get('/', auth.auth, auth.isAdmin, userController.getAllUsers);
  *     summary: Récupère un utilisateur par son email
  *     tags: [Users]
  */
-router.get('/:email', auth.auth, auth.isOwnerOrAdmin(), userController.getUserByEmail);
+router.get(
+    '/:email',
+    auth.auth,
+    auth.isOwnerOrAdmin(),
+    userController.getUserByEmail
+);
 
 /**
  * @swagger
@@ -68,7 +73,12 @@ router.post('/', auth.auth, auth.isAdmin, userController.createUser);
  *     summary: Modifie un utilisateur
  *     tags: [Users]
  */
-router.put('/:email', auth.auth, auth.isOwnerOrAdmin(), userController.updateUser);
+router.put(
+    '/:email',
+    auth.auth,
+    auth.isOwnerOrAdmin(),
+    userController.updateUser
+);
 
 /**
  * @swagger
@@ -79,16 +89,18 @@ router.put('/:email', auth.auth, auth.isOwnerOrAdmin(), userController.updateUse
  */
 router.delete('/:email', auth.auth, auth.isAdmin, userController.deleteUser);
 
-router.get('/:id', auth.auth, function(req, res) {
+router.get('/:id', auth.auth, function (req, res) {
     User.findById(req.params.id)
         .select('-password')
-        .then(function(user) {
+        .then(function (user) {
             if (!user) {
-                return res.status(404).json({ message: 'Utilisateur non trouvé' });
+                return res
+                    .status(404)
+                    .json({ message: 'Utilisateur non trouvé' });
             }
             res.json(user);
         })
-        .catch(function(error) {
+        .catch(function (error) {
             res.status(500).json({ message: error.message });
         });
 });

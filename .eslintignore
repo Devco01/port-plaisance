@@ -22,6 +22,7 @@ swagger.js
 # Dossiers spécifiques
 client/src/components/auth/
 client/build/
+client/dist/
 
 # Fichiers spécifiques
 *.min.js

@@ -22,11 +22,12 @@ var frontendRoutes = require('./routes/frontend');
 var app = express();
 
 // Configuration de la base de données
-database.connect()
-    .then(function() {
+database
+    .connect()
+    .then(function () {
         console.log('Connexion à MongoDB réussie');
     })
-    .catch(function(err) {
+    .catch(function (err) {
         console.error('Erreur de connexion MongoDB:', err);
     });
 
@@ -45,18 +46,20 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
 
 // Configuration des sessions
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'secret_key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000 // 24 heures
-    }
-}));
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET || 'secret_key',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 24 * 60 * 60 * 1000 // 24 heures
+        }
+    })
+);
 
 // Variables globales pour les vues
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.locals.user = req.session.user || null;
     next();
 });
@@ -74,7 +77,7 @@ app.use('/api/reservations', reservationRoutes);
 app.use('/', frontendRoutes);
 
 // Gestion des erreurs 404
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.status(404).render('error', {
         message: 'Page non trouvée',
         error: { status: 404 }
@@ -85,13 +88,13 @@ app.use(function(req, res, next) {
 app.use(errorHandler);
 
 // Gestion des erreurs non capturées
-process.on('unhandledRejection', function(reason, promise) {
+process.on('unhandledRejection', function (reason, promise) {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-process.on('uncaughtException', function(err) {
+process.on('uncaughtException', function (err) {
     console.error('Uncaught Exception:', err);
     process.exit(1);
 });
 
-module.exports = app; 
+module.exports = app;

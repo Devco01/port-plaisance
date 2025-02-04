@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Container, Typography, Paper, Table, TableBody, TableCell,
-    TableContainer, TableHead, TableRow, Button, Dialog,
-    DialogTitle, DialogContent, DialogActions, TextField
+    Container,
+    Typography,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField
 } from '@mui/material';
 import config from '../../config/config';
 
@@ -25,7 +37,7 @@ const UsersCRUD = () => {
             const token = localStorage.getItem('token');
             const response = await fetch(`${config.apiUrl}/api/users`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -33,7 +45,10 @@ const UsersCRUD = () => {
             console.log('Users récupérés:', data);
             setUsers(data);
         } catch (error) {
-            console.error('Erreur lors de la récupération des utilisateurs:', error);
+            console.error(
+                'Erreur lors de la récupération des utilisateurs:',
+                error
+            );
         }
     };
 
@@ -69,27 +84,33 @@ const UsersCRUD = () => {
         try {
             const token = localStorage.getItem('token');
             if (editMode) {
-                const response = await fetch(`${config.apiUrl}/api/users/${currentUser.email}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(currentUser)
-                });
-                if (!response.ok) throw new Error('Erreur lors de la mise à jour');
+                const response = await fetch(
+                    `${config.apiUrl}/api/users/${currentUser.email}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify(currentUser)
+                    }
+                );
+                if (!response.ok)
+                    throw new Error('Erreur lors de la mise à jour');
             } else {
                 const response = await fetch(`${config.apiUrl}/api/users`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(currentUser)
                 });
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(error.message || 'Erreur lors de la création');
+                    throw new Error(
+                        error.message || 'Erreur lors de la création'
+                    );
                 }
             }
             fetchUsers();
@@ -100,17 +121,25 @@ const UsersCRUD = () => {
         }
     };
 
-    const handleDelete = async (email) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+    const handleDelete = async email => {
+        if (
+            window.confirm(
+                'Êtes-vous sûr de vouloir supprimer cet utilisateur ?'
+            )
+        ) {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${config.apiUrl}/api/users/${email}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                const response = await fetch(
+                    `${config.apiUrl}/api/users/${email}`,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
                     }
-                });
-                if (!response.ok) throw new Error('Erreur lors de la suppression');
+                );
+                if (!response.ok)
+                    throw new Error('Erreur lors de la suppression');
                 fetchUsers();
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
@@ -142,7 +171,7 @@ const UsersCRUD = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {users.map((user) => (
+                        {users.map(user => (
                             <TableRow key={user._id}>
                                 <TableCell>{user.username}</TableCell>
                                 <TableCell>{user.email}</TableCell>
@@ -169,7 +198,9 @@ const UsersCRUD = () => {
 
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>
-                    {editMode ? 'Modifier l\'Utilisateur' : 'Ajouter un Utilisateur'}
+                    {editMode
+                        ? "Modifier l'Utilisateur"
+                        : 'Ajouter un Utilisateur'}
                 </DialogTitle>
                 <DialogContent>
                     <TextField
@@ -178,10 +209,12 @@ const UsersCRUD = () => {
                         type="email"
                         fullWidth
                         value={currentUser.email}
-                        onChange={(e) => setCurrentUser({
-                            ...currentUser,
-                            email: e.target.value
-                        })}
+                        onChange={e =>
+                            setCurrentUser({
+                                ...currentUser,
+                                email: e.target.value
+                            })
+                        }
                         sx={{ mb: 2 }}
                     />
                     <TextField
@@ -190,10 +223,12 @@ const UsersCRUD = () => {
                         type="password"
                         fullWidth
                         value={currentUser.password}
-                        onChange={(e) => setCurrentUser({
-                            ...currentUser,
-                            password: e.target.value
-                        })}
+                        onChange={e =>
+                            setCurrentUser({
+                                ...currentUser,
+                                password: e.target.value
+                            })
+                        }
                         sx={{ mb: 2 }}
                     />
                     <TextField
@@ -201,10 +236,12 @@ const UsersCRUD = () => {
                         label="Nom d'utilisateur"
                         fullWidth
                         value={currentUser.username}
-                        onChange={(e) => setCurrentUser({
-                            ...currentUser,
-                            username: e.target.value
-                        })}
+                        onChange={e =>
+                            setCurrentUser({
+                                ...currentUser,
+                                username: e.target.value
+                            })
+                        }
                         sx={{ mb: 2 }}
                     />
                 </DialogContent>
@@ -219,4 +256,4 @@ const UsersCRUD = () => {
     );
 };
 
-export default UsersCRUD; 
+export default UsersCRUD;

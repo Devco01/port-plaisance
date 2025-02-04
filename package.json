@@ -9,8 +9,10 @@
     "test:models": "jest tests/models",
     "test:auth": "jest tests/auth",
     "test:crud": "jest tests/crud",
-    "lint": "eslint server/",
-    "lint:fix": "eslint server/ --fix",
+    "lint:server": "eslint --config .eslintrc.server.js server/",
+    "lint:client": "cd client && npm run lint:fix",
+    "lint": "npm run lint:server && npm run lint:client",
+    "lint:fix": "npm run lint:server -- --fix && npm run lint:client",
     "start:server": "cd server && PORT=3001 node server.js",
     "dev:server": "cd server && PORT=3001 nodemon server.js",
     "start:client": "cd client && npm start",
@@ -70,7 +72,9 @@
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2",
     "supertest": "^7.0.0",
-    "whatwg-url": "13.0.0"
+    "whatwg-url": "13.0.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0"
   },
   "engines": {
     "node": ">=16.0.0"

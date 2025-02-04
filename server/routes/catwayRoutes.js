@@ -64,9 +64,9 @@ var _catwayController = require('../controllers/catwayController');
  *               items:
  *                 $ref: '#/components/schemas/Catway'
  */
-router.get('/', authMiddleware.auth, function(req, res, next) {
+router.get('/', authMiddleware.auth, function (req, res, next) {
     Catway.find()
-        .then(function(catways) {
+        .then(function (catways) {
             res.json(catways);
         })
         .catch(next);
@@ -94,9 +94,9 @@ router.get('/', authMiddleware.auth, function(req, res, next) {
  *             schema:
  *               $ref: '#/components/schemas/Catway'
  */
-router.get('/:id', authMiddleware.auth, function(req, res, next) {
+router.get('/:id', authMiddleware.auth, function (req, res, next) {
     Catway.findOne({ catwayNumber: req.params.id })
-        .then(function(catway) {
+        .then(function (catway) {
             if (!catway) {
                 return res.status(404).json({ message: 'Catway non trouvé' });
             }
@@ -120,14 +120,20 @@ router.get('/:id', authMiddleware.auth, function(req, res, next) {
  *           schema:
  *             $ref: '#/components/schemas/Catway'
  */
-router.post('/', authMiddleware.auth, authMiddleware.isAdmin, function(req, res, next) {
-    var catway = new Catway(req.body);
-    catway.save()
-        .then(function(saved) {
-            res.status(201).json(saved);
-        })
-        .catch(next);
-});
+router.post(
+    '/',
+    authMiddleware.auth,
+    authMiddleware.isAdmin,
+    function (req, res, next) {
+        var catway = new Catway(req.body);
+        catway
+            .save()
+            .then(function (saved) {
+                res.status(201).json(saved);
+            })
+            .catch(next);
+    }
+);
 
 /**
  * @swagger
@@ -150,20 +156,23 @@ router.post('/', authMiddleware.auth, authMiddleware.isAdmin, function(req, res,
  *           schema:
  *             $ref: '#/components/schemas/Catway'
  */
-router.put('/:id', authMiddleware.auth, authMiddleware.isAdmin, function(req, res, next) {
-    Catway.findOneAndUpdate(
-        { catwayNumber: req.params.id },
-        req.body,
-        { new: true }
-    )
-        .then(function(updated) {
-            if (!updated) {
-                return res.status(404).json({ error: 'Catway non trouvé' });
-            }
-            res.json(updated);
+router.put(
+    '/:id',
+    authMiddleware.auth,
+    authMiddleware.isAdmin,
+    function (req, res, next) {
+        Catway.findOneAndUpdate({ catwayNumber: req.params.id }, req.body, {
+            new: true
         })
-        .catch(next);
-});
+            .then(function (updated) {
+                if (!updated) {
+                    return res.status(404).json({ error: 'Catway non trouvé' });
+                }
+                res.json(updated);
+            })
+            .catch(next);
+    }
+);
 
 /**
  * @swagger
@@ -180,24 +189,29 @@ router.put('/:id', authMiddleware.auth, authMiddleware.isAdmin, function(req, re
  *         schema:
  *           type: string
  */
-router.delete('/:id', authMiddleware.auth, authMiddleware.isAdmin, function(req, res, next) {
-    Reservation.findOne({ catwayNumber: req.params.id })
-        .then(function(reservation) {
-            if (reservation) {
-                return res.status(400).json({ 
-                    error: 'Impossible de supprimer un catway avec des réservations actives' 
-                });
-            }
-            return Catway.findOneAndDelete({ catwayNumber: req.params.id });
-        })
-        .then(function(deleted) {
-            if (!deleted) {
-                return res.status(404).json({ error: 'Catway non trouvé' });
-            }
-            res.json({ message: 'Catway supprimé avec succès' });
-        })
-        .catch(next);
-});
+router.delete(
+    '/:id',
+    authMiddleware.auth,
+    authMiddleware.isAdmin,
+    function (req, res, next) {
+        Reservation.findOne({ catwayNumber: req.params.id })
+            .then(function (reservation) {
+                if (reservation) {
+                    return res.status(400).json({
+                        error: 'Impossible de supprimer un catway avec des réservations actives'
+                    });
+                }
+                return Catway.findOneAndDelete({ catwayNumber: req.params.id });
+            })
+            .then(function (deleted) {
+                if (!deleted) {
+                    return res.status(404).json({ error: 'Catway non trouvé' });
+                }
+                res.json({ message: 'Catway supprimé avec succès' });
+            })
+            .catch(next);
+    }
+);
 
 /**
  * @swagger
@@ -224,13 +238,17 @@ router.delete('/:id', authMiddleware.auth, authMiddleware.isAdmin, function(req,
  *               items:
  *                 $ref: '#/components/schemas/Reservation'
  */
-router.get('/:catwayNumber/reservations', authMiddleware.auth, function(req, res, next) {
-    Reservation.find({ catwayNumber: req.params.catwayNumber })
-        .then(function(reservations) {
-            res.json(reservations);
-        })
-        .catch(next);
-});
+router.get(
+    '/:catwayNumber/reservations',
+    authMiddleware.auth,
+    function (req, res, next) {
+        Reservation.find({ catwayNumber: req.params.catwayNumber })
+            .then(function (reservations) {
+                res.json(reservations);
+            })
+            .catch(next);
+    }
+);
 
 /**
  * @swagger
@@ -263,19 +281,25 @@ router.get('/:catwayNumber/reservations', authMiddleware.auth, function(req, res
  *       404:
  *         description: Réservation ou catway non trouvé
  */
-router.get('/:catwayNumber/reservations/:idReservation', authMiddleware.auth, function(req, res, next) {
-    Reservation.findOne({
-        _id: req.params.idReservation,
-        catwayNumber: req.params.catwayNumber
-    })
-        .then(function(reservation) {
-            if (!reservation) {
-                return res.status(404).json({ message: 'Réservation non trouvée' });
-            }
-            res.json(reservation);
+router.get(
+    '/:catwayNumber/reservations/:idReservation',
+    authMiddleware.auth,
+    function (req, res, next) {
+        Reservation.findOne({
+            _id: req.params.idReservation,
+            catwayNumber: req.params.catwayNumber
         })
-        .catch(next);
-});
+            .then(function (reservation) {
+                if (!reservation) {
+                    return res
+                        .status(404)
+                        .json({ message: 'Réservation non trouvée' });
+                }
+                res.json(reservation);
+            })
+            .catch(next);
+    }
+);
 
 /**
  * @swagger
@@ -330,16 +354,21 @@ router.get('/:catwayNumber/reservations/:idReservation', authMiddleware.auth, fu
  *       404:
  *         description: Catway non trouvé
  */
-router.post('/:catwayNumber/reservations', authMiddleware.auth, function(req, res, next) {
-    var reservation = new Reservation(req.body);
-    reservation.catwayNumber = req.params.catwayNumber;
+router.post(
+    '/:catwayNumber/reservations',
+    authMiddleware.auth,
+    function (req, res, next) {
+        var reservation = new Reservation(req.body);
+        reservation.catwayNumber = req.params.catwayNumber;
 
-    reservation.save()
-        .then(function(newReservation) {
-            res.status(201).json(newReservation);
-        })
-        .catch(next);
-});
+        reservation
+            .save()
+            .then(function (newReservation) {
+                res.status(201).json(newReservation);
+            })
+            .catch(next);
+    }
+);
 
 /**
  * @swagger
@@ -395,23 +424,29 @@ router.post('/:catwayNumber/reservations', authMiddleware.auth, function(req, re
  *       404:
  *         description: Réservation ou catway non trouvé
  */
-router.put('/:catwayNumber/reservations/:idReservation', authMiddleware.auth, function(req, res, next) {
-    Reservation.findOneAndUpdate(
-        {
-            _id: req.params.idReservation,
-            catwayNumber: req.params.catwayNumber
-        },
-        req.body,
-        { new: true }
-    )
-        .then(function(reservation) {
-            if (!reservation) {
-                return res.status(404).json({ message: 'Réservation non trouvée' });
-            }
-            res.json(reservation);
-        })
-        .catch(next);
-});
+router.put(
+    '/:catwayNumber/reservations/:idReservation',
+    authMiddleware.auth,
+    function (req, res, next) {
+        Reservation.findOneAndUpdate(
+            {
+                _id: req.params.idReservation,
+                catwayNumber: req.params.catwayNumber
+            },
+            req.body,
+            { new: true }
+        )
+            .then(function (reservation) {
+                if (!reservation) {
+                    return res
+                        .status(404)
+                        .json({ message: 'Réservation non trouvée' });
+                }
+                res.json(reservation);
+            })
+            .catch(next);
+    }
+);
 
 /**
  * @swagger
@@ -448,19 +483,25 @@ router.put('/:catwayNumber/reservations/:idReservation', authMiddleware.auth, fu
  *       404:
  *         description: Réservation ou catway non trouvé
  */
-router.delete('/:catwayNumber/reservations/:idReservation', authMiddleware.auth, function(req, res, next) {
-    Reservation.findOneAndDelete({
-        _id: req.params.idReservation,
-        catwayNumber: req.params.catwayNumber
-    })
-        .then(function(reservation) {
-            if (!reservation) {
-                return res.status(404).json({ message: 'Réservation non trouvée' });
-            }
-            res.json({ message: 'Réservation supprimée avec succès' });
+router.delete(
+    '/:catwayNumber/reservations/:idReservation',
+    authMiddleware.auth,
+    function (req, res, next) {
+        Reservation.findOneAndDelete({
+            _id: req.params.idReservation,
+            catwayNumber: req.params.catwayNumber
         })
-        .catch(next);
-});
+            .then(function (reservation) {
+                if (!reservation) {
+                    return res
+                        .status(404)
+                        .json({ message: 'Réservation non trouvée' });
+                }
+                res.json({ message: 'Réservation supprimée avec succès' });
+            })
+            .catch(next);
+    }
+);
 
 /**
  * @swagger
@@ -477,9 +518,9 @@ router.delete('/:catwayNumber/reservations/:idReservation', authMiddleware.auth,
  *       200:
  *         description: Liste des réservations
  */
-router.get('/:id/reservations', authMiddleware.auth, function(req, res, next) {
+router.get('/:id/reservations', authMiddleware.auth, function (req, res, next) {
     Reservation.find({ catwayNumber: req.params.id })
-        .then(function(reservations) {
+        .then(function (reservations) {
             res.json(reservations);
         })
         .catch(next);
@@ -506,20 +547,25 @@ router.get('/:id/reservations', authMiddleware.auth, function(req, res, next) {
  *       201:
  *         description: Réservation créée
  */
-router.post('/:id/reservations', authMiddleware.auth, function(req, res, next) {
-    var reservation = new Reservation({
-        catwayNumber: req.params.id,
-        clientName: req.body.clientName,
-        boatName: req.body.boatName,
-        startDate: req.body.startDate,
-        endDate: req.body.endDate
-    });
+router.post(
+    '/:id/reservations',
+    authMiddleware.auth,
+    function (req, res, next) {
+        var reservation = new Reservation({
+            catwayNumber: req.params.id,
+            clientName: req.body.clientName,
+            boatName: req.body.boatName,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate
+        });
 
-    reservation.save()
-        .then(function(saved) {
-            res.status(201).json(saved);
-        })
-        .catch(next);
-});
+        reservation
+            .save()
+            .then(function (saved) {
+                res.status(201).json(saved);
+            })
+            .catch(next);
+    }
+);
 
 module.exports = router;

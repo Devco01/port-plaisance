@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-    TextField, 
-    Button, 
-    Box, 
-    Alert, 
-    Paper, 
-    Typography, 
+import {
+    TextField,
+    Button,
+    Box,
+    Alert,
+    Paper,
+    Typography,
     Container,
     InputAdornment,
     IconButton,
@@ -27,7 +27,7 @@ const LoginForm = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async e => {
         e.preventDefault();
         setError('');
         setLoading(true);
@@ -57,8 +57,8 @@ const LoginForm = () => {
 
     return (
         <Container maxWidth="sm">
-            <Box 
-                sx={{ 
+            <Box
+                sx={{
                     minHeight: '100vh',
                     display: 'flex',
                     flexDirection: 'column',
@@ -66,28 +66,28 @@ const LoginForm = () => {
                     py: 4
                 }}
             >
-                <Paper 
-                    elevation={3} 
-                    sx={{ 
+                <Paper
+                    elevation={3}
+                    sx={{
                         p: 4,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center'
                     }}
                 >
-                    <DirectionsBoatIcon 
-                        color="primary" 
-                        sx={{ 
+                    <DirectionsBoatIcon
+                        color="primary"
+                        sx={{
                             fontSize: 60,
                             mb: 2
-                        }} 
+                        }}
                     />
-                    
-                    <Typography 
-                        variant="h4" 
-                        component="h1" 
+
+                    <Typography
+                        variant="h4"
+                        component="h1"
                         gutterBottom
-                        sx={{ 
+                        sx={{
                             fontWeight: 'bold',
                             mb: 3
                         }}
@@ -96,9 +96,9 @@ const LoginForm = () => {
                     </Typography>
 
                     {error && (
-                        <Alert 
-                            severity="error" 
-                            sx={{ 
+                        <Alert
+                            severity="error"
+                            sx={{
                                 width: '100%',
                                 mb: 3
                             }}
@@ -107,8 +107,8 @@ const LoginForm = () => {
                         </Alert>
                     )}
 
-                    <Box 
-                        component="form" 
+                    <Box
+                        component="form"
                         onSubmit={handleSubmit}
                         sx={{
                             width: '100%',
@@ -120,22 +120,22 @@ const LoginForm = () => {
                             label="Email"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={e => setEmail(e.target.value)}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
                                         <EmailIcon color="primary" />
                                     </InputAdornment>
-                                ),
+                                )
                             }}
                         />
-                        
+
                         <TextField
                             fullWidth
                             label="Mot de passe"
                             type={showPassword ? 'text' : 'password'}
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={e => setPassword(e.target.value)}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -145,23 +145,29 @@ const LoginForm = () => {
                                 endAdornment: (
                                     <InputAdornment position="end">
                                         <IconButton
-                                            onClick={() => setShowPassword(!showPassword)}
+                                            onClick={() =>
+                                                setShowPassword(!showPassword)
+                                            }
                                             edge="end"
                                         >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            {showPassword ? (
+                                                <VisibilityOff />
+                                            ) : (
+                                                <Visibility />
+                                            )}
                                         </IconButton>
                                     </InputAdornment>
-                                ),
+                                )
                             }}
                         />
-                        
-                        <Button 
+
+                        <Button
                             type="submit"
                             variant="contained"
                             fullWidth
                             size="large"
                             disabled={loading}
-                            sx={{ 
+                            sx={{
                                 mt: 2,
                                 py: 1.5,
                                 fontSize: '1.1rem',
@@ -190,11 +196,7 @@ const LoginForm = () => {
                         </Box>
 
                         <Box sx={{ mt: 3, textAlign: 'center' }}>
-                            <Button
-                                component={Link}
-                                to="/"
-                                color="primary"
-                            >
+                            <Button component={Link} to="/" color="primary">
                                 Retour à l'accueil
                             </Button>
                         </Box>
@@ -205,4 +207,4 @@ const LoginForm = () => {
     );
 };
 
-export default LoginForm; 
+export default LoginForm;

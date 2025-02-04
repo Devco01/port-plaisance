@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    Container, 
-    Typography, 
-    Paper, 
-    Box, 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableContainer, 
-    TableHead, 
+import {
+    Container,
+    Typography,
+    Paper,
+    Box,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
     TableRow,
     Divider,
     Grid,
@@ -26,7 +26,7 @@ import { jwtDecode } from 'jwt-decode';
 const Dashboard = () => {
     const [user, setUser] = useState(null);
     const [currentReservations, setCurrentReservations] = useState([]);
-    
+
     // Mémoriser la date pour éviter les re-rendus
     const today = useMemo(() => new Date(), []);
 
@@ -36,21 +36,27 @@ const Dashboard = () => {
             try {
                 const token = localStorage.getItem('token');
                 // D'abord, récupérer tous les catways
-                const catwaysResponse = await fetch(`${config.apiUrl}/api/catways`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                const catwaysResponse = await fetch(
+                    `${config.apiUrl}/api/catways`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
                     }
-                });
+                );
                 const catways = await catwaysResponse.json();
 
                 // Ensuite, récupérer les réservations pour chaque catway
                 const allReservations = [];
                 for (const catway of catways) {
-                    const response = await fetch(`${config.apiUrl}/api/catways/${catway.catwayNumber}/reservations`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
+                    const response = await fetch(
+                        `${config.apiUrl}/api/catways/${catway.catwayNumber}/reservations`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            }
                         }
-                    });
+                    );
                     const reservations = await response.json();
                     // Ajouter le numéro du catway à chaque réservation
                     reservations.forEach(res => {
@@ -69,7 +75,10 @@ const Dashboard = () => {
 
                 setCurrentReservations(currentReservations);
             } catch (error) {
-                console.error('Erreur lors de la récupération des réservations:', error);
+                console.error(
+                    'Erreur lors de la récupération des réservations:',
+                    error
+                );
             }
         };
 
@@ -82,10 +91,10 @@ const Dashboard = () => {
 
         fetchUserInfo();
         fetchCurrentReservations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Retirer today des dépendances
 
-    const formatDate = (date) => {
+    const formatDate = date => {
         return format(new Date(date), 'dd/MM/yyyy');
     };
 
@@ -106,7 +115,9 @@ const Dashboard = () => {
                                     <Typography variant="h6">Date</Typography>
                                 </Box>
                                 <Typography variant="body1">
-                                    {format(today, 'EEEE dd MMMM yyyy', { locale: fr })}
+                                    {format(today, 'EEEE dd MMMM yyyy', {
+                                        locale: fr
+                                    })}
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -120,11 +131,13 @@ const Dashboard = () => {
                                     <Typography variant="h6" gutterBottom>
                                         Informations utilisateur
                                     </Typography>
-                                    <Box display="flex" alignItems="center" mb={1}>
+                                    <Box
+                                        display="flex"
+                                        alignItems="center"
+                                        mb={1}
+                                    >
                                         <PersonIcon sx={{ mr: 1 }} />
-                                        <Typography>
-                                            {user.username}
-                                        </Typography>
+                                        <Typography>{user.username}</Typography>
                                     </Box>
                                     <Box display="flex" alignItems="center">
                                         <EmailIcon sx={{ mr: 1 }} />
@@ -141,7 +154,7 @@ const Dashboard = () => {
                         Réservations en cours
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
-                    
+
                     <TableContainer>
                         <Table>
                             <TableHead>
@@ -155,13 +168,27 @@ const Dashboard = () => {
                             </TableHead>
                             <TableBody>
                                 {currentReservations.length > 0 ? (
-                                    currentReservations.map((reservation) => (
+                                    currentReservations.map(reservation => (
                                         <TableRow key={reservation._id}>
-                                            <TableCell>{reservation.catwayNumber}</TableCell>
-                                            <TableCell>{reservation.clientName}</TableCell>
-                                            <TableCell>{reservation.boatName}</TableCell>
-                                            <TableCell>{formatDate(reservation.startDate)}</TableCell>
-                                            <TableCell>{formatDate(reservation.endDate)}</TableCell>
+                                            <TableCell>
+                                                {reservation.catwayNumber}
+                                            </TableCell>
+                                            <TableCell>
+                                                {reservation.clientName}
+                                            </TableCell>
+                                            <TableCell>
+                                                {reservation.boatName}
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatDate(
+                                                    reservation.startDate
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatDate(
+                                                    reservation.endDate
+                                                )}
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
