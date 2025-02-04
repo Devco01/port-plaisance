@@ -1,5 +1,4 @@
 var express = require('express');
-var mongoose = require('mongoose');
 var path = require('path');
 var cors = require('cors');
 var session = require('express-session');
