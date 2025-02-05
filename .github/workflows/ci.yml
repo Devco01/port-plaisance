@@ -82,6 +82,7 @@ jobs:
       env:
         RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
         SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        NODE_ENV: production
       run: |
         if [ -n "$RENDER_TOKEN" ]; then
           echo "Déploiement en production..."
