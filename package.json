@@ -24,7 +24,7 @@
     "build": "cd client && npm install && npm run build",
     "check-admin": "node server/scripts/checkAdmin.js",
     "dev": "PORT=3001 nodemon server/server.js",
-    "prepare": "husky install",
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install; fi",
     "validate": "npm test",
     "seed": "node server/scripts/initDb.js"
   },
@@ -74,9 +74,7 @@
     "supertest": "^7.0.0",
     "whatwg-url": "13.0.0",
     "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "bcryptjs": "^2.4.3",
-    "bcrypt": "^5.1.1"
+    "eslint-plugin-react-hooks": "^4.6.0"
   },
   "engines": {
     "node": ">=16.0.0"

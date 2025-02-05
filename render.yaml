@@ -2,7 +2,7 @@ services:
   - type: web
     name: port-russell-api
     env: node
-    buildCommand: npm install
+    buildCommand: NODE_ENV=production npm install --omit=dev
     startCommand: npm start
     envVars:
       - key: NODE_ENV
