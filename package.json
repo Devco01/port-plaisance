@@ -21,6 +21,7 @@
     "dev:client": "cd client && npm run dev",
     "import-data": "node server/scripts/importData.js",
     "start": "PORT=3001 node server/server.js",
+    "postinstall": "if [ \"$NODE_ENV\" = \"production\" ]; then npm run build; fi",
     "build": "cd client && npm install && npm run build",
     "check-admin": "node server/scripts/checkAdmin.js",
     "dev": "PORT=3001 nodemon server/server.js",
@@ -60,7 +61,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.7",
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-transform-private-property-in-object": "^7.23.4",
     "@babel/preset-env": "^7.26.7",
     "@babel/preset-react": "^7.26.3",
     "@jest/test-sequencer": "^29.7.0",
