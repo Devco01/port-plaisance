@@ -106,18 +106,20 @@ jobs:
     needs: [test, lint]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-
+    
     steps:
     - uses: actions/checkout@v3
 
-    - name: Deploy to production
+    - name: Deploy to Render
       env:
-        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+        SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
       run: |
-        if [ -n "$DEPLOY_KEY" ]; then
+        if [ -n "$RENDER_TOKEN" ]; then
           echo "Déploiement en production..."
-          # Ajoutez ici vos commandes de déploiement
+          curl -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+            -H "Authorization: Bearer $RENDER_TOKEN"
         else
-          echo "DEPLOY_KEY n'est pas défini"
+          echo "RENDER_TOKEN n'est pas défini"
           exit 1
         fi 
