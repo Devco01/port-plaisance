@@ -15,66 +15,80 @@ Application de gestion des réservations de catways pour le port de plaisance Ru
 - Backend: Node.js, Express
 - Base de données: MongoDB
 - Frontend: React, Material-UI
-- Documentation: Swagger
-- Déploiement: Render
+- Documentation: Swagger UI
 
 ## 📦 Installation
 
-1. Cloner le projet
-
 ```bash
-git clone https://github.com/Devco01/Port-de-plaisance.git
-cd Port-de-plaisance
-```
+# Cloner le dépôt
+git clone https://github.com/votre-username/port-russell-api.git
 
-2. Installer les dépendances
-
-```bash
+# Installer les dépendances
 npm install
 cd client && npm install
-```
 
-3. Configurer les variables d'environnement
-
-```bash
+# Configurer les variables d'environnement
 cp .env.example .env
-# Éditer .env avec vos configurations
 ```
 
-4. Démarrer l'application
+## 🚀 Démarrage
 
 ```bash
 # Mode développement
-npm run dev
+npm run dev          # Backend sur http://localhost:3001
+cd client && npm start   # Frontend sur http://localhost:3000
 
 # Mode production
-npm run build && npm start
+npm run build
+npm start
 ```
-
-## 🔑 Compte de démonstration
-
-```
-Email: admin@portplaisance.fr
-Mot de passe: PortAdmin2024!
-```
-
-## 📚 Documentation API
-
-La documentation de l'API est disponible à l'adresse `/api-docs` une fois l'application lancée.
 
 ## 🧪 Tests
 
 ```bash
-# Exécuter tous les tests
+# Tous les tests
 npm test
 
-# Tests unitaires
-npm run test:unit
-
-# Tests d'intégration
-npm run test:integration
+# Tests spécifiques
+npm run test:models
+npm run test:auth
+npm run test:crud
 ```
 
-## 🚀 Déploiement
+## 🌐 Déploiement
 
 L'application est déployée sur Render : [https://port-plaisance.onrender.com](https://port-plaisance.onrender.com)
+
+### Accès démo
+- Email : admin@portplaisance.fr
+- Mot de passe : PortAdmin2024!
+
+## 🔑 Variables d'environnement
+
+```env
+# Base de données
+MONGODB_URI=mongodb://localhost:27017/port-russell
+MONGODB_URL=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>
+
+# Sécurité
+JWT_SECRET=votre_secret_jwt_super_securise
+SESSION_SECRET=votre_secret_session_super_securise
+
+# Serveur
+PORT=3001
+
+# Client
+REACT_APP_API_URL=http://localhost:3001/api
+
+# Admin
+ADMIN_EMAIL=admin@portplaisance.fr
+ADMIN_PASSWORD=PortAdmin2024!
+```
+
+## 👥 Contribution
+
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/amazing-feature`)
+3. Commit les changements (`git commit -m 'feat: ajout d'une fonctionnalité'`)
+4. Push sur la branche (`git push origin feature/amazing-feature`)
+5. Ouvrir une Pull Request
