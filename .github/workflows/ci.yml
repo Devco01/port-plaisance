@@ -76,8 +76,9 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm ci
-        cd client && npm ci && cd ..
+        npm install
+        npm install --save-dev bcrypt
+        cd client && npm install && cd ..
 
     - name: Run tests
       run: npm test
