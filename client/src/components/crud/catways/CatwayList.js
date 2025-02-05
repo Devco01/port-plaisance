@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Typography, Card, CardContent, Grid } from '@mui/material';
-import { getCatways } from '../../../services/api';
+import React, { useState, useEffect } from "react";
+import { Container, Typography, Card, CardContent, Grid } from "@mui/material";
+import { getCatways } from "../../../services/api";
 
 const CatwayList = () => {
     const [catways, setCatways] = useState([]);
@@ -11,7 +11,10 @@ const CatwayList = () => {
                 const data = await getCatways();
                 setCatways(data);
             } catch (error) {
-                console.error('Erreur lors de la récupération des catways:', error);
+                console.error(
+                    "Erreur lors de la récupération des catways:",
+                    error
+                );
             }
         };
 
@@ -24,7 +27,7 @@ const CatwayList = () => {
                 Liste des Catways
             </Typography>
             <Grid container spacing={3}>
-                {catways.map((catway) => (
+                {catways.map(catway => (
                     <Grid item xs={12} sm={6} md={4} key={catway._id}>
                         <Card>
                             <CardContent>

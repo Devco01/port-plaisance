@@ -1,20 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-    Container, Typography, Paper, Table, TableBody, TableCell,
-    TableContainer, TableHead, TableRow, Button, Dialog,
-    DialogTitle, DialogContent, DialogActions, TextField,
+    Container,
+    Typography,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
     MenuItem
-} from '@mui/material';
-import config from '../../config/config';
+} from "@mui/material";
+import config from "../../config/config";
 
 const CatwaysCRUD = () => {
     const [catways, setCatways] = useState([]);
     const [open, setOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [currentCatway, setCurrentCatway] = useState({
-        catwayNumber: '',
-        catwayType: 'long',
-        catwayState: 'Bon état'
+        catwayNumber: "",
+        catwayType: "long",
+        catwayState: "Bon état"
     });
 
     useEffect(() => {
@@ -23,16 +35,16 @@ const CatwaysCRUD = () => {
 
     const fetchCatways = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem("token");
             const response = await fetch(`${config.apiUrl}/api/catways`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
             const data = await response.json();
             setCatways(data);
         } catch (error) {
-            console.error('Erreur lors de la récupération des catways:', error);
+            console.error("Erreur lors de la récupération des catways:", error);
         }
     };
 
@@ -42,9 +54,9 @@ const CatwaysCRUD = () => {
             setEditMode(true);
         } else {
             setCurrentCatway({
-                catwayNumber: '',
-                catwayType: 'long',
-                catwayState: 'Bon état'
+                catwayNumber: "",
+                catwayType: "long",
+                catwayState: "Bon état"
             });
             setEditMode(false);
         }
@@ -54,33 +66,33 @@ const CatwaysCRUD = () => {
     const handleClose = () => {
         setOpen(false);
         setCurrentCatway({
-            catwayNumber: '',
-            catwayType: 'long',
-            catwayState: 'Bon état'
+            catwayNumber: "",
+            catwayType: "long",
+            catwayState: "Bon état"
         });
         setEditMode(false);
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async e => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            const url = editMode 
+            const token = localStorage.getItem("token");
+            const url = editMode
                 ? `${config.apiUrl}/api/catways/${currentCatway._id}`
                 : `${config.apiUrl}/api/catways`;
-            
-            const method = editMode ? 'PUT' : 'POST';
-            
+
+            const method = editMode ? "PUT" : "POST";
+
             // En mode édition, n'envoyer que l'état
-            const body = editMode 
+            const body = editMode
                 ? { catwayState: currentCatway.catwayState }
                 : currentCatway;
 
             const response = await fetch(url, {
                 method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(body)
             });
@@ -91,34 +103,45 @@ const CatwaysCRUD = () => {
                 await fetchCatways();
                 handleClose();
             } else {
-                console.error('Erreur lors de la sauvegarde:', data);
-                alert('Erreur lors de la sauvegarde: ' + (data.message || response.statusText));
+                console.error("Erreur lors de la sauvegarde:", data);
+                alert(
+                    "Erreur lors de la sauvegarde: " +
+                        (data.message || response.statusText)
+                );
             }
         } catch (error) {
-            console.error('Erreur lors de la sauvegarde:', error);
-            alert('Erreur lors de la sauvegarde: ' + error.message);
+            console.error("Erreur lors de la sauvegarde:", error);
+            alert("Erreur lors de la sauvegarde: " + error.message);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer ce catway ?')) {
+    const handleDelete = async id => {
+        if (window.confirm("Êtes-vous sûr de vouloir supprimer ce catway ?")) {
             try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${config.apiUrl}/api/catways/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                const token = localStorage.getItem("token");
+                const response = await fetch(
+                    `${config.apiUrl}/api/catways/${id}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
                     }
-                });
+                );
                 if (response.ok) {
                     await fetchCatways();
                 } else {
-                    console.error('Erreur lors de la suppression:', response.statusText);
-                    alert('Erreur lors de la suppression: ' + response.statusText);
+                    console.error(
+                        "Erreur lors de la suppression:",
+                        response.statusText
+                    );
+                    alert(
+                        "Erreur lors de la suppression: " + response.statusText
+                    );
                 }
             } catch (error) {
-                console.error('Erreur lors de la suppression:', error);
-                alert('Erreur lors de la suppression: ' + error.message);
+                console.error("Erreur lors de la suppression:", error);
+                alert("Erreur lors de la suppression: " + error.message);
             }
         }
     };
@@ -147,7 +170,7 @@ const CatwaysCRUD = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {catways.map((catway) => (
+                        {catways.map(catway => (
                             <TableRow key={catway._id}>
                                 <TableCell>{catway.catwayNumber}</TableCell>
                                 <TableCell>{catway.catwayType}</TableCell>
@@ -175,7 +198,7 @@ const CatwaysCRUD = () => {
 
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>
-                    {editMode ? 'Modifier le Catway' : 'Ajouter un Catway'}
+                    {editMode ? "Modifier le Catway" : "Ajouter un Catway"}
                 </DialogTitle>
                 <DialogContent>
                     {!editMode && (
@@ -185,10 +208,12 @@ const CatwaysCRUD = () => {
                                 label="Numéro"
                                 fullWidth
                                 value={currentCatway.catwayNumber}
-                                onChange={(e) => setCurrentCatway({
-                                    ...currentCatway,
-                                    catwayNumber: e.target.value
-                                })}
+                                onChange={e =>
+                                    setCurrentCatway({
+                                        ...currentCatway,
+                                        catwayNumber: e.target.value
+                                    })
+                                }
                                 sx={{ mb: 2 }}
                             />
                             <TextField
@@ -197,10 +222,12 @@ const CatwaysCRUD = () => {
                                 select
                                 fullWidth
                                 value={currentCatway.catwayType}
-                                onChange={(e) => setCurrentCatway({
-                                    ...currentCatway,
-                                    catwayType: e.target.value
-                                })}
+                                onChange={e =>
+                                    setCurrentCatway({
+                                        ...currentCatway,
+                                        catwayType: e.target.value
+                                    })
+                                }
                                 sx={{ mb: 2 }}
                             >
                                 <MenuItem value="long">Long</MenuItem>
@@ -213,16 +240,18 @@ const CatwaysCRUD = () => {
                         label="État"
                         fullWidth
                         value={currentCatway.catwayState}
-                        onChange={(e) => setCurrentCatway({
-                            ...currentCatway,
-                            catwayState: e.target.value
-                        })}
+                        onChange={e =>
+                            setCurrentCatway({
+                                ...currentCatway,
+                                catwayState: e.target.value
+                            })
+                        }
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Annuler</Button>
                     <Button onClick={handleSubmit} color="primary">
-                        {editMode ? 'Modifier' : 'Ajouter'}
+                        {editMode ? "Modifier" : "Ajouter"}
                     </Button>
                 </DialogActions>
             </Dialog>

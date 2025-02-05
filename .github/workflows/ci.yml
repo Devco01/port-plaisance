@@ -1,4 +1,4 @@
-name: Port Russell API CI
+name: CI
 
 on:
   push:
@@ -8,21 +8,27 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x]
         mongodb-version: ['5.0']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcrypto++-dev libssl-dev
+        wget http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+        sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
 
     - name: Start MongoDB
       uses: supercharge/mongodb-github-action@1.10.0
@@ -30,14 +36,16 @@ jobs:
         mongodb-version: ${{ matrix.mongodb-version }}
 
     - name: Install dependencies
-      run: npm ci --ignore-scripts
+      run: |
+        npm install
+        cd client && npm install && cd ..
 
     - name: Run tests
       run: npm test
       env:
         CI: true
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        MONGODB_URI: mongodb://localhost:27017/port-russell-test
+        MONGODB_URI: mongodb://127.0.0.1:27017/port-russell-test
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
@@ -57,22 +65,29 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci --ignore-scripts
+      run: npm install
 
-    - name: Run ESLint
-      run: npx eslint .
+    - name: Run ESLint (Server)
+      run: npx eslint server/ tests/ --fix
 
   deploy:
     needs: [test, lint]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-
+    
     steps:
     - uses: actions/checkout@v3
 
-    - name: Deploy to production
+    - name: Deploy to Render
       env:
-        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+        SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
       run: |
-        echo "Déploiement en production..."
-        # Ajoutez ici vos commandes de déploiement 
+        if [ -n "$RENDER_TOKEN" ]; then
+          echo "Déploiement en production..."
+          curl -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+            -H "Authorization: Bearer $RENDER_TOKEN"
+        else
+          echo "RENDER_TOKEN n'est pas défini"
+          exit 1
+        fi 

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Container,
     Typography,
@@ -12,8 +12,8 @@ import {
     TableRow,
     Button,
     Box
-} from '@mui/material';
-import { getUsers, deleteUser } from '../../../services/api';
+} from "@mui/material";
+import { getUsers, deleteUser } from "../../../services/api";
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -28,17 +28,24 @@ const UserList = () => {
             const data = await getUsers();
             setUsers(data);
         } catch (error) {
-            console.error('Erreur lors de la récupération des utilisateurs:', error);
+            console.error(
+                "Erreur lors de la récupération des utilisateurs:",
+                error
+            );
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+    const handleDelete = async id => {
+        if (
+            window.confirm(
+                "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
+            )
+        ) {
             try {
                 await deleteUser(id);
                 fetchUsers();
             } catch (error) {
-                console.error('Erreur lors de la suppression:', error);
+                console.error("Erreur lors de la suppression:", error);
             }
         }
     };
@@ -52,7 +59,7 @@ const UserList = () => {
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={() => navigate('/users/new')}
+                    onClick={() => navigate("/users/new")}
                     sx={{ mb: 3 }}
                 >
                     Nouvel Utilisateur
@@ -68,7 +75,7 @@ const UserList = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {users.map((user) => (
+                            {users.map(user => (
                                 <TableRow key={user._id}>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{user.nom}</TableCell>
@@ -76,14 +83,20 @@ const UserList = () => {
                                     <TableCell>
                                         <Button
                                             color="primary"
-                                            onClick={() => navigate(`/users/edit/${user._id}`)}
+                                            onClick={() =>
+                                                navigate(
+                                                    `/users/edit/${user._id}`
+                                                )
+                                            }
                                             sx={{ mr: 1 }}
                                         >
                                             Modifier
                                         </Button>
                                         <Button
                                             color="error"
-                                            onClick={() => handleDelete(user._id)}
+                                            onClick={() =>
+                                                handleDelete(user._id)
+                                            }
                                         >
                                             Supprimer
                                         </Button>
@@ -98,4 +111,4 @@ const UserList = () => {
     );
 };
 
-export default UserList; 
+export default UserList;

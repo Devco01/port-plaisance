@@ -21,24 +21,28 @@ Application de gestion des réservations de catways pour le port de plaisance Ru
 ## 📦 Installation
 
 1. Cloner le projet
+
 ```bash
 git clone https://github.com/Devco01/Port-de-plaisance.git
 cd Port-de-plaisance
 ```
 
 2. Installer les dépendances
+
 ```bash
 npm install
 cd client && npm install
 ```
 
 3. Configurer les variables d'environnement
+
 ```bash
 cp .env.example .env
 # Éditer .env avec vos configurations
 ```
 
 4. Démarrer l'application
+
 ```bash
 # Mode développement
 npm run dev
@@ -74,7 +78,3 @@ npm run test:integration
 ## 🚀 Déploiement
 
 L'application est déployée sur Render : [https://port-plaisance.onrender.com](https://port-plaisance.onrender.com)
-
-## 📝 License
-
-MIT

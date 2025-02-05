@@ -1,13 +1,13 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/');
+        localStorage.removeItem("token");
+        navigate("/");
     };
 
     return (
@@ -17,16 +17,25 @@ const Navbar = () => {
                     Port de Plaisance
                 </Typography>
                 <Box>
-                    <Button color="inherit" onClick={() => navigate('/dashboard')}>
+                    <Button
+                        color="inherit"
+                        onClick={() => navigate("/dashboard")}
+                    >
                         Dashboard
                     </Button>
-                    <Button color="inherit" onClick={() => navigate('/catways')}>
+                    <Button
+                        color="inherit"
+                        onClick={() => navigate("/catways")}
+                    >
                         Catways
                     </Button>
-                    <Button color="inherit" onClick={() => navigate('/reservations')}>
+                    <Button
+                        color="inherit"
+                        onClick={() => navigate("/reservations")}
+                    >
                         Réservations
                     </Button>
-                    <Button color="inherit" onClick={() => navigate('/users')}>
+                    <Button color="inherit" onClick={() => navigate("/users")}>
                         Utilisateurs
                     </Button>
                     <Button color="inherit" onClick={handleLogout}>
@@ -38,4 +47,4 @@ const Navbar = () => {
     );
 };
 
-export default Navbar; 
+export default Navbar;
