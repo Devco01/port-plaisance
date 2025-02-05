@@ -5,7 +5,7 @@ var Catway = require("../models/catway");
 var User = require("../models/user");
 var fs = require("fs");
 var path = require("path");
-var bcrypt = require("bcrypt");
+var bcrypt = require("bcryptjs");
 var Reservation = require("../models/reservation");
 
 var importData = function () {

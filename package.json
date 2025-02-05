@@ -75,7 +75,8 @@
     "whatwg-url": "13.0.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "bcrypt": "^5.1.1"
   },
   "engines": {
     "node": ">=16.0.0"
