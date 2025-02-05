@@ -2,7 +2,9 @@ services:
   - type: web
     name: port-russell-api
     env: node
-    buildCommand: NODE_ENV=production npm install --omit=dev
+    buildCommand: |
+      npm install --omit=dev
+      cd client && npm install && npm run build && cd ..
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -12,4 +14,10 @@ services:
       - key: JWT_SECRET
         sync: false # À configurer dans le dashboard Render
       - key: SESSION_SECRET
-        sync: false # À configurer dans le dashboard Render 
+        sync: false # À configurer dans le dashboard Render
+      - key: REACT_APP_API_URL
+        value: https://port-plaisance.onrender.com/api
+      - key: ADMIN_EMAIL
+        value: admin@portplaisance.fr
+      - key: ADMIN_PASSWORD
+        sync: false 
