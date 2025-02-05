@@ -52,32 +52,34 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x]
         mongodb-version: ['5.0']
 
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcrypto++6 libssl1.1 libcrypto1.1
+        
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
 
-    - name: Start MongoDB
-      uses: supercharge/mongodb-github-action@1.10.0
-      with:
-        mongodb-version: ${{ matrix.mongodb-version }}
-
     - name: Install dependencies
-      run: npm ci --ignore-scripts
+      run: |
+        npm ci
+        cd client && npm ci && cd ..
 
     - name: Run tests
       run: npm test
       env:
         CI: true
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        MONGODB_URI: mongodb://localhost:27017/port-russell-test
+        MONGODB_URI: mongodb://127.0.0.1:27017/port-russell-test
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
