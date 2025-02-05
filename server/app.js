@@ -79,7 +79,7 @@ app.use("/", frontendRoutes);
 // Servir les fichiers statiques du client en production
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "../client/build")));
-    
+
     // Route catch-all pour SPA
     app.get("*", function (req, res) {
         res.sendFile(path.join(__dirname, "../client/build/index.html"));
