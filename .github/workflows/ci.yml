@@ -35,6 +35,18 @@ jobs:
     - name: Run linting
       run: npm run lint
 
+    - name: Set environment variables
+      env:
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      run: |
+        echo "JWT_SECRET=$JWT_SECRET" >> $GITHUB_ENV
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
+
   test:
     runs-on: ubuntu-latest
 
@@ -102,5 +114,10 @@ jobs:
       env:
         DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
       run: |
-        echo "Déploiement en production..."
-        # Ajoutez ici vos commandes de déploiement 
+        if [ -n "$DEPLOY_KEY" ]; then
+          echo "Déploiement en production..."
+          # Ajoutez ici vos commandes de déploiement
+        else
+          echo "DEPLOY_KEY n'est pas défini"
+          exit 1
+        fi 
