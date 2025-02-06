@@ -1,15 +1,15 @@
 FROM node:18-alpine
 
-WORKDIR /app/server
+WORKDIR /app
 
 # Copier package.json et package-lock.json du serveur
-COPY server/package*.json ./
+COPY package*.json ./
 
 # Installer les dépendances du serveur
 RUN npm install --production=false
 
-# Copier les fichiers du serveur
-COPY server/ .
+# Copier tous les fichiers du serveur
+COPY . .
 
 # Vérifier les modèles
 RUN sh -c 'echo "=== Vérification des modèles ===" && ls -R models/'
