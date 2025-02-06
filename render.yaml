@@ -27,6 +27,8 @@
     envVars:
       - key: PORT
         value: 10000
+      - key: HOST
+        value: 0.0.0.0
       - key: VITE_API_URL
         value: https://port-plaisance-api.onrender.com
       - key: NODE_ENV
@@ -35,3 +37,7 @@
       - path: /*
         name: Cache-Control
         value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
