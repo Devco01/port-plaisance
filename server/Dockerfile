@@ -13,9 +13,8 @@ RUN cd server && npm ci --production=false
 # Copier le reste des fichiers
 COPY . .
 
-# Vérifier les modèles
-RUN echo "=== Vérification des modèles ===" && \
-    ls -R server/models/
+# Vérifier les modèles (tout sur une seule ligne RUN)
+RUN sh -c 'echo "=== Vérification des modèles ===" && ls -R server/models/'
 
 # Exposer le port
 EXPOSE 5000
