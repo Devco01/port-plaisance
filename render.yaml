@@ -28,4 +28,4 @@
       - key: PORT
         value: 10000
       - key: VITE_API_URL
-        value: https://port-plaisance-api.onrender.com
+        value: https://port-plaisance-api.onrender.com/api
