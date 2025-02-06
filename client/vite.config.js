@@ -13,5 +13,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets'
+  },
+  preview: {
+    host: true,
+    port: process.env.PORT || 3000,
+    strictPort: true,
+    allowedHosts: [
+      'port-plaisance-client.onrender.com',
+      'localhost',
+      '.onrender.com'
+    ]
   }
 }) 
