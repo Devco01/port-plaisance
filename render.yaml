@@ -23,7 +23,7 @@
       cd client
       npm install
       npm run build
-    startCommand: cd client && npm run dev
+    startCommand: cd client && npm run preview
     envVars:
       - key: PORT
         value: 10000
