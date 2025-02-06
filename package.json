@@ -23,5 +23,9 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.3",
     "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "@vue/runtime-core": "^3.5.13",
+    "pinia": "^2.3.1"
   }
 }

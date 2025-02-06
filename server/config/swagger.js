@@ -19,7 +19,7 @@ const options = {
             },
             {
                 name: 'Utilisateurs',
-                description: 'Gestion des utilisateurs'
+                description: 'Gestion des utilisateurs et authentification'
             }
         ],
         components: {
