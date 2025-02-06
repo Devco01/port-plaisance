@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import path from 'path'
+const { defineConfig } = require('vite')
+const vue = require('@vitejs/plugin-vue')
+const path = require('path')
 
-export default defineConfig({
+module.exports = defineConfig({
   plugins: [vue()],
   base: './',
   resolve: {
@@ -15,13 +15,12 @@ export default defineConfig({
     assetsDir: 'assets'
   },
   preview: {
-    host: true,
+    host: '0.0.0.0',
     port: process.env.PORT || 3000,
     strictPort: true,
-    allowedHosts: [
-      'port-plaisance-client.onrender.com',
-      'localhost',
-      '.onrender.com'
-    ]
+    cors: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
   }
 }) 
