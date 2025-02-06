@@ -1,44 +1,30 @@
-require("dotenv").config();
-console.log("CheckAdmin - URL MongoDB:", process.env.MONGODB_URI);
-const User = require("../models/user");
-const bcrypt = require("bcryptjs");
+require('dotenv').config();
+const mongoose = require('mongoose');
+const User = require('../models/User');
 
-const checkAndCreateAdmin = async () => {
+async function checkAdmin() {
     try {
-        console.log("=== Vérification de l'administrateur ===");
-        
-        // Vérifier si un admin existe
-        let admin = await User.findOne({ email: "admin@portplaisance.fr" });
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('✅ Connecté à MongoDB');
 
-        if (!admin) {
-            console.log("Création de l'administrateur...");
-            
-            // Créer l'admin (le mot de passe sera hashé par le middleware pre-save)
-            admin = await User.create({
-                username: "admin",
-                email: "admin@portplaisance.fr",
-                password: "PortAdmin2024!",
-                role: "admin"
-            });
-            console.log("✅ Administrateur créé");
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@portplaisance.fr';
+        
+        // Rechercher l'admin
+        const admin = await User.findOne({ email: adminEmail });
+        if (admin) {
+            console.log('✅ Admin trouvé:');
+            console.log('Email:', admin.email);
+            console.log('Username:', admin.username);
+            console.log('Role:', admin.role);
         } else {
-            console.log("✅ Un administrateur existe déjà");
-            
-            // Vérifier le mot de passe
-            const isMatch = await admin.comparePassword("PortAdmin2024!");
-            if (!isMatch) {
-                console.log("⚠️ Réinitialisation du mot de passe admin...");
-                admin.password = "PortAdmin2024!"; // Sera hashé par le middleware pre-save
-                await admin.save();
-                console.log("✅ Mot de passe admin mis à jour");
-            }
+            console.log('❌ Admin non trouvé');
         }
 
-        return admin;
+        process.exit(0);
     } catch (error) {
-        console.error("❌ Erreur lors de la vérification/création de l'admin:", error);
-        throw error;
+        console.error('❌ Erreur:', error);
+        process.exit(1);
     }
-};
+}
 
-module.exports = { checkAndCreateAdmin };
+checkAdmin();

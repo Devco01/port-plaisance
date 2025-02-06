@@ -1,11 +1,11 @@
 ﻿const errorHandler = (err, req, res, next) => {
-  console.error('❌ Erreur:', err);
+  console.error('❌ Erreur:', err.message || err);
 
   if (err.name === 'ValidationError') {
     return res.status(400).json({
       success: false,
       message: 'Erreur de validation',
-      errors: Object.values(err.errors).map(e => e.message)
+      errors: Object.values(err.errors).map(error => error.message)
     });
   }
 
@@ -16,9 +16,16 @@
     });
   }
 
-  res.status(500).json({
+  if (err.code === 11000) {
+    return res.status(400).json({
+      success: false,
+      message: 'Cette entrée existe déjà'
+    });
+  }
+
+  res.status(err.statusCode || 500).json({
     success: false,
-    message: 'Erreur serveur'
+    message: err.message || 'Erreur serveur'
   });
 };
 

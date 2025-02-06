@@ -1,25 +1,17 @@
-﻿<template>
-  <PageLayout title="Gestion des Réservations">
-    <template #header-actions>
-      <button @click="showAddForm = true" class="btn-action btn-primary">
-        <i class="fas fa-plus"></i> Nouvelle Réservation
-      </button>
-    </template>
-
-    <ReservationList />
-  </template>
+<template>
+  <div id="app">
+    <router-view></router-view>
+  </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import PageLayout from '@/components/common/PageLayout.vue'
-import ReservationList from '@/components/Reservations/ReservationList.vue'
-
-export default defineComponent({
-  name: 'ReservationsView',
-  components: {
-    PageLayout,
-    ReservationList
-  }
-})
+<script setup lang="ts">
+// Le composant racine de l'application
 </script>
+
+<style>
+#app {
+  font-family: Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+</style>
