@@ -23,9 +23,15 @@
       cd client
       npm install
       npm run build
-    startCommand: cd client && npm start
+    startCommand: cd client && npm run preview
     envVars:
+      - key: PORT
+        value: 10000
       - key: VITE_API_URL
         value: https://port-plaisance-api.onrender.com
       - key: NODE_ENV
         value: production
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
