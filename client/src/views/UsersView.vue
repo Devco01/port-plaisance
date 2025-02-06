@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import PageLayout from '../components/layout/PageLayout.vue'
-import UserList from '../components/users/UserList.vue'
+import UserList from '../components/Users/UserList.vue'
 import UserForm from '../components/users/UserForm.vue'
 import usersService from '../services/users.service'
 
