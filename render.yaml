@@ -2,8 +2,8 @@
   - type: web
     name: port-plaisance-api
     env: node
-    buildCommand: cd server && npm install && npm run init-db
-    startCommand: cd server && npm start
+    buildCommand: npm run install:prod
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -25,3 +25,12 @@
     envVars:
       - key: VITE_API_URL
         value: https://port-plaisance-api.onrender.com
+
+  - type: web
+    name: port-plaisance-server
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
