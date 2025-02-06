@@ -38,7 +38,7 @@ Cette API permet la gestion des catways (petits appontements pour amarrer un bat
 
 1. Cloner le repository
 ```bash
-git clone [URL_DU_REPO]
+git clone https://github.com/Devco01/port-plaisance
 ```
 
 2. Installer les dépendances
