@@ -6,16 +6,12 @@ const specs = require('./config/swagger');
 const connectDB = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
 const path = require('path');
+const corsOptions = require('./config/cors');
 
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],  // Ajout des origines autorisées
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Servir les fichiers statiques avant les routes
