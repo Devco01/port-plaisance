@@ -2,7 +2,10 @@
   - type: web
     name: port-plaisance-api
     env: node
-    buildCommand: npm run install:prod
+    buildCommand: |
+      npm run install:prod
+      echo "=== Vérification de la structure des dossiers ==="
+      ls -R server/
     startCommand: npm start
     envVars:
       - key: NODE_ENV
