@@ -25,10 +25,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import PageLayout from '../components/Layout/PageLayout.vue'
-import CatwayList from '../components/Catways/CatwayList.vue'
-import AddCatwayModal from '../components/Catways/AddCatwayModal.vue'
-import catwaysService from '../services/catways.service'
+import PageLayout from '@/components/Layout/PageLayout.vue'
+import CatwayList from '@/components/Catways/CatwayList.vue'
+import AddCatwayModal from '@/components/Catways/AddCatwayModal.vue'
+import catwaysService from '@/services/catways.service'
 
 interface Catway {
   _id: string

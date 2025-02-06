@@ -44,9 +44,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import api from '../../services/api.service'
-import catwaysService from '../../services/catways.service'
-import reservationsService from '../../services/reservations.service'
+import api from '@/services/api.service'
+import catwaysService from '@/services/catways.service'
+import reservationsService from '@/services/reservations.service'
 
 interface Reservation {
   _id: string
