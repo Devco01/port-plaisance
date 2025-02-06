@@ -1,20 +1,18 @@
 FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /app/server
 
-# Copier les fichiers de dépendances
-COPY package*.json ./
-COPY server/package*.json ./server/
+# Copier package.json et package-lock.json du serveur
+COPY server/package*.json ./
 
-# Installer les dépendances
-RUN npm ci --production=false
-RUN cd server && npm ci --production=false
+# Installer les dépendances du serveur
+RUN npm install --production=false
 
-# Copier le reste des fichiers
-COPY . .
+# Copier les fichiers du serveur
+COPY server/ .
 
-# Vérifier les modèles (tout sur une seule ligne RUN)
-RUN sh -c 'echo "=== Vérification des modèles ===" && ls -R server/models/'
+# Vérifier les modèles
+RUN sh -c 'echo "=== Vérification des modèles ===" && ls -R models/'
 
 # Exposer le port
 EXPOSE 5000
