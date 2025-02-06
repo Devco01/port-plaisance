@@ -59,7 +59,7 @@ const User = require('../models/user');  // lowercase
  * /api/auth/login:
  *   post:
  *     summary: Connexion d'un utilisateur
- *     tags: [Authentification]
+ *     tags: [Utilisateurs]
  *     requestBody:
  *       required: true
  *       content:
@@ -100,7 +100,7 @@ router.post('/login', login);
  * /api/auth/logout:
  *   get:
  *     summary: Déconnexion de l'utilisateur
- *     tags: [Authentification]
+ *     tags: [Utilisateurs]
  *     security:
  *       - bearerAuth: []
  *     responses:

@@ -14,7 +14,9 @@ app.use(pinia)
 // Ajout du router
 app.use(router)
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+axios.defaults.baseURL = import.meta.env.PROD 
+  ? 'https://port-plaisance-api.onrender.com'
+  : 'http://localhost:5000/api'
 
 // Montage de l'application
 app.mount('#app') 
