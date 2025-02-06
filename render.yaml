@@ -4,7 +4,7 @@
     env: node
     buildCommand: |
       npm run install:prod
-      echo "=== Vérification de la structure des dossiers ==="
+      echo "=== Vérification des modèles ==="
       ls -R server/models/
     startCommand: npm start
     envVars:
@@ -16,16 +16,18 @@
         sync: false
     healthCheckPath: /api/health
 
-  - type: web
+  - type: static
     name: port-plaisance-client
-    env: node
+    env: static
     buildCommand: |
       cd client
       npm install
       npm run build
-    startCommand: cd client && npm run preview
+    staticPublishPath: ./client/dist
     envVars:
-      - key: PORT
-        value: 10000
       - key: VITE_API_URL
         value: https://port-plaisance-api.onrender.com/api
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
