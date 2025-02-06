@@ -1,9 +1,9 @@
 {
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vue-tsc --noEmit && vite build",
     "build:prod": "vue-tsc && vite build --mode production",
-    "preview": "vite preview"
+    "preview": "vite preview --port $PORT"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.0.0",

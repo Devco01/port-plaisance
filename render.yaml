@@ -5,7 +5,7 @@
     buildCommand: |
       npm run install:prod
       echo "=== Vérification de la structure des dossiers ==="
-      ls -R server/
+      ls -R server/models/
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -19,17 +19,13 @@
   - type: web
     name: port-plaisance-client
     env: node
-    buildCommand: cd client && npm install && npm run build:prod
+    buildCommand: |
+      cd client
+      npm install
+      npm run build
     startCommand: cd client && npm run preview
     envVars:
       - key: VITE_API_URL
         value: https://port-plaisance-api.onrender.com
-
-  - type: web
-    name: port-plaisance-server
-    env: node
-    buildCommand: npm install
-    startCommand: npm start
-    envVars:
       - key: NODE_ENV
         value: production

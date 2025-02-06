@@ -14,7 +14,7 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Servir les fichiers statiques avant les routes
+// Servir les fichiers statiques
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Documentation Swagger avec options personnalisées
@@ -33,7 +33,7 @@ const swaggerOptions = {
 app.use('/api-docs', swaggerUi.serve);
 app.get('/api-docs', swaggerUi.setup(specs, swaggerOptions));
 
-// Page d'accueil
+// Route racine
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
