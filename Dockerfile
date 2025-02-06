@@ -5,9 +5,9 @@ WORKDIR /app
 # Copier tout le contexte d'abord
 COPY . .
 
-# Installer les dépendances
-RUN npm ci --production=false
-RUN cd server && npm ci --production=false
+# Installer les dépendances avec npm install au lieu de npm ci
+RUN npm install --production=false
+RUN cd server && npm install --production=false
 
 # Vérifier les modèles
 RUN sh -c 'echo "=== Vérification des modèles ===" && ls -R server/models/'
