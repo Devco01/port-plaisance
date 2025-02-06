@@ -1,25 +1,25 @@
 ﻿<template>
-  <PageLayout title="Gestion des Réservations">
+  <PageLayout title="Gestion des Catways">
     <template #header-actions>
       <button @click="showAddForm = true" class="btn-action btn-primary">
-        <i class="fas fa-plus"></i> Nouvelle Réservation
+        <i class="fas fa-plus"></i> Nouveau Catway
       </button>
     </template>
 
-    <ReservationList />
+    <CatwayList />
   </template>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import PageLayout from '@/components/common/PageLayout.vue'
-import ReservationList from '@/components/Reservations/ReservationList.vue'
+import CatwayList from '@/components/Catways/CatwayList.vue'
 
 export default defineComponent({
-  name: 'ReservationsView',
+  name: 'CatwaysView',
   components: {
     PageLayout,
-    ReservationList
+    CatwayList
   }
 })
 </script>
