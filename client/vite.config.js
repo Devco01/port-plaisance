@@ -13,6 +13,20 @@ module.exports = defineConfig({
   server: {
     port: process.env.PORT || 3000,
     strictPort: true,
-    host: true
+    host: '0.0.0.0',
+    hmr: {
+      clientPort: 443,
+      host: 'port-plaisance-client.onrender.com'
+    }
+  },
+  preview: {
+    port: process.env.PORT || 3000,
+    strictPort: true,
+    host: '0.0.0.0',
+    allowedHosts: [
+      'port-plaisance-client.onrender.com',
+      'localhost',
+      '.onrender.com'
+    ]
   }
 }) 
