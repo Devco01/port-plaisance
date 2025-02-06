@@ -8,6 +8,7 @@ const {
     updateUser,
     deleteUser
 } = require('../controllers/userController');
+const User = require('../models/user');  // Correction de la casse
 
 /**
  * @swagger
