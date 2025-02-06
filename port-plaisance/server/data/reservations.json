@@ -1,0 +1,22 @@
+﻿{
+  "reservations": [
+    {
+      "id": "1",
+      "catwayNumber": "A1",
+      "clientName": "Jean Dupont",
+      "boatName": "Le Navigateur",
+      "startDate": "2024-07-01",
+      "endDate": "2024-07-15",
+      "status": "confirmed"
+    },
+    {
+      "id": "2",
+      "catwayNumber": "B3",
+      "clientName": "Marie Martin",
+      "boatName": "L'Aventurier",
+      "startDate": "2024-08-01",
+      "endDate": "2024-08-10",
+      "status": "pending"
+    }
+  ]
+}

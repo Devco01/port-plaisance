@@ -1,0 +1,18 @@
+﻿{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@portplaisance.fr",
+      "role": "admin",
+      "password": "hashed_password_here"
+    },
+    {
+      "id": 2,
+      "username": "user1",
+      "email": "user1@example.com",
+      "role": "user",
+      "password": "hashed_password_here"
+    }
+  ]
+}
