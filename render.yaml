@@ -11,10 +11,6 @@
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: ADMIN_EMAIL
-        value: admin@portplaisance.fr
-      - key: ADMIN_PASSWORD
-        sync: false
     healthCheckPath: /api/health
 
   - type: web
