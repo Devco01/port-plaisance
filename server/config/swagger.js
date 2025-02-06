@@ -40,8 +40,12 @@ L'API utilise l'authentification JWT (JSON Web Token). Un token doit être inclu
         },
         servers: [
             {
-                url: 'http://localhost:5000',
-                description: 'Serveur de développement',
+                url: process.env.NODE_ENV === 'production' 
+                    ? 'https://port-plaisance-api.onrender.com' 
+                    : 'http://localhost:5000',
+                description: process.env.NODE_ENV === 'production' 
+                    ? 'Serveur de production' 
+                    : 'Serveur de développement',
             },
         ],
         components: {

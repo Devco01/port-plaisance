@@ -1,58 +1,35 @@
+require('dotenv').config();
+const mongoose = require('mongoose');
 const User = require('../models/User');
-const Catway = require('../models/Catway');
-const Reservation = require('../models/Reservation');
+const bcrypt = require('bcryptjs');
 
 const initDatabase = async () => {
     try {
-        // Suppression des données existantes
-        await Promise.all([
-            User.deleteMany({}),
-            Catway.deleteMany({}),
-            Reservation.deleteMany({})
-        ]);
+        const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/port-plaisance';
+        await mongoose.connect(uri);
+        console.log('✅ Connecté à MongoDB');
 
-        console.log('✅ Base de données nettoyée');
+        // Vérifier si l'admin existe déjà
+        const adminExists = await User.findOne({ email: process.env.ADMIN_EMAIL });
+        if (!adminExists) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, salt);
 
-        // Création d'un utilisateur admin par défaut
-        const adminUser = await User.create({
-            username: 'admin',
-            email: 'admin@example.com',
-            password: 'admin123',
-            role: 'admin'
-        });
+            await User.create({
+                username: 'Admin',
+                email: process.env.ADMIN_EMAIL,
+                password: hashedPassword,
+                role: 'admin'
+            });
+            console.log('✅ Compte admin créé');
+        }
 
-        // Création des catways
-        const catways = await Catway.insertMany([
-            // ... vos données de catways
-        ]);
-
-        // Création de quelques réservations de test
-        await Reservation.insertMany([
-            {
-                catwayNumber: catways[0].catwayNumber,
-                clientName: 'John Doe',
-                boatName: 'Sea Spirit',
-                startDate: new Date('2025-02-01'),
-                endDate: new Date('2025-02-15'),
-                status: 'confirmed',
-                user: adminUser._id
-            },
-            {
-                catwayNumber: catways[1].catwayNumber,
-                clientName: 'Jane Smith',
-                boatName: 'Wave Runner',
-                startDate: new Date('2025-03-01'),
-                endDate: new Date('2025-03-10'),
-                status: 'pending',
-                user: adminUser._id
-            }
-        ]);
-
-        console.log('✅ Données initiales créées');
+        console.log('✅ Base de données initialisée');
+        process.exit(0);
     } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
+        console.error('❌ Erreur:', error);
         process.exit(1);
     }
 };
 
-module.exports = initDatabase;
+initDatabase();

@@ -50,3 +50,16 @@ debug.log
 
 # MongoDB
 /data/db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
