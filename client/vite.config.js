@@ -7,11 +7,20 @@ module.exports = defineConfig({
   base: './',
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src')
-    }
+      '@': path.resolve(__dirname, 'src'),
+      'components': path.resolve(__dirname, 'src/components'),
+      'views': path.resolve(__dirname, 'src/views')
+    },
+    preserveSymlinks: true,
+    extensions: ['.js', '.ts', '.vue']
   },
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    assetsDir: 'assets',
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      }
+    }
   }
 }) 

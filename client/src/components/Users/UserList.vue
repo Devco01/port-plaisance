@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import usersService from '../../services/users.service'
+import usersService from '@/services/users.service'
 
 const props = defineProps<{
   users: Array<{

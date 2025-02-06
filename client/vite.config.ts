@@ -1,15 +1,17 @@
 ﻿import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { fileURLToPath } from 'url'
 
 export default defineConfig({
   plugins: [vue()],
   publicDir: 'public',
   resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+    alias: [
+      {
+        find: '@',
+        replacement: path.resolve(__dirname, 'src')
+      }
+    ]
   },
   server: {
     port: 3000,
@@ -22,5 +24,9 @@ export default defineConfig({
   },
   preview: {
     port: 3000
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets'
   }
 })

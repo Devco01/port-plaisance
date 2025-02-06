@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import catwaysService from '../../services/catways.service'
+import catwaysService from '@/services/catways.service'
 
 interface Catway {
   _id: string

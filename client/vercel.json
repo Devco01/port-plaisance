@@ -6,6 +6,16 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://votre-api-railway.up.railway.app/api"
-  }
+    "VITE_API_URL": "https://port-plaisance-api-production-73a9.up.railway.app/"
+  },
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "installCommand": "npm install",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node"
+    }
+  ]
 } 

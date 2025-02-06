@@ -27,8 +27,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import PageLayout from '../components/layout/PageLayout.vue'
-import CurrentReservations from '../components/reservations/CurrentReservations.vue'
+import PageLayout from '@/components/Layout/PageLayout.vue'
+import CurrentReservations from '@/components/Reservations/CurrentReservations.vue'
 
 // État pour les données utilisateur
 const userData = ref({

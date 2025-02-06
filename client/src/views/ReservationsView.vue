@@ -58,11 +58,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import PageLayout from '../components/layout/PageLayout.vue'
-import ReservationList from '../components/Reservations/ReservationList.vue'
-import ReservationForm from '../components/Reservations/ReservationForm.vue'
-import catwaysService from '../services/catways.service'
-import reservationsService from '../services/reservations.service'
+import PageLayout from '@/components/Layout/PageLayout.vue'
+import ReservationList from '@/components/Reservations/ReservationList.vue'
+import ReservationForm from '@/components/Reservations/ReservationForm.vue'
+import catwaysService from '@/services/catways.service'
+import reservationsService from '@/services/reservations.service'
 
 const reservations = ref([])
 const catways = ref([])
