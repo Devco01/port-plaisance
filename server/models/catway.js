@@ -1,37 +1,31 @@
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-var catwaySchema = new mongoose.Schema(
-    {
-        catwayNumber: {
-            type: String,
-            required: true,
-            unique: true,
-            trim: true
-        },
-        catwayType: {
-            type: String,
-            required: true,
-            enum: ["long", "short"],
-            default: "short"
-        },
-        catwayState: {
-            type: String,
-            required: true,
-            enum: ["disponible", "occupé", "maintenance"],
-            default: "disponible"
-        },
-        description: {
-            type: String,
-            trim: true
-        },
-        lastMaintenanceDate: {
-            type: Date
-        }
+const catwaySchema = new mongoose.Schema({
+    catwayNumber: {
+        type: Number,
+        required: true,
+        unique: true
     },
-    {
-        timestamps: true
+    catwayType: {
+        type: String,
+        required: true,
+        enum: ["long", "short"]
+    },
+    catwayState: {
+        type: String,
+        required: true,
+        default: "bon état"
+    },
+    description: {
+        type: String,
+        trim: true
+    },
+    lastMaintenanceDate: {
+        type: Date
     }
-);
+}, {
+    timestamps: true
+});
 
 // Empêcher la modification du type après création
 catwaySchema.pre("save", function (next) {
@@ -43,14 +37,11 @@ catwaySchema.pre("save", function (next) {
 
 // Méthode pour vérifier la disponibilité
 catwaySchema.methods.isAvailable = function () {
-    return this.catwayState === "disponible";
+    return this.catwayState === "bon état";
 };
 
 // Méthode pour mettre à jour l'état
 catwaySchema.methods.updateState = function (newState) {
-    if (!this.schema.path("catwayState").enumValues.includes(newState)) {
-        throw new Error("État invalide");
-    }
     this.catwayState = newState;
     return this.save();
 };
@@ -58,10 +49,10 @@ catwaySchema.methods.updateState = function (newState) {
 // Méthode pour enregistrer une maintenance
 catwaySchema.methods.setMaintenance = function (date) {
     this.lastMaintenanceDate = date || new Date();
-    this.catwayState = "maintenance";
+    this.catwayState = "En maintenance";
     return this.save();
 };
 
-var Catway = mongoose.model("Catway", catwaySchema);
+const Catway = mongoose.model("Catway", catwaySchema);
 
 module.exports = Catway;

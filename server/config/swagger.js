@@ -1,62 +1,110 @@
-var swaggerJsdoc = require("swagger-jsdoc");
-var swaggerUi = require("swagger-ui-express");
-var fs = require("fs");
-var path = require("path");
-var express = require("express");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const express = require("express");
 
-var options = {
+const options = {
     definition: {
         openapi: "3.0.0",
         info: {
             title: "API Port de Plaisance",
             version: "1.0.0",
-            description: "API de gestion du port de plaisance"
+            description: "API de gestion des réservations de catways pour le port de plaisance"
         },
-        components: {
-            securitySchemes: {
-                bearerAuth: {
-                    type: "http",
-                    scheme: "bearer",
-                    bearerFormat: "JWT"
+        tags: [
+            { name: "Catways", description: "Opérations sur les catways" },
+            { name: "Reservations", description: "Opérations sur les réservations" },
+            { name: "Utilisateurs", description: "Opérations sur les utilisateurs" }
+        ],
+        paths: {
+            // 1. Gestion des catways (section 3.1)
+            "/api/catways": {
+                get: {
+                    tags: ["Catways"],
+                    summary: "Liste l'ensemble des catways"
+                },
+                post: {
+                    tags: ["Catways"],
+                    summary: "Crée un catway"
                 }
             },
-            schemas: {
-                User: {
-                    type: "object",
-                    required: ["email", "password"],
-                    properties: {
-                        email: { type: "string", format: "email" },
-                        password: { type: "string", minLength: 8 },
-                        role: { type: "string", enum: ["user", "admin"] }
-                    }
+            "/api/catways/{id}": {
+                get: {
+                    tags: ["Catways"],
+                    summary: "Récupère les détails d'un catway"
                 },
-                Catway: {
-                    type: "object",
-                    required: ["catwayNumber", "catwayType", "catwayState"],
-                    properties: {
-                        catwayNumber: { type: "string" },
-                        catwayType: { type: "string", enum: ["long", "short"] },
-                        catwayState: {
-                            type: "string",
-                            enum: ["disponible", "occupé", "maintenance"]
-                        }
-                    }
+                put: {
+                    tags: ["Catways"],
+                    summary: "Modifie la description de l'état d'un catway"
                 },
-                Reservation: {
-                    type: "object",
-                    required: [
-                        "catwayNumber",
-                        "clientName",
-                        "startDate",
-                        "endDate"
-                    ],
-                    properties: {
-                        catwayNumber: { type: "string" },
-                        clientName: { type: "string" },
-                        boatName: { type: "string" },
-                        startDate: { type: "string", format: "date-time" },
-                        endDate: { type: "string", format: "date-time" }
-                    }
+                delete: {
+                    tags: ["Catways"],
+                    summary: "Supprime un catway"
+                }
+            },
+
+            // 2. Gestion des réservations (section 3.2)
+            "/api/catways/{id}/reservations": {
+                get: {
+                    tags: ["Reservations"],
+                    summary: "Liste l'ensemble des réservations"
+                },
+                post: {
+                    tags: ["Reservations"],
+                    summary: "Crée une réservation"
+                },
+                put: {
+                    tags: ["Reservations"],
+                    summary: "Modifie une réservation"
+                }
+            },
+            "/api/catway/{id}/reservations/{idReservation}": {
+                get: {
+                    tags: ["Reservations"],
+                    summary: "Récupère les détails d'une réservation"
+                },
+                delete: {
+                    tags: ["Reservations"],
+                    summary: "Supprime une réservation"
+                }
+            },
+
+            // 3. Gestion des utilisateurs (section 3.3)
+            "/api/users": {
+                get: {
+                    tags: ["Utilisateurs"],
+                    summary: "Liste l'ensemble des utilisateurs"
+                },
+                post: {
+                    tags: ["Utilisateurs"],
+                    summary: "Crée un utilisateur"
+                }
+            },
+            "/api/users/{email}": {
+                get: {
+                    tags: ["Utilisateurs"],
+                    summary: "Récupère les détails d'un utilisateur"
+                },
+                put: {
+                    tags: ["Utilisateurs"],
+                    summary: "Modifie les détails d'un utilisateur"
+                },
+                delete: {
+                    tags: ["Utilisateurs"],
+                    summary: "Supprime un utilisateur"
+                }
+            },
+
+            // Routes d'authentification
+            "/api/login": {
+                post: {
+                    tags: ["Utilisateurs"],
+                    summary: "Connexion"
+                }
+            },
+            "/api/logout": {
+                get: {
+                    tags: ["Utilisateurs"],
+                    summary: "Déconnexion"
                 }
             }
         }
@@ -64,20 +112,11 @@ var options = {
     apis: ["./server/routes/*.js"]
 };
 
-var specs = swaggerJsdoc(options);
-var app = express();
+const specs = swaggerJsdoc(options);
+const app = express();
 
-app.use(
-    "/api-docs",
-    swaggerUi.serve,
-    swaggerUi.setup(specs, {
-        customCss: fs.readFileSync(
-            path.join(__dirname, "../../public/css/swagger-custom.css"),
-            "utf8"
-        ),
-        customSiteTitle: "API Port de Plaisance Russell - Documentation",
-        customfavIcon: "/images/favicon.ico"
-    })
-);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {
+    customSiteTitle: "API Port de Plaisance - Documentation"
+}));
 
 module.exports = specs;

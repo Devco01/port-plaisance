@@ -1,28 +1,31 @@
-var mongoose = require("mongoose");
-var config = require("./config");
+const mongoose = require("mongoose");
 
-module.exports = {
-    connect: function () {
-        return mongoose
-            .connect(config.db.uri, config.db.options)
-            .then(function () {
-                console.log("✅ Connecté à MongoDB:", config.db.uri);
-            })
-            .catch(function (error) {
-                console.error("❌ Erreur de connexion à MongoDB:", error);
-                throw error;
-            });
-    },
+const connectDB = async () => {
+    try {
+        console.log("=== Configuration de la connexion MongoDB ===");
+        
+        if (!process.env.MONGODB_URI) {
+            throw new Error("MONGODB_URI n'est pas défini dans les variables d'environnement");
+        }
 
-    close: function () {
-        return mongoose.connection
-            .close()
-            .then(function () {
-                console.log("✅ Déconnecté de MongoDB");
-            })
-            .catch(function (error) {
-                console.error("❌ Erreur lors de la déconnexion:", error);
-                throw error;
-            });
+        // Masquer les informations sensibles dans les logs
+        const maskedURI = process.env.MONGODB_URI.replace(
+            /mongodb\+srv:\/\/([^:]+):([^@]+)@/,
+            "mongodb+srv://****:****@"
+        );
+        console.log("URI (masquée):", maskedURI);
+
+        const conn = await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+
+        console.log("✅ MongoDB connecté:", conn.connection.host);
+        return conn;
+    } catch (error) {
+        console.error("❌ Erreur de connexion MongoDB:", error.message);
+        process.exit(1);
     }
 };
+
+module.exports = connectDB;

@@ -1,72 +1,122 @@
-require("dotenv").config();
-console.log("ImportData - URL MongoDB:", process.env.MONGODB_URL);
-var mongoose = require("mongoose");
-var Catway = require("../models/catway");
-var User = require("../models/user");
-var fs = require("fs");
-var path = require("path");
-var bcrypt = require("bcryptjs");
-var Reservation = require("../models/reservation");
+const path = require("path");
+const mongoose = require("mongoose");
+const fs = require("fs").promises;
+const bcrypt = require("bcryptjs");
 
-var importData = function () {
-    var mongoURI = process.env.MONGODB_URL || process.env.MONGODB_URI;
+// Charger les variables d'environnement en premier
+require("dotenv").config({
+    path: path.resolve(__dirname, "../../.env")
+});
 
-    return mongoose
-        .connect(mongoURI)
-        .then(function () {
-            console.log("✅ Connecté à MongoDB");
-            return fs.readFile(
-                path.join(__dirname, "../data/catways.json"),
-                "utf8"
-            );
-        })
-        .then(function (data) {
-            var catways = JSON.parse(data);
-            return Catway.insertMany(catways);
-        })
-        .then(function (result) {
-            console.log("✅ Catways importés:", result.length);
-            return fs.readFile(
-                path.join(__dirname, "../data/users.json"),
-                "utf8"
-            );
-        })
-        .then(function (data) {
-            var users = JSON.parse(data);
-            var hashedUsers = users.map(function (user) {
-                user.password = bcrypt.hashSync(user.password, 10);
-                return user;
-            });
-            return User.insertMany(hashedUsers);
-        })
-        .then(function (result) {
-            console.log("✅ Utilisateurs importés:", result.length);
-            return fs.readFile(
-                path.join(__dirname, "../data/reservations.json"),
-                "utf8"
-            );
-        })
-        .then(function (data) {
-            var reservations = JSON.parse(data);
-            return Reservation.insertMany(reservations);
-        })
-        .then(function (result) {
-            console.log("✅ Réservations importées:", result.length);
-            console.log("✅ Import terminé avec succès");
-        })
-        .catch(function (error) {
-            console.error("❌ Erreur lors de l'import:", error);
-            throw error;
-        })
-        .finally(function () {
-            mongoose.disconnect();
-        });
-};
+// Importer les modèles après la config
+const Catway = require("../models/catway");
+const User = require("../models/user");
+const Reservation = require("../models/reservation");
 
-// Exécuter l'import si le script est appelé directement
-if (require.main === module) {
-    importData();
+// Données échantillons
+const sampleCatways = [
+    {
+        catwayNumber: 1,
+        catwayType: "long",
+        catwayState: "good"
+    },
+    {
+        catwayNumber: 2,
+        catwayType: "short",
+        catwayState: "repair"
+    },
+    {
+        catwayNumber: 3,
+        catwayType: "long",
+        catwayState: "good"
+    },
+    {
+        catwayNumber: 4,
+        catwayType: "short",
+        catwayState: "good"
+    },
+    {
+        catwayNumber: 5,
+        catwayType: "long",
+        catwayState: "maintenance"
+    }
+];
+
+const sampleReservations = [
+    {
+        catwayNumber: 1,
+        clientName: "Jean Dupont",
+        boatName: "Le Petit Prince",
+        startDate: "2024-01-01",
+        endDate: "2024-01-15"
+    },
+    {
+        catwayNumber: 2,
+        clientName: "Marie Martin",
+        boatName: "L'Aventurier",
+        startDate: "2024-02-01",
+        endDate: "2024-02-28"
+    },
+    {
+        catwayNumber: 3,
+        clientName: "Pierre Durand",
+        boatName: "Belle Mer",
+        startDate: "2024-01-15",
+        endDate: "2024-03-15"
+    }
+];
+
+async function importData() {
+    try {
+        // Connexion à MongoDB
+        console.log("Tentative de connexion à MongoDB...");
+        console.log("URI MongoDB:", process.env.MONGODB_URI);
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log("✅ Connecté à MongoDB");
+
+        // Lire les fichiers JSON
+        console.log("Lecture des fichiers JSON...");
+        const catwaysData = JSON.parse(
+            await fs.readFile(path.resolve(__dirname, "../data/catways.json"), "utf-8")
+        );
+        const reservationsData = JSON.parse(
+            await fs.readFile(path.resolve(__dirname, "../data/reservations.json"), "utf-8")
+        );
+
+        // Supprimer les données existantes
+        console.log("Suppression des données existantes...");
+        await Catway.deleteMany({});
+        await Reservation.deleteMany({});
+        console.log("🗑️ Données existantes supprimées");
+
+        // Importer les catways
+        console.log("Import des catways...");
+        await Catway.insertMany(catwaysData);
+        console.log("✅ Catways importés");
+
+        // Importer les réservations
+        console.log("Import des réservations...");
+        await Reservation.insertMany(reservationsData);
+        console.log("✅ Réservations importées");
+
+        // Vérification
+        const catwaysCount = await Catway.countDocuments();
+        const reservationsCount = await Reservation.countDocuments();
+        console.log(`Nombre de catways: ${catwaysCount}`);
+        console.log(`Nombre de réservations: ${reservationsCount}`);
+
+        console.log("✨ Import terminé avec succès");
+        await mongoose.disconnect();
+        console.log("Déconnexion de MongoDB");
+        process.exit(0);
+    } catch (error) {
+        console.error("❌ Erreur lors de l'import:", error);
+        process.exit(1);
+    }
 }
+
+// Exécuter l'import
+importData();
 
 function importUsers() {
     var dataPath = path.join(process.env.DATA_PATH || ".", "users.json");

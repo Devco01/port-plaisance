@@ -1,8 +1,6 @@
 # Dependencies
-/node_modules
-/client/node_modules
 node_modules/
-/.pnp
+.pnp/
 .pnp.js
 
 # Environment
@@ -15,11 +13,15 @@ node_modules/
 # Build
 /build
 /dist
+.vite
+*.local
 
 # Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+logs/
+*.log
 
 # IDE
 .idea/
@@ -31,10 +33,9 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Vite
-vite.config.js
-/client/vite.config.js
+# Testing
+/coverage
 
-# Case sensitivity
-*.[uU][sS][eE][rR].[jJ][sS]
-*.[dD][aA][sS][hH][bB][oO][aA][rR][dD].[jJ][sS]
+# Temp files
+*.tmp
+*.temp

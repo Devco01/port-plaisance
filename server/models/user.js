@@ -1,66 +1,69 @@
-var mongoose = require("mongoose");
-var bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
-var userSchema = new mongoose.Schema(
-    {
-        email: {
-            type: String,
-            required: true,
-            unique: true,
-            match: [/.+@.+\..+/, "Email invalide"]
-        },
-        password: {
-            type: String,
-            required: true,
-            minlength: [
-                8,
-                "Le mot de passe doit contenir au moins 8 caractères"
-            ]
-        },
-        role: {
-            type: String,
-            enum: ["user", "admin"],
-            default: "user"
-        },
-        nom: {
-            type: String,
-            required: true
-        },
-        prenom: {
-            type: String,
-            required: true
-        },
-        active: {
-            type: Boolean,
-            default: true
-        },
-        lastLogin: {
-            type: Date
-        }
+const userSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true
     },
-    {
-        timestamps: true
-    }
-);
-
-// Hash le mot de passe avant la sauvegarde
-userSchema.pre("save", function (next) {
-    if (!this.isModified("password")) return next();
-
-    bcrypt.hash(
-        this.password,
-        10,
-        function (err, hash) {
-            if (err) return next(err);
-            this.password = hash;
-            next();
-        }.bind(this)
-    );
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: String,
+        enum: ["admin", "user"],
+        default: "user"
+    },
+    nom: String,
+    prenom: String
+}, {
+    timestamps: true
 });
 
-// Vérifie le mot de passe
-userSchema.methods.comparePassword = function (candidatePassword) {
-    return bcrypt.compare(candidatePassword, this.password);
+// Middleware pre-save pour hasher le mot de passe
+userSchema.pre("save", async function(next) {
+    // Ne hasher le mot de passe que s'il a été modifié
+    if (!this.isModified("password")) {
+        return next();
+    }
+
+    console.log("Pre-save middleware déclenché");
+    console.log("Hachage du mot de passe...");
+    
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        console.log("Mot de passe haché avec succès");
+        next();
+    } catch (error) {
+        console.error("Erreur lors du hachage du mot de passe:", error);
+        next(error);
+    }
+});
+
+// Méthode pour comparer les mots de passe
+userSchema.methods.comparePassword = async function(candidatePassword) {
+    try {
+        console.log("Comparaison des mots de passe pour:", this.email);
+        console.log("Mot de passe fourni:", candidatePassword);
+        console.log("Hash stocké:", this.password);
+        
+        const isMatch = await bcrypt.compare(candidatePassword, this.password);
+        console.log("Résultat de la comparaison:", isMatch);
+        
+        return isMatch;
+    } catch (error) {
+        console.error("Erreur lors de la comparaison des mots de passe:", error);
+        throw error;
+    }
 };
 
 // Méthode pour générer un objet public sans données sensibles
@@ -70,6 +73,6 @@ userSchema.methods.toPublic = function () {
     return obj;
 };
 
-var User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

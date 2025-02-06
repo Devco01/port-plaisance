@@ -1,144 +1,106 @@
-var User = require("../models/user");
+const User = require("../models/user");
+const asyncHandler = require("../utils/asyncHandler");
 
-/**
- * Liste tous les utilisateurs
- */
-exports.getAllUsers = function (req, res) {
-    User.find()
-        .select("-password")
-        .then(function (users) {
-            res.json(users);
-        })
-        .catch(function (error) {
-            res.status(500).json({ message: error.message });
+const userController = {
+    // Obtenir tous les utilisateurs (admin)
+    getUsers: asyncHandler(async (req, res) => {
+        const users = await User.find().select("-password");
+        res.json({
+            success: true,
+            data: users
         });
-};
+    }),
 
-/**
- * Récupère un utilisateur par son email
- */
-exports.getUserByEmail = function (req, res) {
-    User.findOne({ email: req.params.email })
-        .select("-password")
-        .then(function (user) {
-            if (!user) {
-                return res
-                    .status(404)
-                    .json({ message: "Utilisateur non trouvé" });
-            }
-            res.json(user);
-        })
-        .catch(function (error) {
-            res.status(500).json({ message: error.message });
+    // Obtenir un utilisateur par ID (admin)
+    getUserById: asyncHandler(async (req, res) => {
+        const user = await User.findById(req.params.id).select("-password");
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Utilisateur non trouvé"
+            });
+        }
+        res.json({
+            success: true,
+            data: user
         });
-};
+    }),
 
-/**
- * Crée un nouvel utilisateur
- */
-exports.createUser = function (req, res) {
-    var newUser = new User(req.body);
-    newUser
-        .save()
-        .then(function (user) {
-            var userResponse = user.toObject();
-            delete userResponse.password;
-            res.status(201).json(userResponse);
-        })
-        .catch(function (error) {
-            res.status(400).json({ message: error.message });
+    // Obtenir le profil de l'utilisateur connecté
+    getCurrentUser: asyncHandler(async (req, res) => {
+        const user = await User.findById(req.user.id).select("-password");
+        res.json({
+            success: true,
+            data: user
         });
-};
+    }),
 
-/**
- * Modifie un utilisateur
- */
-exports.updateUser = function (req, res) {
-    User.findOneAndUpdate({ email: req.params.email }, req.body, {
-        new: true,
-        runValidators: true
-    })
-        .select("-password")
-        .then(function (user) {
-            if (!user) {
-                return res
-                    .status(404)
-                    .json({ message: "Utilisateur non trouvé" });
-            }
-            res.json(user);
-        })
-        .catch(function (error) {
-            res.status(400).json({ message: error.message });
+    // Créer un utilisateur (admin)
+    createUser: asyncHandler(async (req, res) => {
+        const user = await User.create(req.body);
+        res.status(201).json({
+            success: true,
+            data: user
         });
-};
+    }),
 
-/**
- * Supprime un utilisateur
- */
-exports.deleteUser = function (req, res) {
-    User.findOneAndDelete({ email: req.params.email })
-        .then(function (user) {
-            if (!user) {
-                return res
-                    .status(404)
-                    .json({ message: "Utilisateur non trouvé" });
-            }
-            res.json({ message: "Utilisateur supprimé avec succès" });
-        })
-        .catch(function (error) {
-            res.status(500).json({ message: error.message });
+    // Mettre à jour un utilisateur
+    updateUser: asyncHandler(async (req, res) => {
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        ).select("-password");
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Utilisateur non trouvé"
+            });
+        }
+
+        res.json({
+            success: true,
+            data: user
         });
-};
+    }),
 
-/**
- * Connexion utilisateur
- */
-exports.login = function (req, res) {
-    var email = req.body.email;
-    var password = req.body.password;
-    var foundUser;
+    // Supprimer un utilisateur (admin)
+    deleteUser: asyncHandler(async (req, res) => {
+        try {
+            // Vérifier si c'est le dernier admin
+            const adminCount = await User.countDocuments({ role: 'admin' });
+            const userToDelete = await User.findOne({ email: req.params.email });
 
-    User.findOne({ email: email })
-        .then(function (user) {
-            foundUser = user;
-            if (!user || !user.active) {
-                return res.status(401).json({
-                    message: "Identifiants invalides ou compte désactivé"
+            if (adminCount === 1 && userToDelete?.role === 'admin') {
+                return res.status(400).json({
+                    success: false,
+                    message: "Impossible de supprimer le dernier administrateur"
                 });
             }
 
-            return bcrypt.compare(password, user.password);
-        })
-        .then(function (isValidPassword) {
-            if (!isValidPassword) {
-                return res
-                    .status(401)
-                    .json({ message: "Identifiants invalides" });
+            const user = await User.findOneAndDelete({ email: req.params.email });
+            
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Utilisateur non trouvé"
+                });
             }
 
-            // Mettre à jour la date de dernière connexion
-            foundUser.lastLogin = new Date();
-            return foundUser.save();
-        })
-        .then(function (user) {
-            // Générer le token JWT
-            var token = jwt.sign(
-                { userId: user._id, email: user.email, role: user.role },
-                process.env.JWT_SECRET,
-                { expiresIn: "24h" }
-            );
-
-            res.json({ token: token });
-        })
-        .catch(function (error) {
-            res.status(500).json({ message: "Erreur lors de la connexion" });
-        });
+            res.json({
+                success: true,
+                message: "Utilisateur supprimé avec succès"
+            });
+        } catch (error) {
+            console.error("Erreur lors de la suppression:", error);
+            res.status(500).json({
+                success: false,
+                message: "Erreur lors de la suppression de l'utilisateur",
+                error: error.message
+            });
+        }
+    })
 };
 
-/**
- * Déconnexion utilisateur
- */
-exports.logout = function (req, res) {
-    // La déconnexion est gérée côté client en supprimant le token
-    res.json({ message: "Déconnexion réussie" });
-};
+module.exports = userController;

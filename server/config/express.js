@@ -7,6 +7,12 @@ var compression = require("compression");
 var session = require("express-session");
 var flash = require("connect-flash");
 var expressLayouts = require("express-ejs-layouts");
+const errorHandler = require("../middleware/errorHandler");
+
+// Import des routes
+const authRoutes = require("../routes/authRoutes");
+const userRoutes = require("../routes/userRoutes");
+const reservationRoutes = require("../routes/reservationRoutes");
 
 /**
  * Configure l'application Express
@@ -61,6 +67,14 @@ var configureExpress = function (app) {
         res.locals.user = req.user || null;
         next();
     });
+
+    // Routes
+    app.use("/api/auth", authRoutes);
+    app.use("/api/users", userRoutes);
+    app.use("/api/reservations", reservationRoutes);
+
+    // Gestion des erreurs
+    app.use(errorHandler);
 };
 
 module.exports = configureExpress;

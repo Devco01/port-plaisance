@@ -1,108 +1,60 @@
-var express = require("express");
-var router = express.Router();
-var auth = require("../middleware/auth");
-var userController = require("../controllers/userController");
+const express = require("express");
+const router = express.Router();
+const { protect, admin } = require("../middleware/authMiddleware");
+const userController = require("../controllers/userController");
+const authController = require("../controllers/authController");
 
 /**
  * @swagger
- * tags:
- *   name: Users
- *   description: Gestion des utilisateurs
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     User:
- *       type: object
- *       required:
- *         - username
- *         - email
- *         - password
- *       properties:
- *         username:
- *           type: string
- *           description: Nom d'utilisateur
- *         email:
- *           type: string
- *           format: email
- *           description: Adresse email unique
- *         password:
- *           type: string
- *           format: password
- *           description: Mot de passe
- */
-
-/**
- * @swagger
- * /api/users:
+ * /users:
  *   get:
- *     summary: Liste tous les utilisateurs
- *     tags: [Users]
+ *     summary: Liste tous les utilisateurs (admin seulement)
+ *     security:
+ *       - bearerAuth: []
  */
-router.get("/", auth.auth, auth.isAdmin, userController.getAllUsers);
+router.get("/", protect, admin, userController.getUsers);
 
 /**
  * @swagger
- * /api/users/{email}:
+ * /users/me:
  *   get:
- *     summary: Récupère un utilisateur par son email
- *     tags: [Users]
+ *     summary: Obtient le profil de l'utilisateur connecté
  */
-router.get(
-    "/:email",
-    auth.auth,
-    auth.isOwnerOrAdmin(),
-    userController.getUserByEmail
-);
+router.get("/me", protect, userController.getCurrentUser);
 
 /**
  * @swagger
- * /api/users:
+ * /users/{id}:
+ *   get:
+ *     summary: Obtient un utilisateur par son ID (admin seulement)
+ */
+router.get("/:id", protect, admin, userController.getUserById);
+
+/**
+ * @swagger
+ * /users:
  *   post:
- *     summary: Crée un nouvel utilisateur
- *     tags: [Users]
+ *     summary: Crée un nouvel utilisateur (admin seulement)
  */
-router.post("/", auth.auth, auth.isAdmin, userController.createUser);
+router.post("/", protect, admin, userController.createUser);
 
 /**
  * @swagger
- * /api/users/{email}:
+ * /users/{id}:
  *   put:
- *     summary: Modifie un utilisateur
- *     tags: [Users]
+ *     summary: Met à jour un utilisateur (admin ou propriétaire)
  */
-router.put(
-    "/:email",
-    auth.auth,
-    auth.isOwnerOrAdmin(),
-    userController.updateUser
-);
+router.put("/:id", protect, admin, userController.updateUser);
 
 /**
  * @swagger
- * /api/users/{email}:
+ * /users/{email}:
  *   delete:
- *     summary: Supprime un utilisateur
- *     tags: [Users]
+ *     summary: Supprime un utilisateur par son email (admin seulement)
  */
-router.delete("/:email", auth.auth, auth.isAdmin, userController.deleteUser);
+router.delete("/:email", protect, admin, userController.deleteUser);
 
-router.get("/:id", auth.auth, function (req, res) {
-    User.findById(req.params.id)
-        .select("-password")
-        .then(function (user) {
-            if (!user) {
-                return res
-                    .status(404)
-                    .json({ message: "Utilisateur non trouvé" });
-            }
-            res.json(user);
-        })
-        .catch(function (error) {
-            res.status(500).json({ message: error.message });
-        });
-});
+// Route d'inscription publique
+router.post('/register', authController.register);
 
 module.exports = router;

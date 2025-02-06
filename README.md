@@ -1,95 +1,87 @@
-# API Port de Plaisance Russell
+# API Port de Plaisance
 
-Application de gestion des réservations de catways pour le port de plaisance Russell.
+Application web de gestion des réservations de catways pour le port de plaisance de Russell.
 
-## 🚀 Fonctionnalités
+## Description
 
-- Gestion complète des catways (CRUD)
-- Système de réservation
-- Authentification des utilisateurs
-- Interface d'administration
-- Documentation API avec Swagger
+Cette API permet la gestion des catways (petits appontements pour amarrer un bateau) et leurs réservations. Elle inclut :
+- Une interface d'administration
+- Une API REST sécurisée
+- Une documentation interactive
 
-## 🛠️ Technologies
+## Fonctionnalités
 
-- Backend: Node.js, Express
-- Base de données: MongoDB
-- Frontend: React, Material-UI
-- Documentation: Swagger UI
+### 1. Gestion des catways
+- Liste des catways
+- Création d'un catway
+- Modification de l'état
+- Suppression
 
-## 📦 Installation
+### 2. Gestion des réservations
+- Liste des réservations par catway
+- Création d'une réservation
+- Modification d'une réservation
+- Suppression d'une réservation
 
+### 3. Gestion des utilisateurs
+- Création de compte
+- Connexion/Déconnexion
+- Gestion des profils
+
+## Technologies utilisées
+
+- Backend : Node.js, Express, MongoDB
+- Frontend : Vue.js 3, Pinia
+- Documentation : Swagger/OpenAPI
+
+## Installation
+
+1. Cloner le repository
 ```bash
-# Cloner le dépôt
-git clone https://github.com/votre-username/port-russell-api.git
+git clone [URL_DU_REPO]
+```
 
-# Installer les dépendances
+2. Installer les dépendances
+```bash
+# Backend
+cd server
 npm install
-cd client && npm install
 
-# Configurer les variables d'environnement
+# Frontend
+cd client
+npm install
+```
+
+3. Configurer les variables d'environnement
+```bash
+# Créer un fichier .env à la racine
 cp .env.example .env
 ```
 
-## 🚀 Démarrage
-
+4. Lancer l'application
 ```bash
-# Mode développement
-npm run dev          # Backend sur http://localhost:3001
-cd client && npm start   # Frontend sur http://localhost:3000
+# Backend
+npm run dev
 
-# Mode production
-npm run build
-npm start
+# Frontend
+npm run dev
 ```
 
-## 🧪 Tests
+## Documentation API
 
-```bash
-# Tous les tests
-npm test
+La documentation de l'API est accessible à l'adresse : `/api-docs`
 
-# Tests spécifiques
-npm run test:models
-npm run test:auth
-npm run test:crud
+## Identifiants de test
+
+```
+Email : admin@portplaisance.fr
+Mot de passe : PortAdmin2024!
 ```
 
-## 🌐 Déploiement
+## Auteur
 
-L'application est déployée sur Render : [https://port-plaisance.onrender.com](https://port-plaisance.onrender.com)
+[Votre nom]
 
-### Accès démo
+## Licence
 
-- Email : admin@portplaisance.fr
-- Mot de passe : PortAdmin2024!
-
-## 🔑 Variables d'environnement
-
-```env
-# Base de données
-MONGODB_URI=mongodb://localhost:27017/port-russell
-MONGODB_URL=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>
-
-# Sécurité
-JWT_SECRET=votre_secret_jwt_super_securise
-SESSION_SECRET=votre_secret_session_super_securise
-
-# Serveur
-PORT=3001
-
-# Client
-REACT_APP_API_URL=http://localhost:3001/api
-
-# Admin
-ADMIN_EMAIL=admin@portplaisance.fr
-ADMIN_PASSWORD=PortAdmin2024!
-```
-
-## 👥 Contribution
-
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/amazing-feature`)
-3. Commit les changements (`git commit -m 'feat: ajout d'une fonctionnalité'`)
-4. Push sur la branche (`git push origin feature/amazing-feature`)
-5. Ouvrir une Pull Request
+[Type de licence]
