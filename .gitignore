@@ -1,16 +1,14 @@
 ﻿# Dependencies
-node_modules
-package-lock.json
+node_modules/
+/node_modules
 
 # Environment files
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 !.env.example
 
-# Build
+# Build directories
 /dist
 /client/dist
 /server/dist
