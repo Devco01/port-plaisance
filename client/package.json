@@ -3,8 +3,9 @@
     "dev": "vite",
     "build": "vite build",
     "build:prod": "vue-tsc && vite build --mode production",
-    "preview": "vite preview --host --port $PORT",
-    "start": "vite preview --host --port $PORT"
+    "preview": "vite preview",
+    "start": "vite preview --host --port $PORT",
+    "check-structure": "node scripts/check-structure.js"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.0.0",
