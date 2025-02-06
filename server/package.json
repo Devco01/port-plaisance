@@ -6,7 +6,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "import-data": "node scripts/importData.js",
-    "postinstall": "node scripts/initDatabase.js",
+    "init-db": "node scripts/initDatabase.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
