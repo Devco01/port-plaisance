@@ -47,10 +47,6 @@ jobs:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         MONGODB_URI: mongodb://127.0.0.1:27017/port-russell-test
 
-    - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
 
   lint:
     runs-on: ubuntu-latest
