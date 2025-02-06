@@ -4,13 +4,14 @@
   "description": "Application de gestion du port de plaisance",
   "main": "server/app.js",
   "scripts": {
-    "start": "cd server && npm start",
+    "start": "node server/index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\" --names \"SERVER,CLIENT\" --prefix-colors \"blue,green\"",
     "test": "cd server && npm test",
-    "build": "cd client && npm run build",
+    "build": "cd client && npm install && npm run build",
     "install:all": "npm install && cd client && npm install && cd ../server && npm install",
     "server": "cd server && npx nodemon index.js",
-    "client": "cd client && npm run dev"
+    "client": "cd client && npm run dev",
+    "install:prod": "npm install && cd server && npm install"
   },
   "dependencies": {
     "concurrently": "^8.0.1"
