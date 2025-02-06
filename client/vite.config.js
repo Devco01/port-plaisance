@@ -4,7 +4,7 @@ const path = require('path')
 
 module.exports = defineConfig({
   plugins: [vue()],
-  base: './',
+  base: '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -17,9 +17,10 @@ module.exports = defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    copyPublicDir: true,
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'index.html')
+        app: path.resolve(__dirname, 'index.html')
       }
     }
   }
