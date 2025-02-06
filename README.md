@@ -80,8 +80,4 @@ Mot de passe : PortAdmin2024!
 
 ## Auteur
 
-[Votre nom]
-
-## Licence
-
-[Type de licence]
+Devco01
