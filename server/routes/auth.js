@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { register, login, logout, getCurrentUser } = require('../controllers/authController');
 const { auth } = require('../middleware/auth');
-const User = require('../models/user');  // lowercase
 
 /**
  * @swagger
@@ -45,13 +44,6 @@ const User = require('../models/user');  // lowercase
  *         user:
  *           username: "john_doe"
  *           email: "john@example.com"
- */
-
-/**
- * @swagger
- * tags:
- *   name: Auth
- *   description: Authentification des utilisateurs
  */
 
 /**

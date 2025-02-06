@@ -54,6 +54,7 @@ interface ImportMetaEnv {
   readonly VITE_API_URL: string
   readonly BASE_URL: string
   readonly NODE_ENV: 'development' | 'production'
+  readonly MODE: 'development' | 'production'
 }
 
 interface ImportMeta {
