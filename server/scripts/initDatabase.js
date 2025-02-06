@@ -1,53 +1,58 @@
-const path = require("path");
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const fs = require("fs").promises;
-
-// Charger les variables d'environnement
-require("dotenv").config({
-    path: path.resolve(__dirname, "../../.env")
-});
-
-// Importer les modèles
-const User = require("../models/user");
-const Catway = require("../models/catway");
-const Reservation = require("../models/reservation");
-
-async function loadJsonData() {
-    try {
-        const catwaysData = JSON.parse(
-            await fs.readFile(path.resolve(__dirname, "../data/catways.json"), "utf-8")
-        );
-        const reservationsData = JSON.parse(
-            await fs.readFile(path.resolve(__dirname, "../data/reservations.json"), "utf-8")
-        );
-        return { catwaysData, reservationsData };
-    } catch (error) {
-        console.error("❌ Erreur lors de la lecture des fichiers JSON:", error);
-        throw error;
-    }
-}
+const User = require('../models/User');
+const Catway = require('../models/Catway');
+const Reservation = require('../models/Reservation');
 
 const initDatabase = async () => {
     try {
-        // Connexion à MongoDB
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log("✅ MongoDB connecté");
+        // Suppression des données existantes
+        await Promise.all([
+            User.deleteMany({}),
+            Catway.deleteMany({}),
+            Reservation.deleteMany({})
+        ]);
 
-        // Initialiser les autres données (catways, etc.)
-        const { catwaysData, reservationsData } = await loadJsonData();
-        
-        // ... initialisation des autres données ...
+        console.log('✅ Base de données nettoyée');
 
-        await mongoose.disconnect();
-        console.log("✅ Base de données initialisée");
+        // Création d'un utilisateur admin par défaut
+        const adminUser = await User.create({
+            username: 'admin',
+            email: 'admin@example.com',
+            password: 'admin123',
+            role: 'admin'
+        });
+
+        // Création des catways
+        const catways = await Catway.insertMany([
+            // ... vos données de catways
+        ]);
+
+        // Création de quelques réservations de test
+        await Reservation.insertMany([
+            {
+                catwayNumber: catways[0].catwayNumber,
+                clientName: 'John Doe',
+                boatName: 'Sea Spirit',
+                startDate: new Date('2025-02-01'),
+                endDate: new Date('2025-02-15'),
+                status: 'confirmed',
+                user: adminUser._id
+            },
+            {
+                catwayNumber: catways[1].catwayNumber,
+                clientName: 'Jane Smith',
+                boatName: 'Wave Runner',
+                startDate: new Date('2025-03-01'),
+                endDate: new Date('2025-03-10'),
+                status: 'pending',
+                user: adminUser._id
+            }
+        ]);
+
+        console.log('✅ Données initiales créées');
     } catch (error) {
-        console.error("❌ Erreur lors de l'initialisation:", error);
+        console.error('❌ Erreur lors de l\'initialisation:', error);
         process.exit(1);
     }
 };
 
 module.exports = initDatabase;
-
-// Exécuter le script
-initDatabase(); 

@@ -1,4 +1,4 @@
-# API Port de Plaisance
+# API Port de Plaisance Russell
 
 Application web de gestion des réservations de catways pour le port de plaisance de Russell.
 
@@ -9,36 +9,12 @@ Cette API permet la gestion des catways (petits appontements pour amarrer un bat
 - Une API REST sécurisée
 - Une documentation interactive
 
-## Fonctionnalités
-
-### 1. Gestion des catways
-- Liste des catways
-- Création d'un catway
-- Modification de l'état
-- Suppression
-
-### 2. Gestion des réservations
-- Liste des réservations par catway
-- Création d'une réservation
-- Modification d'une réservation
-- Suppression d'une réservation
-
-### 3. Gestion des utilisateurs
-- Création de compte
-- Connexion/Déconnexion
-- Gestion des profils
-
-## Technologies utilisées
-
-- Backend : Node.js, Express, MongoDB
-- Frontend : Vue.js 3, Pinia
-- Documentation : Swagger/OpenAPI
-
 ## Installation
 
 1. Cloner le repository
 ```bash
 git clone https://github.com/Devco01/port-plaisance
+cd port-plaisance
 ```
 
 2. Installer les dépendances
@@ -52,24 +28,27 @@ cd client
 npm install
 ```
 
-3. Configurer les variables d'environnement
+3. Configurer MongoDB
 ```bash
-# Créer un fichier .env à la racine
-cp .env.example .env
+# Vérifier que MongoDB est installé et lancé
+# L'application utilise l'URI par défaut : mongodb://localhost:27017/port-plaisance
 ```
 
 4. Lancer l'application
 ```bash
-# Backend
+# Backend (depuis /server)
 npm run dev
+# L'API sera disponible sur http://localhost:5000
 
-# Frontend
+# Frontend (depuis /client)
 npm run dev
+# L'interface sera disponible sur http://localhost:5173
 ```
 
 ## Documentation API
 
-La documentation de l'API est accessible à l'adresse : `/api-docs`
+La documentation de l'API est accessible depuis la page d'accueil ou directement à l'adresse :
+`http://localhost:5000/api-docs`
 
 ## Identifiants de test
 
