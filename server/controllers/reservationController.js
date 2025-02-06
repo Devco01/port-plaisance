@@ -1,4 +1,4 @@
-const Reservation = require('../models/Reservation');
+const Reservation = require('../models/reservation');
 
 // Créer un objet pour stocker toutes nos fonctions
 const reservationController = {

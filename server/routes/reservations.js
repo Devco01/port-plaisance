@@ -11,6 +11,7 @@ const {
     getCatwayReservations,
     getReservation
 } = require('../controllers/reservationController');
+const Reservation = require('../models/reservation');  // Correction de la casse
 
 // Protéger toutes les routes
 router.use(auth);
