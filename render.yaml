@@ -16,23 +16,14 @@
         sync: false
     healthCheckPath: /api/health
 
-  - type: web
+  - type: static
     name: port-plaisance-client
-    env: node
+    env: static
     buildCommand: |
       cd client
       npm install
       npm run build
-    startCommand: cd client && npm run preview
-    envVars:
-      - key: PORT
-        value: 10000
-      - key: HOST
-        value: 0.0.0.0
-      - key: VITE_API_URL
-        value: https://port-plaisance-api.onrender.com
-      - key: NODE_ENV
-        value: production
+    staticPublishPath: ./client/dist
     headers:
       - path: /*
         name: Cache-Control
@@ -41,3 +32,6 @@
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://port-plaisance-api.onrender.com
