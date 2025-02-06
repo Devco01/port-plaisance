@@ -47,6 +47,11 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/catways', require('./routes/catways'));
 app.use('/api/reservations', require('./routes/reservations'));
 
+// Health check pour Railway
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Route 404 pour l'API
 app.use('/api/*', (req, res) => {
     res.status(404).json({
