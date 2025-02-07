@@ -46,4 +46,4 @@ PortAdmin2024!
 
 ## 🚀 Déploiement
 
-L'application est déployée sur [https://port-plaisance-hqiduf52s-devco01s-projects.vercel.app/]
+L'application est déployée sur Vercel. L'URL de déploiement est fournie dans le rendu du projet.
