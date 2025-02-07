@@ -15,7 +15,7 @@ export interface LoginResponse {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const data = await apiRequest('/auth/login', {
+    const data = await apiRequest('/api/auth/login', {
       method: 'POST',
       data: { email, password }
     });
@@ -54,12 +54,12 @@ export const logout = async () => {
 
 export const getCurrentUser = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || undefined;
     if (!token) {
       throw new Error('Non authentifié');
     }
 
-    const data = await apiRequest('/auth/me', {
+    const data = await apiRequest('/api/auth/me', {
       token
     });
     

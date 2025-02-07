@@ -56,8 +56,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import usersService from '@/services/users.service'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 const props = defineProps<{
   users: Array<{
@@ -72,6 +73,7 @@ const props = defineProps<{
 const emit = defineEmits(['refresh'])
 const isAdmin = ref(false)
 const currentUserEmail = ref('')
+const errorHandler = inject<ErrorHandler>('errorHandler')
 
 const deleteUser = async (email: string) => {
   if (email === currentUserEmail.value) return
@@ -81,8 +83,8 @@ const deleteUser = async (email: string) => {
   try {
     await usersService.delete(email)
     emit('refresh')
-  } catch (error) {
-    console.error('Erreur lors de la suppression:', error)
+  } catch (err: any) {
+    errorHandler?.showError(err)
   }
 }
 

@@ -1,14 +1,27 @@
 ﻿<template>
-  <div class="page-layout">
+  <div class="min-h-screen bg-gray-100">
     <Navbar />
     <main class="main-content">
       <slot></slot>
     </main>
+    <ErrorHandler ref="errorHandler" />
   </div>
 </template>
 
 <script setup lang="ts">
 import Navbar from './Navbar.vue'
+import ErrorHandler from '../ErrorHandler.vue'
+import { ref, onMounted, provide } from 'vue'
+
+const errorHandler = ref()
+
+provide('errorHandler', errorHandler)
+
+onMounted(() => {
+  window.addEventListener('unhandledrejection', (event) => {
+    errorHandler.value?.showError(event.reason)
+  })
+})
 </script>
 
 <style scoped>

@@ -5,11 +5,6 @@
       Chargement des réservations...
     </div>
 
-    <div v-else-if="error" class="error">
-      <i class="fas fa-exclamation-circle"></i>
-      {{ error }}
-    </div>
-
     <div v-else-if="reservations.length === 0" class="empty">
       <i class="fas fa-inbox"></i>
       Aucune réservation trouvée
@@ -45,7 +40,7 @@
                 <i class="fas fa-edit"></i>
                 Modifier
               </button>
-              <button @click="deleteReservation(reservation)" class="delete-btn">
+              <button @click="deleteReservation(reservation._id)" class="delete-btn">
                 <i class="fas fa-trash"></i>
                 Supprimer
               </button>
@@ -58,9 +53,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import catwaysService from '../../services/catways.service'
 import reservationsService from '../../services/reservations.service'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 interface Reservation {
   _id: string
@@ -69,31 +65,29 @@ interface Reservation {
   boatName: string
   startDate: string
   endDate: string
+  status: string
 }
 
 const props = defineProps<{
   reservations: Reservation[]
   loading: boolean
-  error: string
 }>()
 
 const emit = defineEmits(['refresh'])
+const errorHandler = inject<ErrorHandler>('errorHandler')
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('fr-FR')
 }
 
-const deleteReservation = async (reservation: Reservation) => {
+const deleteReservation = async (id: string) => {
   if (!confirm('Voulez-vous vraiment supprimer cette réservation ?')) return
   
   try {
-    await catwaysService.deleteReservation(
-      reservation.catwayNumber,
-      reservation._id
-    )
+    await reservationsService.delete(id)
     emit('refresh')
-  } catch (error) {
-    console.error('Erreur lors de la suppression:', error)
+  } catch (err: any) {
+    errorHandler?.showError(err)
   }
 }
 
@@ -163,7 +157,7 @@ th {
   background-color: #c0392b;
 }
 
-.loading, .error, .empty {
+.loading, .empty {
   text-align: center;
   padding: 2rem;
   display: flex;
@@ -187,8 +181,8 @@ th {
   100% { transform: rotate(360deg); }
 }
 
-.error {
-  color: #e74c3c;
+.empty {
+  color: #666;
 }
 
 .badge {

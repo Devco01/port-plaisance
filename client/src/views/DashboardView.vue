@@ -1,6 +1,11 @@
 <template>
   <PageLayout>
     <div class="dashboard">
+      <div v-if="loading" class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        Chargement...
+      </div>
+
       <!-- En-tête avec les informations utilisateur et la date -->
       <div class="dashboard-header">
         <div class="user-section">
@@ -19,16 +24,22 @@
       <!-- Section des réservations -->
       <div class="reservations-section">
         <h2>Réservations en cours</h2>
-        <CurrentReservations />
+        <CurrentReservations 
+          :reservations="reservations"
+          :catways="catways"
+        />
       </div>
     </div>
   </PageLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { PageLayout } from '@/components/Layout'
 import CurrentReservations from '@/components/Reservations/CurrentReservations.vue'
+import catwaysService from '@/services/catways.service'
+import reservationsService from '@/services/reservations.service'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 // État pour les données utilisateur
 const userData = ref({
@@ -36,8 +47,32 @@ const userData = ref({
   email: ''
 })
 
+const loading = ref(true)
+const catways = ref([])
+const reservations = ref([])
+
 // Formatage de la date
 const formattedDate = ref('')
+
+const errorHandler = inject<ErrorHandler>('errorHandler')
+
+const fetchData = async () => {
+  try {
+    loading.value = true
+    
+    const [catwaysResponse, reservationsResponse] = await Promise.all([
+      catwaysService.getAll(),
+      reservationsService.getCurrent()
+    ])
+    
+    catways.value = catwaysResponse.data
+    reservations.value = reservationsResponse.data
+  } catch (err: any) {
+    errorHandler?.showError(err)
+  } finally {
+    loading.value = false
+  }
+}
 
 onMounted(() => {
   // Récupération des données utilisateur du localStorage
@@ -54,6 +89,8 @@ onMounted(() => {
     month: 'long',
     year: 'numeric'
   })
+
+  fetchData()
 })
 </script>
 

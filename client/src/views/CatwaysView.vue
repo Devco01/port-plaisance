@@ -24,11 +24,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { PageLayout } from '@/components/Layout'
 import CatwayList from '@/components/Catways/CatwayList.vue'
 import AddCatwayModal from '@/components/Catways/AddCatwayModal.vue'
 import catwaysService from '@/services/catways.service'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 interface Catway {
   _id: string
@@ -40,19 +41,17 @@ interface Catway {
 
 const catways = ref<Catway[]>([])
 const loading = ref(true)
-const error = ref('')
+const errorHandler = inject<ErrorHandler>('errorHandler')
 const showAddModal = ref(false)
 const isAdmin = ref(false)
 
 const fetchCatways = async () => {
   try {
     loading.value = true
-    error.value = ''
     const response = await catwaysService.getAll()
     catways.value = response.data || []
-  } catch (err) {
-    console.error('Erreur lors du chargement des catways:', err)
-    error.value = 'Erreur lors du chargement des catways'
+  } catch (err: any) {
+    errorHandler?.showError(err)
     catways.value = []
   } finally {
     loading.value = false

@@ -60,3 +60,44 @@ Mot de passe : PortAdmin2024!
 ## Auteur
 
 Devco01
+
+## Architecture
+
+### Gestion des erreurs
+
+L'application utilise un système centralisé de gestion des erreurs via le composant `ErrorHandler.vue`.
+Les erreurs sont affichées dans une notification en haut à droite de l'écran.
+
+- En développement : affiche les détails complets de l'erreur
+- En production : affiche uniquement le message d'erreur
+
+### API
+
+Toutes les requêtes API sont préfixées par `/api` et gérées par :
+
+- En développement : proxy Vite vers `http://localhost:5000`
+- En production : rewrites Vercel vers l'API de production
+
+## Configuration
+
+### Développement
+- Créer un fichier `.env.local` avec :
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+### Production
+- L'API est proxifiée via Vercel
+- Les requêtes `/api/*` sont redirigées vers l'API de production
+- Pas besoin de configuration CORS côté client
+
+## Développement
+```
+npm install
+npm run dev
+```
+
+## Production
+```
+npm run build
+```
