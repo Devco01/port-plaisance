@@ -10,8 +10,6 @@ export async function apiRequest(endpoint: string, options: RequestOptions = {})
   
   const headers = new Headers({
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Access-Control-Allow-Origin': window.location.origin,
   });
 
   if (token) {
@@ -21,8 +19,6 @@ export async function apiRequest(endpoint: string, options: RequestOptions = {})
   const config: RequestInit = {
     ...fetchOptions,
     headers,
-    mode: 'cors',
-    credentials: 'omit',
   };
 
   if (data) {
@@ -30,13 +26,26 @@ export async function apiRequest(endpoint: string, options: RequestOptions = {})
   }
 
   try {
-    const response = await fetch(`${API_URL}${endpoint}`, config);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(options.method || 'GET', `${API_URL}${endpoint}`);
+      
+      Object.entries(headers).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value);
+      });
+      
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(JSON.parse(xhr.response));
+        } else {
+          reject(new Error(xhr.statusText));
+        }
+      };
+      
+      xhr.onerror = () => reject(new Error('Network Error'));
+      
+      xhr.send(config.body);
+    });
   } catch (error) {
     console.error('API request failed:', error);
     throw error;

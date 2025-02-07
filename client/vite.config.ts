@@ -13,18 +13,17 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    proxy: process.env.NODE_ENV === 'development' ? {
+    proxy: {
       '/api': {
-        target: 'https://port-plaisance-api-production-73a9.up.railway.app/api',
+        target: 'http://localhost:5000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
         configure: (proxy, _options) => {
           proxy.on('proxyReq', (proxyReq, req, _res) => {
-            proxyReq.setHeader('Origin', 'https://port-plaisance-lbczcqhln-devco01s-projects.vercel.app');
+            proxyReq.path = proxyReq.path.replace(/^\/api/, '');
           });
         }
       }
-    } : undefined
+    }
   },
   preview: {
     port: 3000
