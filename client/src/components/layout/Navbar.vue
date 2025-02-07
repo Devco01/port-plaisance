@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { logout } from "../../services/auth.service"
+import { logout } from "@/services/auth.service"
 
 const router = useRouter()
 const isAdmin = ref(false)
