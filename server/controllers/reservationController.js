@@ -7,37 +7,39 @@ const reservationController = {
     try {
       console.log('Début getAllReservations');
       
-      // Récupérer toutes les réservations avec les informations des catways
-      const reservations = await Reservation.find().populate({
-        path: 'catway',
-        select: 'catwayNumber catwayType catwayState'
-      });
+      // Vérifier d'abord que nous avons des réservations dans MongoDB
+      const count = await Reservation.countDocuments();
+      console.log(`Nombre total de réservations dans MongoDB: ${count}`);
       
-      console.log('Nombre de réservations trouvées:', reservations.length);
-      console.log('Première réservation (si existe):', 
-        reservations.length > 0 ? JSON.stringify(reservations[0], null, 2) : 'Aucune');
+      // Récupérer toutes les réservations avec les informations des catways
+      const reservations = await Reservation.find()
+        .populate({
+          path: 'catway',
+          model: 'Catway',
+          select: 'catwayNumber catwayType catwayState'
+        })
+        .lean()  // Pour de meilleures performances
+        .exec();
+      
+      console.log('Réservations trouvées:', JSON.stringify(reservations, null, 2));
       
       // Formater les réservations
       const formattedReservations = reservations.map(res => {
-        const resObj = res.toObject();
-        console.log('Réservation brute:', resObj);
-        
         return {
-          _id: resObj._id,
-          clientName: resObj.clientName,
-          boatName: resObj.boatName,
-          startDate: resObj.startDate,
-          endDate: resObj.endDate,
-          status: resObj.status,
+          _id: res._id,
+          clientName: res.clientName,
+          boatName: res.boatName,
+          startDate: res.startDate,
+          endDate: res.endDate,
+          status: res.status,
           catway: {
-            number: resObj.catway?.catwayNumber?.toString() || 'N/A'
+            number: res.catway?.catwayNumber?.toString() || res.catwayNumber?.toString() || 'N/A'
           }
         };
       });
       
-      console.log('Nombre de réservations formatées:', formattedReservations.length);
-      console.log('Première réservation formatée (si existe):', 
-        formattedReservations.length > 0 ? JSON.stringify(formattedReservations[0], null, 2) : 'Aucune');
+      console.log('Réservations formatées pour le client:', 
+        JSON.stringify(formattedReservations, null, 2));
       
       res.json({
         success: true,
@@ -45,7 +47,6 @@ const reservationController = {
       });
     } catch (error) {
       console.error('Erreur dans getAllReservations:', error);
-      console.error('Stack trace:', error.stack);
       res.status(500).json({
         success: false,
         message: error.message
