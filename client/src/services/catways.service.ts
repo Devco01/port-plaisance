@@ -16,18 +16,30 @@ export interface Reservation {
 }
 
 const catwaysService = {
-  getAll: () => {
-    const token = localStorage.getItem('token') || undefined;
-    console.log('Appel getAll avec token:', token);
-    return apiRequest('/api/catways', { token })
-      .then(response => {
-        console.log('Réponse API catways:', response);
-        return response;
-      })
-      .catch(error => {
-        console.error('Erreur API catways:', error);
-        throw error;
+  getAll: async () => {
+    try {
+      const response = await apiRequest('/api/catways');
+      console.log('=== DEBUG SERVICE CATWAYS ===');
+      console.log('Réponse API:', response);
+      
+      if (!response.success || !Array.isArray(response.data)) {
+        throw new Error('Format de réponse invalide');
+      }
+
+      // Vérifier la structure des données
+      const validCatways = response.data.map((catway: Catway) => {
+        if (!catway.catwayNumber || !catway.catwayType || !catway.catwayState) {
+          console.error('Catway invalide:', catway);
+        }
+        return catway;
       });
+
+      console.log('Catways validés:', validCatways);
+      return response;
+    } catch (error) {
+      console.error('Erreur getAll catways:', error);
+      throw error;
+    }
   },
 
   getCatway: (id: string) => {
@@ -102,9 +114,19 @@ const catwaysService = {
     })
   },
 
-  getAllReservations: () => {
-    const token = localStorage.getItem('token') || undefined
-    return apiRequest('/api/catways/reservations/all', { token })
+  getAllReservations: async () => {
+    console.log('=== DEBUG getAllReservations ===');
+    const token = localStorage.getItem('token') || undefined;
+    console.log('Token:', token ? 'Présent' : 'Absent');
+    
+    try {
+      const response = await apiRequest('/api/catways/reservations/all', { token });
+      console.log('Réponse getAllReservations:', response);
+      return response;
+    } catch (error) {
+      console.error('Erreur getAllReservations:', error);
+      throw error;
+    }
   }
 }
 

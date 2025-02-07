@@ -50,9 +50,11 @@ const fetchCatways = async () => {
   error.value = '';
   try {
     const response = await catwaysService.getAll();
-    console.log('Réponse du serveur:', response);
+    console.log('=== DEBUG COMPOSANT CATWAYS ===');
+    console.log('Réponse service:', response);
+
     if (response.success) {
-      console.log('Données reçues:', response.data);
+      console.log('Catways chargés:', response.data);
       catways.value = response.data;
     } else {
       error.value = 'Erreur lors du chargement des catways';

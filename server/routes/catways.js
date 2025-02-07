@@ -126,7 +126,10 @@ router.put('/:id', admin, updateCatway);
 router.delete('/:id', admin, deleteCatway);
 
 // Routes Réservations (sous-ressource de catways)
+// Route pour toutes les réservations (doit être avant /:id/reservations)
 router.get('/reservations/all', auth, reservationController.getAllReservations);
+
+// Routes par catway
 router.get('/:id/reservations', auth, reservationController.getReservationsByCatway);
 router.get('/:id/reservations/:idReservation', auth, reservationController.getReservationById);
 router.post('/:id/reservations', auth, reservationController.createReservation);
