@@ -7,7 +7,9 @@ const usersService = {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -18,7 +20,9 @@ const usersService = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -32,7 +36,9 @@ const usersService = {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(user)
+      body: JSON.stringify(user),
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -45,7 +51,9 @@ const usersService = {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -57,7 +65,9 @@ const usersService = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   }

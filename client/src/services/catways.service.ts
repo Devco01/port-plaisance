@@ -22,7 +22,9 @@ const catwaysService = {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -33,7 +35,9 @@ const catwaysService = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -47,7 +51,9 @@ const catwaysService = {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(catway)
+      body: JSON.stringify(catway),
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -60,7 +66,9 @@ const catwaysService = {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -72,7 +80,9 @@ const catwaysService = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -85,7 +95,9 @@ const catwaysService = {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   },
@@ -99,7 +111,9 @@ const catwaysService = {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(reservation)
+      body: JSON.stringify(reservation),
+      mode: 'cors',
+      credentials: 'include'
     })
     return response.json()
   }
