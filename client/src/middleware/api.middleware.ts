@@ -45,7 +45,7 @@ export const apiRequest = async (endpoint: string, options: RequestOptions = {})
     },
     method: options.method || 'GET',
     body,
-    credentials: 'same-origin'
+    mode: 'cors'
   };
 
   console.log('Final request options:', defaultOptions);  // Debug
