@@ -11,7 +11,7 @@ export interface Catway {
 export interface Reservation {
   _id: string
   catway: {
-    number: string | 'N/A'
+    catwayNumber: string | number
   }
   clientName: string
   boatName: string
