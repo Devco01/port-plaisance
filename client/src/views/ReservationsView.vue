@@ -76,7 +76,13 @@ const formatReservationData = (reservations: Array<any>): Reservation[] => {
   }
   
   return reservations.map(res => {
-    console.log('Données brutes de réservation:', res); // Debug
+    console.log('Formatage réservation:', {
+      id: res._id,
+      catway: res.catway,
+      catwayNumber: res.catway?.catwayNumber,
+      rawData: res
+    });
+    
     if (!res) {
       console.error('Réservation invalide:', res);
       return null;
@@ -85,7 +91,7 @@ const formatReservationData = (reservations: Array<any>): Reservation[] => {
     return {
       _id: res._id,
       catway: {
-        number: res.catway?.catwayNumber?.toString() || 'N/A'
+        number: res.catway?.number?.toString() || res.catway?.catwayNumber?.toString() || 'N/A'
       },
       clientName: res.clientName || 'Non spécifié',
       boatName: res.boatName || 'Non spécifié',
@@ -128,6 +134,7 @@ const fetchReservations = async () => {
   try {
     if (filters.value.catwayNumber) {
       const response = await catwaysService.getReservations(filters.value.catwayNumber)
+      console.log('Response pour un catway spécifique:', response);
       const allReservations = response.data || []
       const filteredReservations = filters.value.date 
         ? allReservations.filter(res => {
@@ -140,6 +147,7 @@ const fetchReservations = async () => {
       reservations.value = formatReservationData(filteredReservations)
     } else {
       const response = await catwaysService.getAllReservations()
+      console.log('Response pour toutes les réservations:', response);
       const allReservations = response.data || []
       
       const filteredReservations = filters.value.date
@@ -150,7 +158,9 @@ const fetchReservations = async () => {
             return startDate <= filterDate && endDate >= filterDate
           })
         : allReservations
+      console.log('Réservations avant formatage:', filteredReservations);
       reservations.value = formatReservationData(filteredReservations)
+      console.log('Réservations après formatage:', reservations.value);
     }
   } catch (err: any) {
     error.value = err.message || 'Erreur lors du chargement des réservations'

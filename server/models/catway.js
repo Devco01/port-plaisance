@@ -2,35 +2,17 @@ const mongoose = require('mongoose');
 
 const catwaySchema = new mongoose.Schema({
     catwayNumber: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    number: {
         type: Number,
         required: true
     },
-    type: {
+    catwayType: {
         type: String,
-        enum: ['long', 'short'],
+        enum: ['short', 'long'],
         required: true
     },
-    state: {
+    catwayState: {
         type: String,
         required: true
-    },
-    length: {
-        type: Number,
-        required: true
-    },
-    width: {
-        type: Number,
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['available', 'occupied', 'maintenance'],
-        default: 'available'
     }
 }, { timestamps: true });
 

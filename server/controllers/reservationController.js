@@ -10,7 +10,7 @@ const reservationController = {
       // Récupérer toutes les réservations avec les informations des catways
       const reservations = await Reservation.find().populate({
         path: 'catway',
-        select: 'catwayNumber number'
+        select: 'catwayNumber catwayType catwayState'
       });
       
       console.log('Nombre de réservations trouvées:', reservations.length);
@@ -20,12 +20,7 @@ const reservationController = {
       // Formater les réservations
       const formattedReservations = reservations.map(res => {
         const resObj = res.toObject();
-        const catwayNumber = resObj.catway?.catwayNumber || resObj.catwayNumber;
-        console.log('Formatage réservation:', {
-          id: resObj._id,
-          catwayOriginal: resObj.catway,
-          catwayNumber: catwayNumber
-        });
+        console.log('Réservation brute:', resObj);
         
         return {
           _id: resObj._id,
@@ -35,7 +30,7 @@ const reservationController = {
           endDate: resObj.endDate,
           status: resObj.status,
           catway: {
-            number: catwayNumber ? catwayNumber.toString() : 'N/A'
+            number: resObj.catway?.catwayNumber?.toString() || 'N/A'
           }
         };
       });
