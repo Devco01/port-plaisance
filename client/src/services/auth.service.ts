@@ -1,5 +1,3 @@
-import api from './api.service'
-
 export interface LoginResponse {
   success: boolean
   data: {
@@ -15,28 +13,29 @@ export interface LoginResponse {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const response = await api.post('/auth/login', 
-      { email, password },
-      { 
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
     
-    if (response.data.success) {
+    if (data.success) {
       // Nettoyage préventif
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
       // Stockage des nouvelles données
-      localStorage.setItem('token', response.data.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('user', JSON.stringify(data.data.user));
       
-      return response.data;
+      return data;
     } else {
-      throw new Error(response.data.error || 'Erreur de connexion');
+      throw new Error(data.error || 'Erreur de connexion');
     }
   } catch (error: any) {
     console.error('Erreur de connexion:', error);
@@ -64,9 +63,17 @@ export const getCurrentUser = async () => {
       throw new Error('Non authentifié');
     }
 
-    const response = await api.get('/auth/me');
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
 
-    return response.data;
+    const data = await response.json();
+    
+    return data;
   } catch (error) {
     console.error('Erreur lors de la récupération de l\'utilisateur:', error);
     throw error;

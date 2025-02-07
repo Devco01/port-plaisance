@@ -1,5 +1,3 @@
-import api from './api.service'
-
 export interface Reservation {
   _id: string
   catwayNumber: string
@@ -10,41 +8,82 @@ export interface Reservation {
   status: string
 }
 
-interface ApiResponse<T> {
-  success: boolean
-  data: T
-  message?: string
-}
-
 const reservationsService = {
   async getAll() {
-    const response = await api.get<ApiResponse<Reservation[]>>('/reservations')
-    return response
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   },
 
   async getReservations(catwayNumber: string) {
-    const response = await api.get<ApiResponse<Reservation[]>>(`/catways/${catwayNumber}/reservations`)
-    return response
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/catways/${catwayNumber}/reservations`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   },
   
   async getCurrent() {
-    const response = await api.get<ApiResponse<Reservation[]>>('/reservations/current')
-    return response
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations/current`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   },
   
-  async create(data: Partial<Reservation>) {
-    const response = await api.post<ApiResponse<Reservation>>('/reservations', data)
-    return response
+  async create(reservation: Omit<Reservation, '_id'>) {
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(reservation)
+    })
+    return response.json()
   },
   
   async update(id: string, data: Partial<Reservation>) {
-    const response = await api.put<ApiResponse<Reservation>>(`/reservations/${id}`, data)
-    return response
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    return response.json()
   },
   
   async delete(id: string) {
-    const response = await api.delete<ApiResponse<void>>(`/reservations/${id}`)
-    return response
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   }
 }
 
