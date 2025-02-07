@@ -59,7 +59,7 @@ const routes: RouteRecordRaw[] = [
     component: {
       template: '<div></div>',
       beforeRouteEnter(_to, _from, next) {
-        window.location.href = 'http://localhost:5000/api-docs'
+        window.location.href = 'https://port-plaisance-api-production-73a9.up.railway.app/api-docs'
         next()
       }
     }

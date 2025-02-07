@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import PageLayout from '@/components/Layout/PageLayout.vue'
+import { PageLayout } from '@/components/Layout'
 import CatwayList from '@/components/Catways/CatwayList.vue'
 import AddCatwayModal from '@/components/Catways/AddCatwayModal.vue'
 import catwaysService from '@/services/catways.service'

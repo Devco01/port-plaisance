@@ -75,25 +75,23 @@ const getStatusLabel = (status: string) => {
   return labels[status] || status
 }
 
-const loadData = async () => {
+const loadReservations = async () => {
   try {
     loading.value = true
     error.value = ''
-    console.log('Chargement des réservations...')
     const response = await reservationsService.getCurrent()
-    console.log('Réponse API:', response)
     reservations.value = response.data || []
-    console.log('Réservations chargées:', reservations.value)
   } catch (err) {
-    console.error('Erreur lors du chargement des données:', err)
+    console.error('Erreur lors du chargement des réservations:', err)
     error.value = 'Erreur lors du chargement des données'
-    reservations.value = []
   } finally {
     loading.value = false
   }
 }
 
-onMounted(loadData)
+onMounted(() => {
+  loadReservations()
+})
 </script>
 
 <style scoped>

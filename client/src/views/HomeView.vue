@@ -20,7 +20,12 @@
               <i class="fas fa-tachometer-alt"></i>
               Tableau de bord
             </router-link>
-            <a href="/api-docs" target="_blank" class="cta-button docs">
+            <a 
+              href="https://port-plaisance-api-production-73a9.up.railway.app/api-docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="cta-button docs"
+            >
               <i class="fas fa-book"></i>
               Documentation API
             </a>

@@ -1,25 +1,17 @@
 <template>
   <nav class="navbar">
     <div class="nav-content">
-      <router-link to="/dashboard" class="nav-brand">
+      <router-link to="/" class="nav-brand">
         Port de Russell
       </router-link>
 
       <div class="nav-links">
-        <router-link to="/dashboard" class="nav-link">
-          Tableau de bord
-        </router-link>
-        <router-link to="/catways" class="nav-link">
-          Catways
-        </router-link>
-        <router-link to="/reservations" class="nav-link">
-          Réservations
-        </router-link>
-        <router-link v-if="isAdmin" to="/users" class="nav-link">
-          Utilisateurs
-        </router-link>
+        <router-link to="/" class="nav-link">Accueil</router-link>
+        <router-link to="/reservations" class="nav-link">Réservations</router-link>
+        <router-link to="/catways" class="nav-link">Catways</router-link>
+        <router-link to="/users" class="nav-link">Utilisateurs</router-link>
         <a 
-          href="http://localhost:5000/api-docs" 
+          href="https://port-plaisance-api-production-73a9.up.railway.app/api-docs" 
           target="_blank" 
           rel="noopener noreferrer"
           class="nav-link"
@@ -37,7 +29,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { logout } from "../../services/auth.service"
+import { logout } from "@/services/auth.service"
 
 const router = useRouter()
 const isAdmin = ref(false)

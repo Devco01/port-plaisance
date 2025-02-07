@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import PageLayout from '@/components/Layout/PageLayout.vue'
+import { PageLayout } from '@/components/Layout'
 import ReservationList from '@/components/Reservations/ReservationList.vue'
 import ReservationForm from '@/components/Reservations/ReservationForm.vue'
 import catwaysService from '@/services/catways.service'

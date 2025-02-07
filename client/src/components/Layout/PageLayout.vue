@@ -1,10 +1,7 @@
 ﻿<template>
   <div class="page-layout">
     <Navbar />
-    <header>
-      <slot name="header"></slot>
-    </header>
-    <main>
+    <main class="main-content">
       <slot></slot>
     </main>
   </div>
@@ -21,8 +18,9 @@ import Navbar from './Navbar.vue'
   flex-direction: column;
 }
 
-main {
+.main-content {
   flex: 1;
-  padding: 1rem;
+  padding: 2rem;
+  background-color: #f5f5f5;
 }
 </style>
