@@ -11,9 +11,10 @@ exports.getAllCatways = async (req, res) => {
             throw new Error('MongoDB non connecté');
         }
 
-        const catways = await Catway.find().sort({ catwayNumber: 1 });  // Tri par numéro
-        console.log('=== DEBUG CATWAYS ===');
+        console.log('=== DEBUG GET ALL CATWAYS ===');
+        const catways = await Catway.find().sort({ catwayNumber: 1 });
         console.log('Nombre de catways trouvés:', catways.length);
+        console.log('Premier catway:', catways[0]);
 
         // Vérifier les doublons potentiels
         const catwayNumbers = catways.map(c => c.catwayNumber);
@@ -30,19 +31,11 @@ exports.getAllCatways = async (req, res) => {
             }
         }
 
-        // Formater les catways avec les bonnes propriétés
-        const formattedCatways = catways.map(catway => ({
-            _id: catway._id,
-            catwayNumber: catway.catwayNumber,
-            catwayType: catway.catwayType,
-            catwayState: catway.catwayState
-        }));
-
-        console.log('Données formatées:', formattedCatways);
+        console.log('Données à envoyer:', catways);
 
         res.json({ 
             success: true, 
-            data: formattedCatways 
+            data: catways
         });
     } catch (error) {
         console.error('Erreur getAllCatways:', error);
