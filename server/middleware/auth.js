@@ -62,6 +62,8 @@ const admin = (req, res, next) => {
 
 // Middleware de debug
 const debugMiddleware = (req, res, next) => {
+    // Bypass Vercel auth
+    res.setHeader('x-vercel-skip-auth', '1');
     console.log('Debug request:', {
         method: req.method,
         path: req.path,

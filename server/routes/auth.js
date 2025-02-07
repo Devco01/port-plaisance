@@ -144,7 +144,7 @@ router.get('/check-users', async (req, res) => {
 });
 
 // Route de test pour la connexion MongoDB
-router.get('/test-db', async (req, res) => {
+router.get('/test-db', debugMiddleware, async (req, res) => {
   try {
     // Vérifier la connexion MongoDB
     if (mongoose.connection.readyState !== 1) {
@@ -214,7 +214,7 @@ router.post('/debug-auth', debugMiddleware, async (req, res) => {
 });
 
 // Route de test simple
-router.get('/test-simple', (req, res) => {
+router.get('/test-simple', debugMiddleware, (req, res) => {
   res.json({
     message: 'Test route works',
     timestamp: new Date().toISOString()
