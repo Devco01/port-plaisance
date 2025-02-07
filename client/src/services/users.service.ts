@@ -1,42 +1,65 @@
-import api from './api.service'
-
-export interface User {
-  username: string
-  email: string
-  role: string
-}
-
-interface ApiResponse<T> {
-  success: boolean
-  data: T
-  message?: string
-}
-
 const usersService = {
   // Routes utilisateurs avec email comme identifiant
   async getAll() {
-    const response = await api.get<ApiResponse<User[]>>('/users')
-    return response
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   },
 
   async getOne(email: string) {
-    const response = await api.get(`/users/${email}`)
-    return response
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${email}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   },
 
   async create(user: { username: string; email: string; password: string; role: string }) {
-    const response = await api.post('/users', user)
-    return response
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(user)
+    })
+    return response.json()
   },
 
   async update(email: string, data: Partial<User & { password?: string }>) {
-    const response = await api.put(`/users/${email}`, data)
-    return response
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${email}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    return response.json()
   },
 
   async delete(email: string) {
-    const response = await api.delete(`/users/${email}`)
-    return response
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${email}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   }
 }
 

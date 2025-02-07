@@ -1,5 +1,3 @@
-import api from './api.service'
-
 export interface Catway {
   _id: string
   number: number
@@ -18,41 +16,92 @@ export interface Reservation {
 
 const catwaysService = {
   async getAll() {
-    try {
-      console.log('Appel getAll catways')
-      const response = await api.get('/catways')
-      console.log('Réponse catways:', response)
-      return response.data
-    } catch (error) {
-      console.error('Erreur getAll catways:', error)
-      throw error
-    }
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/catways`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   },
 
-  async create(catway: Omit<Catway, '_id'>) {
-    const response = await api.post('/catways', catway)
-    return response.data
+  async getOne(id: string) {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/catways/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   },
 
-  async update(id: string, state: string) {
-    const response = await api.put(`/catways/${id}`, { status: state })
-    return response.data
+  async create(catway: { number: number; length: number; width: number }) {
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/catways`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(catway)
+    })
+    return response.json()
+  },
+
+  async update(id: string, data: { number?: number; length?: number; width?: number }) {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/catways/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    return response.json()
   },
 
   async delete(id: string) {
-    const response = await api.delete(`/catways/${id}`)
-    return response.data
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/catways/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   },
 
   // Réservations
   async getReservations(catwayId: string) {
-    const response = await api.get(`/catways/${catwayId}/reservations`)
-    return response.data
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/catways/${catwayId}/reservations`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    return response.json()
   },
 
   async createReservation(catwayId: string, reservation: Omit<Reservation, '_id'>) {
-    const response = await api.post(`/catways/${catwayId}/reservations`, reservation)
-    return response.data
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/catways/${catwayId}/reservations`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(reservation)
+    })
+    return response.json()
   }
 }
 
