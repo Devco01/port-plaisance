@@ -74,39 +74,49 @@ import type { Reservation } from '@/services/catways.service'
 
 // Fonction pour formater les données des réservations
 const formatReservationData = (reservations: Array<any>): Reservation[] => {
-  console.log('=== Début formatReservationData ===');
+  console.log('=== DÉBUT FORMATAGE RÉSERVATIONS ===');
+  console.log('Nombre de réservations à formater:', reservations.length);
+  console.log('Première réservation brute:', reservations[0]);
+
   if (!Array.isArray(reservations)) {
     console.error('Les réservations ne sont pas un tableau:', reservations);
     return [];
   }
-  console.log('Données reçues:', reservations);
-  
-  return reservations.map(res => {
-    console.log('=== Traitement d\'une réservation ===');
-    console.log('Réservation brute:', res);
-    console.log('Type de res.catway:', typeof res.catway);
-    console.log('Contenu de res.catway:', res.catway);
-    
+
+  const formatted = reservations.map(res => {
+    console.log('=== Traitement réservation ===');
+    console.log('ID:', res._id);
+    console.log('CatwayNumber:', res.catwayNumber);
+    console.log('Catway complet:', res.catway);
+
     if (!res) {
       console.error('Réservation invalide:', res);
       return null;
     }
-    
+
     try {
-      return {
+      const formattedRes = {
         _id: res._id,
         catwayNumber: res.catwayNumber || res.catway?.catwayNumber || 'N/A',
         clientName: res.clientName || 'Non spécifié',
         boatName: res.boatName || 'Non spécifié',
         startDate: res.startDate,
         endDate: res.endDate
-      }
+      };
+      console.log('Réservation formatée:', formattedRes);
+      return formattedRes;
     } catch (error) {
       console.error('Erreur lors du formatage:', error);
       console.error('Données problématiques:', res);
       return null;
     }
-  }).filter(Boolean)
+  }).filter(Boolean);
+
+  console.log('=== FIN FORMATAGE RÉSERVATIONS ===');
+  console.log('Nombre de réservations formatées:', formatted.length);
+  console.log('Première réservation formatée:', formatted[0]);
+  
+  return formatted;
 }
 
 const reservations = ref<Reservation[]>([])
@@ -125,14 +135,25 @@ const filters = ref({
 const fetchCatways = async () => {
   try {
     const response = await catwaysService.getAll()
-    console.log('Catways response:', response)
+    console.log('=== CATWAYS LOGS ===');
+    console.log('Réponse brute du serveur:', response)
+    console.log('Données des catways:', response.data)
+    console.log('Premier catway:', response.data[0])
+    console.log('==================');
+
     catways.value = Array.isArray(response.data) 
-      ? response.data.map(catway => ({
-          catwayNumber: catway.catwayNumber,
-          catwayType: catway.catwayType,
-          catwayState: catway.catwayState
-        }))
+      ? response.data.map(catway => {
+        console.log('Traitement du catway:', catway)
+        return {
+          ...catway,
+          number: catway.catwayNumber.toString()
+        }
+      })
       : []
+    console.log('=== RÉSULTAT FINAL CATWAYS ===');
+    console.log('Nombre de catways:', catways.value.length)
+    console.log('Structure d\'un catway:', catways.value[0])
+    console.log('============================');
   } catch (error) {
     console.error('Erreur lors du chargement des catways:', error)
   }

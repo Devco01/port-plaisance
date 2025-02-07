@@ -14,10 +14,9 @@ exports.getAllCatways = async (req, res) => {
         const formattedCatways = catways.map(catway => ({
             _id: catway._id,
             number: catway.catwayNumber,
-            type: catway.catwayType,
-            state: catway.catwayState,
-            length: catway.catwayType === 'long' ? 12 : 8,
-            width: catway.catwayType === 'long' ? 4 : 3
+            catwayNumber: catway.catwayNumber,
+            catwayType: catway.catwayType,
+            catwayState: catway.catwayState
         }));
 
         console.log('Catways formatés:', formattedCatways);
