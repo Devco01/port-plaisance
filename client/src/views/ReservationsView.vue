@@ -70,17 +70,31 @@ import type { Reservation } from '@/services/catways.service'
 
 // Fonction pour formater les données des réservations
 const formatReservationData = (reservations: Array<any>): Reservation[] => {
-  return reservations.map(res => ({
-    _id: res._id,
-    catway: {
-      number: res.catway?.number || res.catwayNumber?.toString() || 'N/A'
-    },
-    clientName: res.clientName || 'Non spécifié',
-    boatName: res.boatName || 'Non spécifié',
-    startDate: res.startDate,
-    endDate: res.endDate,
-    status: res.status
-  }))
+  if (!Array.isArray(reservations)) {
+    console.error('Les réservations ne sont pas un tableau:', reservations);
+    return [];
+  }
+  
+  return reservations.map(res => {
+    if (!res) {
+      console.error('Réservation invalide:', res);
+      return null;
+    }
+    
+    return {
+      _id: res._id,
+      catway: {
+        number: typeof res.catway?.number === 'number' ? 
+          res.catway.number.toString() : 
+          (res.catway?.number || 'N/A')
+      },
+      clientName: res.clientName || 'Non spécifié',
+      boatName: res.boatName || 'Non spécifié',
+      startDate: res.startDate,
+      endDate: res.endDate,
+      status: res.status
+    }
+  }).filter(Boolean)
 }
 
 const reservations = ref<Reservation[]>([])
