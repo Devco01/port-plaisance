@@ -46,10 +46,15 @@ const login = async (req, res) => {
         const { email, password } = req.body;
         console.log('Login attempt with:', { email, passwordLength: password?.length });
         
+        // Log de la requête complète
+        console.log('Request headers:', req.headers);
+        console.log('Request body:', req.body);
+        
         const user = await User.findOne({ email });
         console.log('User found:', user ? 'yes' : 'no');
         
         if (!user) {
+            console.log('User not found in database');
             return res.status(401).json({
                 success: false,
                 message: 'Email ou mot de passe incorrect'
