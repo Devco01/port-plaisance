@@ -1,80 +1,47 @@
+import { apiRequest } from '@/middleware/api.middleware';
+
+export interface User {
+  username: string;
+  email: string;
+  role: string;
+}
+
 const usersService = {
   // Routes utilisateurs avec email comme identifiant
   async getAll() {
     const token = localStorage.getItem('token')
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'cors',
-      credentials: 'same-origin'
-    })
-    return response.json()
+    return apiRequest('/users', { token })
   },
 
   async getOne(email: string) {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${email}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'cors',
-      credentials: 'same-origin'
-    })
-    return response.json()
+    const token = localStorage.getItem('token')
+    return apiRequest(`/users/${email}`, { token })
   },
 
   async create(user: { username: string; email: string; password: string; role: string }) {
     const token = localStorage.getItem('token')
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+    return apiRequest('/users', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      body: JSON.stringify(user),
-      mode: 'cors',
-      credentials: 'same-origin'
+      token,
+      data: user
     })
-    return response.json()
   },
 
   async update(email: string, data: Partial<User & { password?: string }>) {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${email}`, {
+    const token = localStorage.getItem('token')
+    return apiRequest(`/users/${email}`, {
       method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      body: JSON.stringify(data),
-      mode: 'cors',
-      credentials: 'same-origin'
+      token,
+      data
     })
-    return response.json()
   },
 
   async delete(email: string) {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${email}`, {
+    const token = localStorage.getItem('token')
+    return apiRequest(`/users/${email}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'cors',
-      credentials: 'same-origin'
+      token
     })
-    return response.json()
   }
 }
 
