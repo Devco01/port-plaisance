@@ -1,3 +1,5 @@
+import { apiRequest } from '@/middleware/api.middleware';
+
 export interface Reservation {
   _id: string
   catwayNumber: string
@@ -11,97 +13,43 @@ export interface Reservation {
 const reservationsService = {
   async getAll() {
     const token = localStorage.getItem('token')
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'cors',
-      credentials: 'same-origin'
-    })
-    return response.json()
+    return apiRequest('/reservations', { token })
   },
 
   async getReservations(catwayNumber: string) {
     const token = localStorage.getItem('token')
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/catways/${catwayNumber}/reservations`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'cors',
-      credentials: 'same-origin'
-    })
-    return response.json()
+    return apiRequest(`/catways/${catwayNumber}/reservations`, { token })
   },
   
   async getCurrent() {
     const token = localStorage.getItem('token')
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations/current`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'cors',
-      credentials: 'same-origin'
-    })
-    return response.json()
+    return apiRequest('/reservations/current', { token })
   },
   
   async create(reservation: Omit<Reservation, '_id'>) {
     const token = localStorage.getItem('token')
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations`, {
+    return apiRequest('/reservations', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      body: JSON.stringify(reservation),
-      mode: 'cors',
-      credentials: 'same-origin'
+      token,
+      data: reservation
     })
-    return response.json()
   },
   
   async update(id: string, data: Partial<Reservation>) {
     const token = localStorage.getItem('token')
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations/${id}`, {
+    return apiRequest(`/reservations/${id}`, {
       method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      body: JSON.stringify(data),
-      mode: 'cors',
-      credentials: 'same-origin'
+      token,
+      data
     })
-    return response.json()
   },
   
   async delete(id: string) {
     const token = localStorage.getItem('token')
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations/${id}`, {
+    return apiRequest(`/reservations/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'cors',
-      credentials: 'same-origin'
+      token
     })
-    return response.json()
   }
 }
 

@@ -1,3 +1,5 @@
+import { apiRequest } from '@/middleware/api.middleware';
+
 export interface LoginResponse {
   success: boolean
   data: {
@@ -13,20 +15,11 @@ export interface LoginResponse {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+    const data = await apiRequest('/auth/login', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      body: JSON.stringify({ email, password }),
-      mode: 'cors',
-      credentials: 'same-origin'
+      data: { email, password }
     });
 
-    const data = await response.json();
-    
     if (data.success) {
       // Nettoyage préventif
       localStorage.removeItem('token');
@@ -66,18 +59,9 @@ export const getCurrentUser = async () => {
       throw new Error('Non authentifié');
     }
 
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'cors',
-      credentials: 'same-origin'
+    const data = await apiRequest('/auth/me', {
+      token
     });
-
-    const data = await response.json();
     
     return data;
   } catch (error) {
