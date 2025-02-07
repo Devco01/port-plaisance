@@ -25,7 +25,7 @@
         <tbody>
           <tr v-for="reservation in props.reservations" :key="reservation._id">
             <td>
-              <span class="badge catway">{{ reservation.catwayNumber }}</span>
+              <span class="badge catway">{{ reservation.catway?.number || 'N/A' }}</span>
             </td>
             <td>{{ reservation.clientName }}</td>
             <td>{{ reservation.boatName }}</td>
@@ -59,7 +59,9 @@ import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 interface Reservation {
   _id: string
-  catwayNumber: string
+  catway: {
+    number: string
+  }
   clientName: string
   boatName: string
   startDate: string
@@ -87,7 +89,7 @@ const deleteReservation = async (id: string) => {
     const reservation = props.reservations.find(r => r._id === id)
     if (!reservation) return
     
-    await catwaysService.deleteReservation(reservation.catwayNumber, id)
+    await catwaysService.deleteReservation(reservation.catway.number, id)
     emit('refresh')
   } catch (err: any) {
     errorHandler?.showError(err)

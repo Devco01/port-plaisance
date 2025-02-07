@@ -31,8 +31,8 @@
               @change="applyFilters"
             >
               <option value="">Tous les catways</option>
-              <option v-for="catway in catways" :key="catway.catwayNumber" :value="catway.catwayNumber">
-                {{ catway.catwayNumber }}
+              <option v-for="catway in catways" :key="catway.number" :value="catway.number?.toString()">
+                {{ catway.number }}
               </option>
             </select>
           </div>
@@ -71,7 +71,9 @@ import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 const formatReservationData = (reservations: any[]) => {
   return reservations.map(res => ({
     _id: res._id,
-    catwayNumber: res.catway?.number?.toString() || 'N/A',
+    catway: {
+      number: res.catway?.number?.toString() || 'N/A'
+    },
     clientName: res.clientName || 'Non spécifié',
     boatName: res.boatName || 'Non spécifié',
     startDate: res.startDate,
@@ -97,7 +99,12 @@ const fetchCatways = async () => {
   try {
     const response = await catwaysService.getAll()
     console.log('Catways response:', response)  // Temporaire pour déboguer
-    catways.value = Array.isArray(response.data) ? response.data : []
+    catways.value = Array.isArray(response.data) 
+      ? response.data.map(catway => ({
+          ...catway,
+          number: catway.number?.toString() || 'N/A'
+        }))
+      : []
   } catch (error) {
     console.error('Erreur lors du chargement des catways:', error)
   }

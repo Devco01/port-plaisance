@@ -9,7 +9,10 @@ export interface Catway {
 }
 
 export interface Reservation {
-  catwayNumber: string
+  _id: string
+  catway: {
+    number: string
+  }
   clientName: string
   boatName: string
   startDate: string
@@ -59,7 +62,7 @@ const catwaysService = {
     return apiRequest(`/api/catways/${catwayId}/reservations`, { token })
   },
 
-  createReservation: (catwayId: string, reservation: Omit<Reservation, '_id'>) => {
+  createReservation: (catwayId: string, reservation: Omit<Reservation, '_id' | 'catway'>) => {
     const token = localStorage.getItem('token') || undefined
     return apiRequest(`/api/catways/${catwayId}/reservations`, {
       method: 'POST',
@@ -68,7 +71,7 @@ const catwaysService = {
     })
   },
 
-  updateReservation: (catwayId: string, reservationId: string, data: Partial<Reservation>) => {
+  updateReservation: (catwayId: string, reservationId: string, data: Partial<Omit<Reservation, '_id' | 'catway'>>) => {
     const token = localStorage.getItem('token') || undefined
     return apiRequest(`/api/catways/${catwayId}/reservations/${reservationId}`, {
       method: 'PUT',

@@ -17,7 +17,7 @@
               v-for="catway in props.catways" 
               :key="catway._id" 
               :value="catway.number.toString()"
-              :selected="catway.number.toString() === props.reservation?.catwayNumber"
+              :selected="catway.number.toString() === props.reservation?.catway.number"
             >
               Catway {{ catway.number }}
             </option>
@@ -95,11 +95,12 @@ const props = defineProps<{
     length: number
     width: number
     status: string
-    catwayNumber: number
   }>
   reservation?: {
     _id: string
-    catwayNumber: string
+    catway: {
+      number: string
+    }
     clientName: string
     boatName: string
     startDate: string
@@ -176,7 +177,7 @@ const handleSubmit = async () => {
 // Initialisation du formulaire en mode édition
 if (props.reservation) {
   formData.value = {
-    catwayId: props.reservation.catwayNumber.toString(),
+    catwayId: props.reservation.catway.number,
     clientName: props.reservation.clientName,
     boatName: props.reservation.boatName,
     startDate: props.reservation.startDate.split('T')[0],
