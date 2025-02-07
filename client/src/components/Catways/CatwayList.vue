@@ -38,8 +38,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import catwaysService from '@/services/catways.service'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 interface Catway {
   _id: string
@@ -55,6 +56,10 @@ const props = defineProps<{
   error: string
 }>()
 
+const emit = defineEmits(['refresh'])
+const isAdmin = ref(false)
+const errorHandler = inject<ErrorHandler>('errorHandler')
+
 const getStatusLabel = (status: string) => {
   const labels = {
     available: 'Disponible',
@@ -62,6 +67,26 @@ const getStatusLabel = (status: string) => {
     maintenance: 'En maintenance'
   }
   return labels[status as keyof typeof labels] || status
+}
+
+const deleteCatway = async (id: string) => {
+  if (!confirm('Voulez-vous vraiment supprimer ce catway ?')) return
+  
+  try {
+    await catwaysService.delete(id)
+    emit('refresh')
+  } catch (err: any) {
+    errorHandler?.showError(err)
+  }
+}
+
+const updateStatus = async (id: string, status: string) => {
+  try {
+    await catwaysService.update(id, { status })
+    emit('refresh')
+  } catch (err: any) {
+    errorHandler?.showError(err)
+  }
 }
 </script>
 

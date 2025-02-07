@@ -68,10 +68,6 @@
           />
         </div>
 
-        <div v-if="error" class="error-message">
-          {{ error }}
-        </div>
-
         <div class="form-actions">
           <button type="button" class="cancel-btn" @click="closeModal">
             Annuler
@@ -86,10 +82,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import api from '../../services/api.service'
+import { ref, computed, inject } from 'vue'
 import catwaysService from '../../services/catways.service'
 import reservationsService from '../../services/reservations.service'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 const props = defineProps<{
   catways: Array<{
@@ -108,10 +104,10 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['close', 'created', 'updated'])
+const errorHandler = inject<ErrorHandler>('errorHandler')
 
 const isEditing = computed(() => !!props.reservation)
 const loading = ref(false)
-const error = ref('')
 
 const formData = ref({
   catwayId: '',
@@ -150,10 +146,10 @@ const validateDates = () => {
     const end = new Date(formData.value.endDate)
     
     if (end < start) {
-      error.value = 'La date de fin doit être postérieure à la date de début'
+      errorHandler?.showError({ 
+        message: 'La date de fin doit être postérieure à la date de début'
+      })
       formData.value.endDate = formData.value.startDate
-    } else {
-      error.value = ''
     }
   }
 }
@@ -167,7 +163,6 @@ const handleSubmit = async () => {
   
   try {
     loading.value = true
-    error.value = ''
     
     if (isEditing.value && props.reservation) {
       await catwaysService.updateReservation(
@@ -186,7 +181,7 @@ const handleSubmit = async () => {
     
     closeModal()
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Une erreur est survenue'
+    errorHandler?.showError(err)
   } finally {
     loading.value = false
   }

@@ -17,11 +17,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
-        configure: (proxy, _options) => {
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            proxyReq.path = proxyReq.path.replace(/^\/api/, '');
-          });
-        }
+        secure: false
       }
     }
   },

@@ -58,26 +58,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { login } from '../services/auth.service'
+import { login } from '@/services/auth.service'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
-const error = ref('')
+const errorHandler = inject<ErrorHandler>('errorHandler')
 
 const handleSubmit = async () => {
   try {
     loading.value = true
-    error.value = ''
-    const response = await login(email.value, password.value)
-    if (response.success) {
-      router.push('/dashboard')
-    }
+    await login(email.value, password.value)
+    router.push('/dashboard')
   } catch (err: any) {
-    error.value = err.response?.data?.error || 'Une erreur est survenue'
+    errorHandler?.showError(err)
   } finally {
     loading.value = false
   }

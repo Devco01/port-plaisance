@@ -5,7 +5,21 @@
 </template>
 
 <script setup lang="ts">
-// Le composant racine de l'application
+import { onMounted, inject } from 'vue'
+import { useRouter } from 'vue-router'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
+
+const router = useRouter()
+const errorHandler = inject<ErrorHandler>('errorHandler')
+
+onMounted(() => {
+  window.addEventListener('unhandledrejection', (event) => {
+    errorHandler?.showError({
+      message: 'Une erreur inattendue est survenue',
+      data: event.reason
+    })
+  })
+})
 </script>
 
 <style>

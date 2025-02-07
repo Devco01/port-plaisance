@@ -27,12 +27,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { logout } from "@/services/auth.service"
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 const router = useRouter()
 const isAdmin = ref(false)
+const errorHandler = inject<ErrorHandler>('errorHandler')
 
 const getUserFromStorage = () => {
   try {
@@ -51,8 +53,8 @@ const handleLogout = async () => {
   try {
     await logout()
     router.push('/login')
-  } catch (error) {
-    console.error('Erreur lors de la déconnexion:', error)
+  } catch (err: any) {
+    errorHandler?.showError(err)
   }
 }
 

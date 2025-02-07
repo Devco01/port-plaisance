@@ -30,7 +30,6 @@
         <UserList 
           :users="filteredUsers" 
           :loading="loading"
-          :error="error"
           @refresh="fetchUsers"
         />
       </div>
@@ -47,15 +46,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { PageLayout } from '@/components/Layout'
 import UserList from '@/components/Users/UserList.vue'
 import UserForm from '@/components/Users/UserForm.vue'
 import usersService from '@/services/users.service'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 const users = ref([])
 const loading = ref(true)
-const error = ref('')
+const errorHandler = inject<ErrorHandler>('errorHandler')
 const showAddForm = ref(false)
 const selectedUser = ref(null)
 const isAdmin = ref(false)
@@ -72,13 +72,11 @@ const filteredUsers = computed(() => {
 const fetchUsers = async () => {
   try {
     loading.value = true
-    error.value = ''
     const response = await usersService.getAll()
     console.log('Response:', response)  // Pour déboguer
     users.value = response.data.data || []  // Accès aux données imbriquées
   } catch (err: any) {
-    error.value = 'Erreur lors du chargement des utilisateurs'
-    console.error('Error:', err)
+    errorHandler?.showError(err)
   } finally {
     loading.value = false
   }
@@ -90,13 +88,21 @@ const closeForm = () => {
 }
 
 const handleUserCreated = () => {
-  closeForm()
-  fetchUsers()
+  try {
+    closeForm()
+    fetchUsers()
+  } catch (err: any) {
+    errorHandler?.showError(err)
+  }
 }
 
 const handleUserUpdated = () => {
-  closeForm()
-  fetchUsers()
+  try {
+    closeForm()
+    fetchUsers()
+  } catch (err: any) {
+    errorHandler?.showError(err)
+  }
 }
 
 const applyFilters = () => {

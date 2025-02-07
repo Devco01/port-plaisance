@@ -57,17 +57,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { PageLayout } from '@/components/Layout'
 import ReservationList from '@/components/Reservations/ReservationList.vue'
 import ReservationForm from '@/components/Reservations/ReservationForm.vue'
 import catwaysService from '@/services/catways.service'
 import reservationsService from '@/services/reservations.service'
+import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 const reservations = ref([])
 const catways = ref([])
 const loading = ref(true)
-const error = ref('')
+const errorHandler = inject<ErrorHandler>('errorHandler')
 const showAddForm = ref(false)
 
 const filters = ref({
@@ -87,7 +88,7 @@ const fetchCatways = async () => {
 const fetchReservations = async () => {
   try {
     loading.value = true
-    error.value = ''
+    errorHandler?.showLoading()
 
     if (filters.value.catwayNumber) {
       const response = await reservationsService.getReservations(filters.value.catwayNumber)
@@ -113,8 +114,7 @@ const fetchReservations = async () => {
         : allReservations
     }
   } catch (err: any) {
-    error.value = 'Erreur lors du chargement des réservations'
-    console.error('Error:', err)
+    errorHandler?.showError(err)
   } finally {
     loading.value = false
   }
