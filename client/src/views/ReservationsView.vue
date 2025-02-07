@@ -31,8 +31,12 @@
               @change="applyFilters"
             >
               <option value="">Tous les catways</option>
-              <option v-for="catway in catways" :key="catway.number" :value="catway.number?.toString()">
-                {{ catway.number }}
+              <option 
+                v-for="catway in catways" 
+                :key="catway.catwayNumber" 
+                :value="catway.catwayNumber"
+              >
+                {{ catway.catwayNumber }}
               </option>
             </select>
           </div>
@@ -70,34 +74,37 @@ import type { Reservation } from '@/services/catways.service'
 
 // Fonction pour formater les données des réservations
 const formatReservationData = (reservations: Array<any>): Reservation[] => {
+  console.log('=== Début formatReservationData ===');
   if (!Array.isArray(reservations)) {
     console.error('Les réservations ne sont pas un tableau:', reservations);
     return [];
   }
+  console.log('Données reçues:', reservations);
   
   return reservations.map(res => {
-    console.log('Formatage réservation:', {
-      id: res._id,
-      catway: res.catway,
-      catwayNumber: res.catway?.catwayNumber,
-      rawData: res
-    });
+    console.log('=== Traitement d\'une réservation ===');
+    console.log('Réservation brute:', res);
+    console.log('Type de res.catway:', typeof res.catway);
+    console.log('Contenu de res.catway:', res.catway);
     
     if (!res) {
       console.error('Réservation invalide:', res);
       return null;
     }
     
-    return {
-      _id: res._id,
-      catway: {
-        number: res.catway?.number?.toString() || res.catway?.catwayNumber?.toString() || 'N/A'
-      },
-      clientName: res.clientName || 'Non spécifié',
-      boatName: res.boatName || 'Non spécifié',
-      startDate: res.startDate,
-      endDate: res.endDate,
-      status: res.status
+    try {
+      return {
+        _id: res._id,
+        catwayNumber: res.catwayNumber || res.catway?.catwayNumber || 'N/A',
+        clientName: res.clientName || 'Non spécifié',
+        boatName: res.boatName || 'Non spécifié',
+        startDate: res.startDate,
+        endDate: res.endDate
+      }
+    } catch (error) {
+      console.error('Erreur lors du formatage:', error);
+      console.error('Données problématiques:', res);
+      return null;
     }
   }).filter(Boolean)
 }
@@ -118,11 +125,12 @@ const filters = ref({
 const fetchCatways = async () => {
   try {
     const response = await catwaysService.getAll()
-    console.log('Catways response:', response)  // Temporaire pour déboguer
+    console.log('Catways response:', response)
     catways.value = Array.isArray(response.data) 
       ? response.data.map(catway => ({
-          ...catway,
-          number: catway.number?.toString() || 'N/A'
+          catwayNumber: catway.catwayNumber,
+          catwayType: catway.catwayType,
+          catwayState: catway.catwayState
         }))
       : []
   } catch (error) {
@@ -134,7 +142,11 @@ const fetchReservations = async () => {
   try {
     if (filters.value.catwayNumber) {
       const response = await catwaysService.getReservations(filters.value.catwayNumber)
-      console.log('Response pour un catway spécifique:', response);
+      console.log('Response pour un catway spécifique:', {
+        status: response.success,
+        count: response.data?.length,
+        firstItem: response.data?.[0]
+      });
       const allReservations = response.data || []
       const filteredReservations = filters.value.date 
         ? allReservations.filter(res => {
@@ -147,8 +159,16 @@ const fetchReservations = async () => {
       reservations.value = formatReservationData(filteredReservations)
     } else {
       const response = await catwaysService.getAllReservations()
-      console.log('Response pour toutes les réservations:', response);
+      console.log('Response brute getAllReservations:', {
+        success: response.success,
+        dataExists: !!response.data,
+        count: response.data?.length,
+        sample: response.data?.[0]
+      });
       const allReservations = response.data || []
+      console.log('Structure d\'une réservation:', 
+        allReservations[0] ? JSON.stringify(allReservations[0], null, 2) : 'Aucune réservation'
+      );
       
       const filteredReservations = filters.value.date
         ? allReservations.filter(res => {
@@ -164,7 +184,11 @@ const fetchReservations = async () => {
     }
   } catch (err: any) {
     error.value = err.message || 'Erreur lors du chargement des réservations'
-    console.error('Erreur lors du chargement des réservations:', err)
+    console.error('Erreur détaillée:', {
+      message: err.message,
+      stack: err.stack,
+      data: err.response?.data
+    });
   } finally {
     loading.value = false
   }
