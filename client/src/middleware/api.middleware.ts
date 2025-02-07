@@ -29,7 +29,8 @@ function handleApiError(error: any): never {
 export async function apiRequest(endpoint: string, options: RequestOptions = {}) {
   const { token, data, ...fetchOptions } = options;
   
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  // Nettoyer l'endpoint pour éviter les doubles slashes
+  const cleanEndpoint = endpoint.replace(/^\/+/, '');
   
   const headers = new Headers({
     'Content-Type': 'application/json',
