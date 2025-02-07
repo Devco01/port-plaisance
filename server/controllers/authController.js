@@ -51,7 +51,11 @@ const login = async (req, res) => {
         console.log('Request body:', req.body);
         
         const user = await User.findOne({ email });
-        console.log('User found:', user ? 'yes' : 'no');
+        console.log('User found:', user ? {
+            email: user.email,
+            role: user.role,
+            passwordHash: user.password.substring(0, 10) + '...'
+        } : 'no');
         
         if (!user) {
             console.log('User not found in database');
@@ -65,6 +69,11 @@ const login = async (req, res) => {
         console.log('Password match:', isMatch ? 'yes' : 'no');
         
         if (!isMatch) {
+            console.log('Password mismatch details:', {
+                providedEmail: email,
+                providedPasswordLength: password?.length,
+                storedPasswordHashLength: user.password?.length
+            });
             return res.status(401).json({
                 success: false,
                 message: 'Email ou mot de passe incorrect'

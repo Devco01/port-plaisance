@@ -3,6 +3,7 @@ const router = express.Router();
 const { register, login, logout, getCurrentUser } = require('../controllers/authController');
 const { auth } = require('../middleware/auth');
 const User = require('../models/user');
+const mongoose = require('mongoose');
 
 // Log pour déboguer
 console.log('Routes auth chargées');
@@ -130,6 +131,30 @@ router.get('/check-users', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Route de test pour la connexion MongoDB
+router.get('/test-db', async (req, res) => {
+  try {
+    // Vérifier la connexion MongoDB
+    if (mongoose.connection.readyState !== 1) {
+      throw new Error('MongoDB not connected');
+    }
+    
+    // Compter les utilisateurs
+    const count = await User.countDocuments();
+    
+    res.json({
+      success: true,
+      dbStatus: 'connected',
+      userCount: count
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 });
 
