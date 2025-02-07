@@ -135,11 +135,19 @@ const importReservations = async (catways, admin) => {
 // Fonction principale
 const importAllData = async () => {
   try {
+    console.log('=== DÉBUT IMPORT ===');
+    console.log('URI MongoDB:', process.env.MONGODB_URI);
     await connectDB();
+    console.log('Base de données:', mongoose.connection.db.databaseName);
+
     const admin = await importAdmin();
+    console.log('Admin créé:', admin._id);
+
     const catways = await importCatways();
+    console.log('Catways importés:', catways.length);
+
     await importReservations(catways, admin);
-    console.log('Import terminé avec succès');
+    console.log('=== FIN IMPORT ===');
     process.exit(0);
   } catch (err) {
     console.error('Erreur lors de l\'import:', err);

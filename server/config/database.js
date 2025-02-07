@@ -2,13 +2,21 @@
 
 const connectDB = async () => {
     try {
-        console.log('Trying to connect to MongoDB with URI:', 
-            process.env.MONGODB_URI?.substring(0, 20) + '...');
+        // Vérifier l'URI et la base de données
+        console.log('=== DEBUG DATABASE CONNECTION ===');
+        console.log('URI:', process.env.MONGODB_URI);
+        console.log('Trying to connect...');
+
         const conn = await mongoose.connect(process.env.MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             dbName: 'port-de-plaisance'
         });
+
+        // Vérifier les collections
+        const collections = await conn.connection.db.listCollections().toArray();
+        console.log('Collections disponibles:', collections.map(c => c.name));
+
         console.log(`MongoDB Connected: ${conn.connection.host}`);
         console.log(`Database: ${conn.connection.db.databaseName}`);
         
