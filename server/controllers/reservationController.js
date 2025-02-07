@@ -15,7 +15,6 @@ const reservationController = {
       const reservations = await Reservation.find()
         .populate({
           path: 'catway',
-          model: 'Catway',
           select: 'catwayNumber catwayType catwayState'
         })
         .lean()  // Pour de meilleures performances
@@ -24,19 +23,19 @@ const reservationController = {
       console.log('Réservations trouvées:', JSON.stringify(reservations, null, 2));
       
       // Formater les réservations
-      const formattedReservations = reservations.map(res => {
-        return {
-          _id: res._id,
-          clientName: res.clientName,
-          boatName: res.boatName,
-          startDate: res.startDate,
-          endDate: res.endDate,
-          status: res.status,
-          catway: {
-            number: res.catway?.catwayNumber?.toString() || res.catwayNumber?.toString() || 'N/A'
-          }
-        };
-      });
+      const formattedReservations = reservations.map(res => ({
+        _id: res._id,
+        clientName: res.clientName,
+        boatName: res.boatName,
+        startDate: res.startDate,
+        endDate: res.endDate,
+        catwayNumber: res.catwayNumber,
+        // Informations additionnelles du catway
+        catway: {
+          type: res.catway?.catwayType,
+          state: res.catway?.catwayState
+        }
+      }));
       
       console.log('Réservations formatées pour le client:', 
         JSON.stringify(formattedReservations, null, 2));

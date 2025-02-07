@@ -5,13 +5,29 @@ exports.getAllCatways = async (req, res) => {
     try {
         console.log('GET /catways appelé');
         const catways = await Catway.find();
-        console.log('Catways trouvés:', catways);
-        // Trier par numéro de catway
-        const sortedCatways = catways.sort((a, b) => 
+        console.log('Catways bruts trouvés:', catways);
 
-            parseInt(a.catwayNumber) - parseInt(b.catwayNumber)
+        // Formater les catways avec les bonnes propriétés
+        const formattedCatways = catways.map(catway => ({
+            _id: catway._id,
+            number: catway.catwayNumber,
+            type: catway.catwayType,
+            state: catway.catwayState,
+            length: catway.catwayType === 'long' ? 12 : 8,
+            width: catway.catwayType === 'long' ? 4 : 3
+        }));
+
+        console.log('Catways formatés:', formattedCatways);
+
+        // Trier par numéro
+        const sortedCatways = formattedCatways.sort((a, b) => 
+            parseInt(a.number) - parseInt(b.number)
         );
-        res.json({ success: true, data: sortedCatways });
+
+        res.json({ 
+            success: true, 
+            data: sortedCatways 
+        });
     } catch (error) {
         console.error('Erreur getAllCatways:', error);
         res.status(500).json({ success: false, error: error.message });

@@ -17,13 +17,13 @@ const reservationSchema = new mongoose.Schema({
         type: Date,
         required: [true, 'La date de fin est requise']
     },
+    catwayNumber: {
+        type: Number,
+        required: [true, 'Le numéro de catway est requis']
+    },
     catway: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Catway',
-        required: true
-    },
-    catwayNumber: {
-        type: Number,
         required: true
     },
     status: {
