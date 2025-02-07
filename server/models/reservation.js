@@ -21,16 +21,6 @@ const reservationSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Le numéro de catway est requis']
     },
-    catway: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Catway',
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['pending', 'confirmed', 'cancelled'],
-        default: 'pending'
-    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
