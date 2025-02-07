@@ -4,6 +4,7 @@ const { register, login, logout, getCurrentUser } = require('../controllers/auth
 const { auth } = require('../middleware/auth');
 const User = require('../models/user');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 // Log pour déboguer
 console.log('Routes auth chargées');
@@ -154,6 +155,52 @@ router.get('/test-db', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+// Route de test pour vérifier le mot de passe directement
+router.post('/test-password', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log('Test password for:', email);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.json({ 
+        success: false, 
+        message: 'User not found',
+        step: 'find_user'
+      });
+    }
+
+    // Log du hash stocké
+    console.log('Stored password hash:', user.password);
+
+    // Test direct avec bcrypt
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Direct bcrypt comparison:', isMatch);
+
+    // Test avec la méthode du modèle
+    const isMatchModel = await user.comparePassword(password);
+    console.log('Model method comparison:', isMatchModel);
+
+    res.json({
+      success: true,
+      directMatch: isMatch,
+      modelMatch: isMatchModel,
+      userDetails: {
+        email: user.email,
+        role: user.role,
+        passwordHash: user.password.substring(0, 10) + '...'
+      }
+    });
+  } catch (error) {
+    console.error('Test password error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack
     });
   }
 });
