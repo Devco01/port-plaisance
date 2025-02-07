@@ -4,7 +4,7 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
   },
   withCredentials: true
 })
@@ -35,5 +35,14 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// Configuration pour les requêtes OPTIONS
+api.interceptors.request.use((config) => {
+  if (config.method === 'options') {
+    config.headers['Access-Control-Request-Method'] = 'POST'
+    config.headers['Access-Control-Request-Headers'] = 'content-type'
+  }
+  return config
+})
 
 export default api 

@@ -22,7 +22,10 @@ export default defineConfig({
           "*": ""
         },
         headers: {
-          "Cookie": "SameSite=None; Secure"
+          "Access-Control-Allow-Origin": "https://port-plaisance-qrltxap9v-devco01s-projects.vercel.app",
+          "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+          "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+          "Access-Control-Allow-Credentials": "true"
         }
       }
     }

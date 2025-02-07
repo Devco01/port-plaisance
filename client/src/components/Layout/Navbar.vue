@@ -11,7 +11,7 @@
         <router-link to="/catways" class="nav-link">Catways</router-link>
         <router-link to="/users" class="nav-link">Utilisateurs</router-link>
         <a 
-          href="http://localhost:5000/api-docs" 
+          href="https://port-plaisance-api-production-73a9.up.railway.app/api-docs" 
           target="_blank" 
           rel="noopener noreferrer"
           class="nav-link"
