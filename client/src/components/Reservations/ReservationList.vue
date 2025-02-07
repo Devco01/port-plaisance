@@ -60,7 +60,7 @@ import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 interface Reservation {
   _id: string
   catway: {
-    number: string
+    number: number
   }
   clientName: string
   boatName: string
