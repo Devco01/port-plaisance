@@ -160,7 +160,7 @@ router.get('/test-db', async (req, res) => {
 });
 
 // Route de test pour vérifier le mot de passe directement
-router.post('/test-password', async (req, res) => {
+router.post('/test-password-public', async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log('Test password for:', email);
