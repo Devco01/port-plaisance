@@ -17,12 +17,37 @@ dirs.forEach(dir => {
   }
 });
 
-// Copier PageLayout.vue s'il n'existe pas
+// Créer PageLayout.vue directement
 const layoutPath = path.join(__dirname, 'src/components/Layout/PageLayout.vue');
 if (!fs.existsSync(layoutPath)) {
-  fs.copyFileSync(
-    path.join(__dirname, 'src/components/Layout/PageLayout.vue.template'),
-    layoutPath
-  );
-  console.log(`Copied PageLayout.vue to ${layoutPath}`);
+  const content = `<template>
+  <div class="page-layout">
+    <Navbar />
+    <header>
+      <slot name="header"></slot>
+    </header>
+    <main>
+      <slot></slot>
+    </main>
+  </div>
+</template>
+
+<script setup lang="ts">
+import Navbar from './Navbar.vue'
+</script>
+
+<style scoped>
+.page-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  padding: 1rem;
+}
+</style>`;
+  fs.writeFileSync(layoutPath, content);
+  console.log(`Created PageLayout.vue at ${layoutPath}`);
 } 
