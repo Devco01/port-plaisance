@@ -5,6 +5,7 @@ console.log('API URL:', API_URL);
 interface RequestOptions extends RequestInit {
   token?: string;
   data?: any;
+  credentials?: RequestCredentials;
 }
 
 interface ApiError extends Error {
@@ -29,30 +30,46 @@ function handleApiError(error: any): never {
 }
 
 export const apiRequest = async (endpoint: string, options: RequestOptions = {}) => {
+  console.log('Request options:', { endpoint, ...options });  // Debug
   const token = localStorage.getItem('token');
-  const defaultOptions = {
+  
+  const body = options.data ? JSON.stringify(options.data) : undefined;
+  console.log('Request body:', body);  // Debug
+
+  const defaultOptions: RequestOptions = {
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...options.headers,
     },
+    method: options.method || 'GET',
+    body,
+    credentials: 'include' as const
   };
+
+  console.log('Final request options:', defaultOptions);  // Debug
 
   try {
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...defaultOptions,
-      ...options,
     });
+
+    const responseData = await response.json();
+    console.log('Response:', responseData);  // Debug
 
     if (!response.ok) {
       if (response.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw {
+        message: responseData.message || `HTTP error! status: ${response.status}`,
+        status: response.status,
+        data: responseData
+      };
     }
 
-    return await response.json();
+    return responseData;
   } catch (error) {
     console.error('API Error:', error);
     throw error;
