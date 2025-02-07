@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import PageLayout from '@/components/Layout/PageLayout.vue'
+import { PageLayout } from '@/components/Layout'
 import CurrentReservations from '@/components/Reservations/CurrentReservations.vue'
 
 // État pour les données utilisateur
