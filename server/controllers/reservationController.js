@@ -5,16 +5,27 @@ const reservationController = {
   // Obtenir toutes les réservations
   getAllReservations: async (req, res) => {
     try {
-      // Récupérer toutes les réservations
-      const reservations = await Reservation.find().populate('catway');
+      console.log('Début getAllReservations');
       
-      console.log('Réservations brutes:', reservations);
+      // Récupérer toutes les réservations avec les informations des catways
+      const reservations = await Reservation.find().populate({
+        path: 'catway',
+        select: 'catwayNumber number'
+      });
+      
+      console.log('Nombre de réservations trouvées:', reservations.length);
+      console.log('Première réservation (si existe):', 
+        reservations.length > 0 ? JSON.stringify(reservations[0], null, 2) : 'Aucune');
       
       // Formater les réservations
       const formattedReservations = reservations.map(res => {
         const resObj = res.toObject();
-        // S'assurer que le numéro du catway est correctement formaté
         const catwayNumber = resObj.catway?.catwayNumber || resObj.catwayNumber;
+        console.log('Formatage réservation:', {
+          id: resObj._id,
+          catwayOriginal: resObj.catway,
+          catwayNumber: catwayNumber
+        });
         
         return {
           _id: resObj._id,
@@ -29,7 +40,9 @@ const reservationController = {
         };
       });
       
-      console.log('Réservations formatées:', formattedReservations);
+      console.log('Nombre de réservations formatées:', formattedReservations.length);
+      console.log('Première réservation formatée (si existe):', 
+        formattedReservations.length > 0 ? JSON.stringify(formattedReservations[0], null, 2) : 'Aucune');
       
       res.json({
         success: true,
@@ -37,6 +50,7 @@ const reservationController = {
       });
     } catch (error) {
       console.error('Erreur dans getAllReservations:', error);
+      console.error('Stack trace:', error.stack);
       res.status(500).json({
         success: false,
         message: error.message
