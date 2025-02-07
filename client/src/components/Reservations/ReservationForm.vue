@@ -16,10 +16,10 @@
             <option 
               v-for="catway in props.catways" 
               :key="catway._id" 
-              :value="catway.catwayNumber.toString()"
-              :selected="catway.catwayNumber.toString() === props.reservation?.catwayNumber"
+              :value="catway.number.toString()"
+              :selected="catway.number.toString() === props.reservation?.catwayNumber"
             >
-              Catway {{ catway.catwayNumber }}
+              Catway {{ catway.number }}
             </option>
           </select>
         </div>
