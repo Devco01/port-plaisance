@@ -44,18 +44,22 @@ const register = asyncHandler(async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log('Login attempt with:', { email, passwordLength: password?.length });
-        
-        // Log de la requête complète
-        console.log('Request headers:', req.headers);
-        console.log('Request body:', req.body);
+        console.log('Login attempt:', {
+            email,
+            passwordLength: password?.length,
+            headers: req.headers,
+            body: req.body
+        });
         
         const user = await User.findOne({ email });
-        console.log('User found:', user ? {
-            email: user.email,
-            role: user.role,
-            passwordHash: user.password.substring(0, 10) + '...'
-        } : 'no');
+        if (user) {
+            console.log('User found:', {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                passwordHash: user.password.substring(0, 10) + '...'
+            });
+        }
         
         if (!user) {
             console.log('User not found in database');
@@ -66,7 +70,10 @@ const login = async (req, res) => {
         }
         
         const isMatch = await user.comparePassword(password);
-        console.log('Password match:', isMatch ? 'yes' : 'no');
+        console.log('Password comparison:', {
+            provided: password,
+            isMatch: isMatch
+        });
         
         if (!isMatch) {
             console.log('Password mismatch details:', {
