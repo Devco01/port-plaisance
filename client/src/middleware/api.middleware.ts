@@ -51,7 +51,7 @@ export const apiRequest = async (endpoint: string, options: RequestOptions = {})
   console.log('Final request options:', defaultOptions);  // Debug
 
   try {
-    const fullUrl = `${window.location.origin}/api${endpoint}`;
+    const fullUrl = `${window.location.origin}${endpoint}`;
     console.log('Requesting:', fullUrl);
     
     const response = await fetch(fullUrl, {
