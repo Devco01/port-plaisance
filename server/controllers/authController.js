@@ -44,11 +44,12 @@ const register = asyncHandler(async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log('Login attempt:', { email });
+        console.log('Login attempt with:', { email, passwordLength: password?.length });
         
         const user = await User.findOne({ email });
+        console.log('User found:', user ? 'yes' : 'no');
+        
         if (!user) {
-            console.log('User not found');
             return res.status(401).json({
                 success: false,
                 message: 'Email ou mot de passe incorrect'
@@ -56,8 +57,9 @@ const login = async (req, res) => {
         }
         
         const isMatch = await user.comparePassword(password);
+        console.log('Password match:', isMatch ? 'yes' : 'no');
+        
         if (!isMatch) {
-            console.log('Password mismatch');
             return res.status(401).json({
                 success: false,
                 message: 'Email ou mot de passe incorrect'
