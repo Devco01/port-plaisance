@@ -45,14 +45,14 @@ if (mongoose.models.User) {
 
     // Méthode pour comparer les mots de passe
     userSchema.methods.comparePassword = async function(candidatePassword) {
+        console.log('Comparing passwords');
+        console.log('Candidate password length:', candidatePassword?.length);
+        console.log('Stored hash length:', this.password?.length);
         try {
-            console.log('🔐 Tentative de comparaison du mot de passe pour:', this.email);
-            const isMatch = await bcrypt.compare(candidatePassword, this.password);
-            console.log('🔑 Résultat de la comparaison:', isMatch);
-            return isMatch;
+            return await bcrypt.compare(candidatePassword, this.password);
         } catch (error) {
-            console.error('❌ Erreur lors de la comparaison du mot de passe:', error);
-            throw error;
+            console.error('Password comparison error:', error);
+            return false;
         }
     };
 

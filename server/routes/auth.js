@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { register, login, logout, getCurrentUser } = require('../controllers/authController');
 const { auth } = require('../middleware/auth');
+const User = require('../models/user');
 
 // Log pour déboguer
 console.log('Routes auth chargées');
@@ -118,5 +119,18 @@ router.post('/register', register);
 
 // Routes protégées
 router.get('/me', auth, getCurrentUser);
+
+// Route de test pour vérifier les utilisateurs (à retirer en production)
+router.get('/check-users', async (req, res) => {
+  try {
+    const users = await User.find({}, { email: 1, username: 1, role: 1 });
+    res.json({ 
+      count: users.length,
+      users: users.map(u => ({ email: u.email, role: u.role }))
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;
