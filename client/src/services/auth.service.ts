@@ -3,22 +3,22 @@ import { apiRequest } from '@/middleware/api.middleware';
 export interface LoginResponse {
   success: boolean
   error?: string
-  data: {
-    token: string
-    user: {
-      id: string
-      username: string
-      email: string
-      role: string
-    }
+  token: string
+  user: {
+    username: string
+    email: string
+    role: string
   }
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const response = await apiRequest<LoginResponse>('/api/auth/login', {
+    const response = await apiRequest('/api/auth/login', {
       method: 'POST',
-      data: { email, password }
+      data: { email, password },
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
 
     if (response.success) {
@@ -27,8 +27,8 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       localStorage.removeItem('user');
       
       // Stockage des nouvelles données
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
       
       return response;
     } else {
