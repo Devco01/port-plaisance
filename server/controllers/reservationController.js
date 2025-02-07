@@ -7,9 +7,15 @@ const reservationController = {
     try {
       console.log('Début getAllReservations');
       
-      // Vérifier d'abord que nous avons des réservations dans MongoDB
+      console.log('=== Vérification MongoDB ===');
       const count = await Reservation.countDocuments();
       console.log(`Nombre total de réservations dans MongoDB: ${count}`);
+      
+      // Vérifier une réservation directement dans MongoDB
+      const sampleReservation = await Reservation.findOne();
+      console.log('Exemple de réservation dans MongoDB:', 
+        JSON.stringify(sampleReservation, null, 2));
+      console.log('==========================');
       
       // Récupérer toutes les réservations avec les informations des catways
       const reservations = await Reservation.find()

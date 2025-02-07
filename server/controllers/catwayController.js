@@ -5,7 +5,10 @@ exports.getAllCatways = async (req, res) => {
     try {
         console.log('GET /catways appelé');
         const catways = await Catway.find();
-        console.log('Catways bruts trouvés:', catways);
+        console.log('=== Données MongoDB ===');
+        console.log('Nombre de catways trouvés:', catways.length);
+        console.log('Premier catway:', JSON.stringify(catways[0], null, 2));
+        console.log('======================');
 
         // Formater les catways avec les bonnes propriétés
         const formattedCatways = catways.map(catway => ({

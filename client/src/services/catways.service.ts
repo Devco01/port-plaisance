@@ -1,23 +1,18 @@
 import { apiRequest } from '@/middleware/api.middleware';
 
 export interface Catway {
-  _id: string
-  number: number
-  length: number
-  width: number
-  status: string
+  catwayNumber: string;
+  catwayType: "long" | "short";
+  catwayState: string;
 }
 
 export interface Reservation {
-  _id: string
-  catway: {
-    catwayNumber: string | number
-  }
-  clientName: string
-  boatName: string
-  startDate: string
-  endDate: string
-  status?: string
+  _id: string;
+  catwayNumber: string;
+  clientName: string;
+  boatName: string;
+  startDate: string;
+  endDate: string;
 }
 
 const catwaysService = {
