@@ -13,13 +13,13 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    proxy: {
+    proxy: process.env.NODE_ENV === 'development' ? {
       '/api': {
         target: 'https://port-plaisance-api-production-73a9.up.railway.app/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
-    }
+    } : undefined
   },
   preview: {
     port: 3000
