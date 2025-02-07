@@ -42,13 +42,11 @@ const register = asyncHandler(async (req, res) => {
 
 // Connexion
 const login = async (req, res) => {
-    console.log('Login attempt:', req.body);
     try {
         const { email, password } = req.body;
+        console.log('Login attempt:', { email });
         
-        console.log('Checking user:', email);
         const user = await User.findOne({ email });
-        
         if (!user) {
             console.log('User not found');
             return res.status(401).json({
@@ -57,35 +55,29 @@ const login = async (req, res) => {
             });
         }
         
-        console.log('Checking password');
-        const isMatch = await bcrypt.compare(password, user.password);
-        
+        const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            console.log('Password incorrect');
+            console.log('Password mismatch');
             return res.status(401).json({
                 success: false,
                 message: 'Email ou mot de passe incorrect'
             });
         }
         
-        console.log('Login successful');
-        // Générer le token JWT
         const token = jwt.sign(
-            { id: user._id, role: user.role },
+            { id: user._id },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
         
+        console.log('Login successful');
         res.json({
             success: true,
-            data: {
-                token,
-                user: {
-                    id: user._id,
-                    username: user.username,
-                    email: user.email,
-                    role: user.role
-                }
+            token,
+            user: {
+                email: user.email,
+                username: user.username,
+                role: user.role
             }
         });
     } catch (error) {

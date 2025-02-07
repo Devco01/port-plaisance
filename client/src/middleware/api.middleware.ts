@@ -28,44 +28,33 @@ function handleApiError(error: any): never {
   throw apiError;
 }
 
-export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { token, data, ...fetchOptions } = options;
-  
-  // Garder le endpoint tel quel avec /api
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  
-  console.log('API Request:', {
-    baseUrl: API_URL,
-    endpoint: cleanEndpoint,
-    fullUrl: `${API_URL}${cleanEndpoint}`,
-    method: options.method || 'GET',
-    hasToken: !!token
-  });
-  
-  const headers = new Headers({
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  });
-
-  if (token) {
-    headers.append('Authorization', `Bearer ${token}`);
-  }
+export const apiRequest = async (endpoint: string, options: RequestOptions = {}) => {
+  const token = localStorage.getItem('token');
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+  };
 
   try {
-    const response = await fetch(`${API_URL}${cleanEndpoint}`, {
-      method: options.method || 'GET',
-      headers,
-      body: data ? JSON.stringify(data) : undefined,
-      credentials: 'include',
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...defaultOptions,
+      ...options,
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const result = await response.json();
-    return result as T;
+    return await response.json();
   } catch (error) {
-    handleApiError(error);
+    console.error('API Error:', error);
+    throw error;
   }
-} 
+}; 

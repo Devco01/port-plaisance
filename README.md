@@ -43,4 +43,4 @@ Mot de passe: PortAdmin2024!
 
 ## 🚀 Déploiement
 
-L'application est déployée sur [https://port-plaisance-phi.vercel.app/]
+L'application est déployée sur [https://port-plaisance-k4q3anh15-devco01s-projects.vercel.app/]
