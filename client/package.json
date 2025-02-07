@@ -1,7 +1,8 @@
 {
   "scripts": {
     "dev": "vite",
-    "build": "node vercel-build.js && vite build",
+    "prebuild": "node vercel-build.js",
+    "build": "vite build",
     "build:prod": "vue-tsc && vite build --mode production",
     "preview": "vite preview",
     "start": "vite preview --host --port $PORT",
