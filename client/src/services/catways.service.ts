@@ -19,17 +19,17 @@ export interface Reservation {
 const catwaysService = {
   getAll: () => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest('/api/catways', { token })
+    return apiRequest('catways', { token })
   },
 
   getById: (id: string) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`/api/catways/${id}`, { token })
+    return apiRequest(`catways/${id}`, { token })
   },
 
   create: (data: any) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest('/api/catways', {
+    return apiRequest('catways', {
       method: 'POST',
       token,
       data
@@ -38,7 +38,7 @@ const catwaysService = {
 
   update: (id: string, data: any) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`/api/catways/${id}`, {
+    return apiRequest(`catways/${id}`, {
       method: 'PUT',
       token,
       data
@@ -47,7 +47,7 @@ const catwaysService = {
 
   delete: (id: string) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`/api/catways/${id}`, {
+    return apiRequest(`catways/${id}`, {
       method: 'DELETE',
       token
     })
@@ -56,12 +56,12 @@ const catwaysService = {
   // Réservations
   getReservations: (catwayId: string) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`/api/catways/${catwayId}/reservations`, { token })
+    return apiRequest(`catways/${catwayId}/reservations`, { token })
   },
 
   createReservation: (catwayId: string, reservation: Omit<Reservation, '_id'>) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`/api/catways/${catwayId}/reservations`, {
+    return apiRequest(`catways/${catwayId}/reservations`, {
       method: 'POST',
       token,
       data: reservation

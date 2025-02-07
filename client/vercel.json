@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://port-plaisance-api-production-73a9.up.railway.app/api/:path*"
+      "destination": "https://port-plaisance-api-production-73a9.up.railway.app/:path*"
     },
     {
       "source": "/:path*",
