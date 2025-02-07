@@ -17,9 +17,12 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
+      mode: 'cors',
+      credentials: 'same-origin'
     });
 
     const data = await response.json();
@@ -67,8 +70,11 @@ export const getCurrentUser = async () => {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors',
+      credentials: 'same-origin'
     });
 
     const data = await response.json();

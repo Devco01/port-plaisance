@@ -15,8 +15,11 @@ const reservationsService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors',
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -27,8 +30,11 @@ const reservationsService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors',
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -39,8 +45,11 @@ const reservationsService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors',
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -52,9 +61,12 @@ const reservationsService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
-      body: JSON.stringify(reservation)
+      body: JSON.stringify(reservation),
+      mode: 'cors',
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -66,9 +78,12 @@ const reservationsService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      mode: 'cors',
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -80,8 +95,11 @@ const reservationsService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors',
+      credentials: 'same-origin'
     })
     return response.json()
   }
