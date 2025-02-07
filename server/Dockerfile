@@ -7,8 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Installer les dépendances avec un cache correct
-RUN --mount=type=cache,id=npm,target=/root/.npm \
-    npm ci
+RUN npm ci
 
 # Copier le reste des fichiers
 COPY . .
