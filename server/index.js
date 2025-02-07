@@ -47,6 +47,19 @@ app.get('/', (req, res) => {
 
 // Routes API
 app.use('/api/auth', require('./routes/auth'));
+// Log des routes pour le debugging
+const authRoutes = require('./routes/auth');
+console.log('Routes auth disponibles:', 
+  Object.keys(authRoutes.stack)
+    .filter(key => authRoutes.stack[key].route)
+    .map(key => {
+      const r = authRoutes.stack[key].route;
+      return {
+        path: '/api/auth' + r.path,
+        methods: Object.keys(r.methods)
+      };
+    })
+);
 app.use('/api/users', require('./routes/users'));
 app.use('/api/catways', require('./routes/catways'));
 app.use('/api/reservations', require('./routes/reservations'));

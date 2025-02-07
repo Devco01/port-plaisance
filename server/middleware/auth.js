@@ -60,4 +60,15 @@ const admin = (req, res, next) => {
     }
 };
 
-module.exports = { auth, admin }; 
+// Middleware de debug
+const debugMiddleware = (req, res, next) => {
+    console.log('Debug request:', {
+        method: req.method,
+        path: req.path,
+        headers: req.headers,
+        body: req.body
+    });
+    next();
+};
+
+module.exports = { auth, admin, debugMiddleware }; 
