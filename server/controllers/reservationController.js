@@ -9,15 +9,17 @@ const reservationController = {
       // Récupérer tous les catways
       const catways = await Catway.find();
       
+      console.log('Catways trouvés:', catways);
+      
       // Récupérer toutes les réservations pour tous les catways
       const allReservations = await Promise.all(
         catways.map(async (catway) => {
           const reservations = await Reservation.find({ catway: catway._id });
+          console.log(`Réservations pour catway ${catway.catwayNumber}:`, reservations);
           return reservations.map(res => ({
             ...res.toObject(),
             catway: {
-              _id: catway._id,
-              number: catway.number
+              number: catway.catwayNumber?.toString() || 'N/A'
             }
           }));
         })
@@ -26,11 +28,14 @@ const reservationController = {
       // Aplatir le tableau de réservations
       const flattenedReservations = allReservations.flat();
       
+      console.log('Réservations formatées:', flattenedReservations);
+      
       res.json({
         success: true,
         data: flattenedReservations
       });
     } catch (error) {
+      console.error('Erreur dans getAllReservations:', error);
       res.status(500).json({
         success: false,
         message: error.message

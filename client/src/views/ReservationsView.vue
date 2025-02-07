@@ -73,7 +73,7 @@ const formatReservationData = (reservations: Array<any>): Reservation[] => {
   return reservations.map(res => ({
     _id: res._id,
     catway: {
-      number: res.catway?.number?.toString() || 'N/A'
+      number: res.catway?.number || res.catwayNumber?.toString() || 'N/A'
     },
     clientName: res.clientName || 'Non spécifié',
     boatName: res.boatName || 'Non spécifié',
