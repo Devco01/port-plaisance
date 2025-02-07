@@ -13,13 +13,13 @@ export interface LoginResponse {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
+    console.log('Login attempt:', { email });  // Debug
     const response = await apiRequest('/api/auth/login', {
       method: 'POST',
       data: { email, password },
-      headers: {
-        'Content-Type': 'application/json'
-      }
     });
+
+    console.log('Login response:', response);  // Debug
 
     if (response.success) {
       // Nettoyage préventif
@@ -32,7 +32,11 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       
       return response;
     } else {
-      throw new Error(response.error || 'Erreur de connexion');
+      throw {
+        message: response.message || 'Erreur de connexion',
+        status: 401,
+        data: response
+      };
     }
   } catch (error: any) {
     console.error('Erreur de connexion:', error);
