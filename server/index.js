@@ -7,6 +7,7 @@ const connectDB = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
 const path = require('path');
 const corsOptions = require('./config/cors');
+const initializeAdmin = require('./scripts/initDb');
 
 const app = express();
 
@@ -39,7 +40,10 @@ app.get('/', (req, res) => {
 });
 
 // Connexion à la base de données
-connectDB();
+(async () => {
+  await connectDB();
+  await initializeAdmin();
+})();
 
 // Routes API
 app.use('/api/auth', require('./routes/auth'));
