@@ -18,17 +18,7 @@
   "env": {
     "VITE_API_URL": "https://port-plaisance-api-production-73a9.up.railway.app"
   },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node",
-      "config": {
-        "prebuild": "npm run prebuild"
-      }
-    }
-  ],
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "vite",
-  "installCommand": "npm install"
+  "framework": "vite"
 } 
