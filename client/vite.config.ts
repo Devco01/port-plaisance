@@ -4,14 +4,11 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [vue()],
-  publicDir: 'public',
+  base: '/',
   resolve: {
-    alias: [
-      {
-        find: '@',
-        replacement: path.resolve(__dirname, 'src')
-      }
-    ]
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    }
   },
   server: {
     port: 3000,
