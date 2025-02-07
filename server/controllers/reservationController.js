@@ -1,52 +1,39 @@
 const Reservation = require('../models/reservation');
+const Catway = require('../models/catway');
 
 // Créer un objet pour stocker toutes nos fonctions
 const reservationController = {
   // Obtenir toutes les réservations
   getAllReservations: async (req, res) => {
     try {
-      if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Utilisateur non authentifié'
-        });
-      }
-
-      const query = req.user.role === 'admin' ? {} : { user: req.user._id };
-      console.log('Query:', query);
-      console.log('User:', req.user);
-
-      const reservations = await Reservation.find(query)
-        .populate({
-          path: 'user',
-          select: 'username email -_id'
-        })
-        .sort({ startDate: -1 }); // Tri par date de début décroissante
+      // Récupérer tous les catways
+      const catways = await Catway.find();
       
-      const formattedReservations = reservations.map(reservation => ({
-        _id: reservation._id,
-        catwayNumber: reservation.catwayNumber,
-        clientName: reservation.clientName,
-        boatName: reservation.boatName,
-        startDate: reservation.startDate,
-        endDate: reservation.endDate,
-        status: reservation.status,
-        user: reservation.user ? {
-          username: reservation.user.username,
-          email: reservation.user.email
-        } : null
-      }));
-
+      // Récupérer toutes les réservations pour tous les catways
+      const allReservations = await Promise.all(
+        catways.map(async (catway) => {
+          const reservations = await Reservation.find({ catway: catway._id });
+          return reservations.map(res => ({
+            ...res.toObject(),
+            catway: {
+              _id: catway._id,
+              number: catway.number
+            }
+          }));
+        })
+      );
+      
+      // Aplatir le tableau de réservations
+      const flattenedReservations = allReservations.flat();
+      
       res.json({
         success: true,
-        data: formattedReservations
+        data: flattenedReservations
       });
     } catch (error) {
-      console.error('Erreur détaillée:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Erreur lors de la récupération des réservations',
-        error: error.message
+      res.status(500).json({
+        success: false,
+        message: error.message
       });
     }
   },

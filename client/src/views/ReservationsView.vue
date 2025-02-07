@@ -115,7 +115,6 @@ const fetchReservations = async () => {
   try {
     if (filters.value.catwayNumber) {
       const response = await catwaysService.getReservations(filters.value.catwayNumber)
-      console.log('Response brute des réservations:', response.data)
       const allReservations = response.data || []
       const filteredReservations = filters.value.date 
         ? allReservations.filter(res => {
@@ -125,22 +124,10 @@ const fetchReservations = async () => {
             return startDate <= filterDate && endDate >= filterDate
           })
         : allReservations
-      console.log('Réservations avant formatage:', filteredReservations)
-      console.log('Réservations après formatage:', formatReservationData(filteredReservations))
       reservations.value = formatReservationData(filteredReservations)
     } else {
-      // Pour toutes les réservations, nous devons d'abord obtenir tous les catways
-      const catwaysResponse = await catwaysService.getAll()
-      const allCatways = catwaysResponse.data || []
-      
-      // Puis obtenir toutes les réservations pour chaque catway
-      const allReservationsPromises = allCatways.map(catway => 
-        catwaysService.getReservations(catway.number.toString())
-      )
-      const reservationsResponses = await Promise.all(allReservationsPromises)
-      
-      // Fusionner toutes les réservations
-      const allReservations = reservationsResponses.flatMap(response => response.data || [])
+      const response = await catwaysService.getAllReservations()
+      const allReservations = response.data || []
       
       const filteredReservations = filters.value.date
         ? allReservations.filter(res => {

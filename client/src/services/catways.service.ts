@@ -59,7 +59,16 @@ const catwaysService = {
   // Réservations
   getReservations: (catwayId: string) => {
     const token = localStorage.getItem('token') || undefined
+    console.log('getReservations appelé pour catway:', catwayId)
     return apiRequest(`/api/catways/${catwayId}/reservations`, { token })
+      .then(response => {
+        console.log('Réponse du serveur:', response)
+        return response
+      })
+      .catch(err => {
+        console.error('Erreur API:', err)
+        throw err
+      })
   },
 
   createReservation: (catwayId: string, reservation: Omit<Reservation, '_id' | 'catway'>) => {
@@ -86,6 +95,11 @@ const catwaysService = {
       method: 'DELETE',
       token
     })
+  },
+
+  getAllReservations: () => {
+    const token = localStorage.getItem('token') || undefined
+    return apiRequest('/api/catways/reservations/all', { token })
   }
 }
 
