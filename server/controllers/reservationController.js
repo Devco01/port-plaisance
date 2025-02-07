@@ -1,51 +1,37 @@
 const Reservation = require('../models/reservation');
-const mongoose = require('mongoose');
 
 // Créer un objet pour stocker toutes nos fonctions
 const reservationController = {
   // Obtenir toutes les réservations
   getAllReservations: async (req, res) => {
     try {
-      console.log('Début getAllReservations');
-      
-      // Vérifier la connexion à MongoDB
-      if (!mongoose.connection.readyState) {
-          throw new Error('MongoDB non connecté');
+      console.log('=== DEBUG RESERVATIONS ===');
+      // Vérifier le nombre total de réservations
+      const count = await Reservation.countDocuments();
+      console.log('Nombre total de réservations dans MongoDB:', count);
+
+      const reservations = await Reservation.find()
+        .populate('user', 'username email')  // Pour avoir les infos de l'utilisateur
+        .lean();
+
+      console.log('Réservations trouvées:', reservations.length);
+      if (reservations.length > 0) {
+        console.log('Exemple de réservation:', JSON.stringify(reservations[0], null, 2));
       }
 
-      console.log('=== Vérification MongoDB ===');
-      const count = await Reservation.countDocuments();
-      console.log(`Nombre total de réservations dans MongoDB: ${count}`);
-      
-      if (count === 0) {
-        console.error('Aucune réservation trouvée dans MongoDB');
-        return res.json({
-          success: true,
-          data: []
-        });
-      }
-      
-      // Vérifier une réservation directement dans MongoDB
-      const sampleReservation = await Reservation.findOne();
-      console.log('Exemple de réservation dans MongoDB:', 
-        JSON.stringify(sampleReservation, null, 2));
-      console.log('==========================');
-      
-      // Récupérer toutes les réservations
-      const reservations = await Reservation.find().lean();
-      
-      console.log('Nombre de réservations trouvées:', reservations.length);
-      
-      // Formater les réservations selon la structure du fichier JSON
+      // Formater les réservations
       const formattedReservations = reservations.map(res => ({
         _id: res._id,
         catwayNumber: res.catwayNumber,
         clientName: res.clientName,
         boatName: res.boatName,
         startDate: res.startDate,
-        endDate: res.endDate
+        endDate: res.endDate,
+        user: res.user
       }));
-      
+
+      console.log('Réservations formatées:', formattedReservations.length);
+
       res.json({
         success: true,
         data: formattedReservations
@@ -55,7 +41,7 @@ const reservationController = {
       res.status(500).json({
         success: false,
         message: error.message,
-        details: 'Erreur lors de la récupération des réservations depuis MongoDB'
+        details: 'Erreur lors de la récupération des réservations'
       });
     }
   },

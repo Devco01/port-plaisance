@@ -5,22 +5,29 @@ const mongoose = require('mongoose');
 exports.getAllCatways = async (req, res) => {
     try {
         console.log('GET /catways appelé');
+        
         // Vérifier la connexion à MongoDB
         if (!mongoose.connection.readyState) {
             throw new Error('MongoDB non connecté');
         }
 
-        const catways = await Catway.find();
-        console.log('=== Données MongoDB ===');
+        const catways = await Catway.find().sort({ catwayNumber: 1 });  // Tri par numéro
+        console.log('=== DEBUG CATWAYS ===');
         console.log('Nombre de catways trouvés:', catways.length);
-        console.log('Premier catway:', JSON.stringify(catways[0], null, 2));
 
-        if (!catways.length) {
-            console.error('Aucun catway trouvé dans MongoDB');
-            return res.json({ 
-                success: true, 
-                data: [] 
-            });
+        // Vérifier les doublons potentiels
+        const catwayNumbers = catways.map(c => c.catwayNumber);
+        const uniqueNumbers = [...new Set(catwayNumbers)];
+        console.log('Numéros uniques:', uniqueNumbers);
+        if (uniqueNumbers.length !== catways.length) {
+            console.warn('Attention: Doublons détectés !');
+        }
+
+        // Vérifier les trous dans la numérotation
+        for (let i = 1; i <= 24; i++) {
+            if (!catwayNumbers.includes(i)) {
+                console.warn(`Catway manquant: ${i}`);
+            }
         }
 
         // Formater les catways avec les bonnes propriétés
@@ -31,23 +38,17 @@ exports.getAllCatways = async (req, res) => {
             catwayState: catway.catwayState
         }));
 
-        console.log('Catways formatés:', formattedCatways);
-
-        // Trier par numéro
-        const sortedCatways = formattedCatways.sort((a, b) => 
-            a.catwayNumber - b.catwayNumber
-        );
+        console.log('Données formatées:', formattedCatways);
 
         res.json({ 
             success: true, 
-            data: sortedCatways 
+            data: formattedCatways 
         });
     } catch (error) {
         console.error('Erreur getAllCatways:', error);
         res.status(500).json({ 
             success: false, 
-            error: error.message,
-            details: 'Erreur lors de la récupération des catways depuis MongoDB'
+            error: error.message 
         });
     }
 };
