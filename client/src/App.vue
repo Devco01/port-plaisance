@@ -1,20 +1,27 @@
 <template>
   <div id="app">
+    <ErrorHandler ref="errorHandlerRef" />
     <router-view></router-view>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, inject } from 'vue'
+import { onMounted, ref, provide } from 'vue'
 import { useRouter } from 'vue-router'
-import type { ErrorHandler } from '@/components/ErrorHandler.vue'
+import ErrorHandler from '@/components/ErrorHandler.vue'
 
 const router = useRouter()
-const errorHandler = inject<ErrorHandler>('errorHandler')
+const errorHandlerRef = ref()
+
+provide('errorHandler', {
+  showError: (error: any) => errorHandlerRef.value?.showError(error),
+  clearError: () => errorHandlerRef.value?.clearError(),
+  showLoading: () => errorHandlerRef.value?.showLoading()
+})
 
 onMounted(() => {
   window.addEventListener('unhandledrejection', (event) => {
-    errorHandler?.showError({
+    errorHandlerRef.value?.showError({
       message: 'Une erreur inattendue est survenue',
       data: event.reason
     })

@@ -42,64 +42,40 @@ const register = asyncHandler(async (req, res) => {
 
 // Connexion
 const login = async (req, res) => {
+    console.log('Login attempt:', req.body);
     try {
-        console.log('\n=== Tentative de connexion ===');
-        console.log('📧 Email:', req.body.email);
+        const { email, password } = req.body;
         
-        // Vérifier que l'email est en minuscules
-        const email = req.body.email.toLowerCase();
-        
-        // Log de la requête MongoDB
-        console.log('🔍 Recherche utilisateur avec email:', email);
-        console.log('📦 Collection:', User.collection.name);
-        console.log('🗄️ Base de données:', User.db.name);
-        
-        // Vérifier l'email
+        console.log('Checking user:', email);
         const user = await User.findOne({ email });
         
         if (!user) {
-            console.log('❌ Utilisateur non trouvé');
-            
-            // Lister tous les utilisateurs pour debug
-            const allUsers = await User.find({});
-            console.log('\n📋 Liste des utilisateurs dans la base:');
-            allUsers.forEach(u => {
-                console.log(`- ${u.email} (${u.role})`);
-            });
-            
+            console.log('User not found');
             return res.status(401).json({
                 success: false,
-                error: 'Email ou mot de passe incorrect'
+                message: 'Email ou mot de passe incorrect'
             });
         }
-
-        console.log('✅ Utilisateur trouvé:', {
-            id: user._id,
-            email: user.email,
-            role: user.role
-        });
-
-        // Vérifier le mot de passe
-        const isMatch = await user.comparePassword(req.body.password);
-        console.log('🔑 Mot de passe valide:', isMatch);
-
+        
+        console.log('Checking password');
+        const isMatch = await bcrypt.compare(password, user.password);
+        
         if (!isMatch) {
+            console.log('Password incorrect');
             return res.status(401).json({
                 success: false,
-                error: 'Email ou mot de passe incorrect'
+                message: 'Email ou mot de passe incorrect'
             });
         }
-
-        // Générer le token
+        
+        console.log('Login successful');
+        // Générer le token JWT
         const token = jwt.sign(
             { id: user._id, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
-
-        console.log('🎟️ Token généré');
-        console.log('=== Fin de la connexion ===\n');
-
+        
         res.json({
             success: true,
             data: {
@@ -113,10 +89,11 @@ const login = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('❌ Erreur login:', error);
+        console.error('Login error:', error);
         res.status(500).json({
             success: false,
-            error: error.message || 'Erreur lors de la connexion'
+            message: 'Erreur lors de la connexion',
+            error: error.message
         });
     }
 };

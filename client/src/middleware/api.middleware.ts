@@ -1,4 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = '';  // Doit rester vide car le proxy Vite gère les redirections
+
+console.log('API URL:', API_URL);
 
 interface RequestOptions extends RequestInit {
   token?: string;
@@ -26,69 +28,43 @@ function handleApiError(error: any): never {
   throw apiError;
 }
 
-export async function apiRequest(endpoint: string, options: RequestOptions = {}) {
+export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { token, data, ...fetchOptions } = options;
   
-  // Nettoyer l'endpoint pour éviter les doubles slashes
-  const cleanEndpoint = endpoint.replace(/^\/+/, '');
+  // Garder le endpoint tel quel avec /api
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  
+  console.log('API Request:', {
+    baseUrl: API_URL,
+    endpoint: cleanEndpoint,
+    fullUrl: `${API_URL}${cleanEndpoint}`,
+    method: options.method || 'GET',
+    hasToken: !!token
+  });
   
   const headers = new Headers({
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
   });
 
   if (token) {
     headers.append('Authorization', `Bearer ${token}`);
   }
 
-  const config = {
-    ...fetchOptions,
-    headers,
-  };
-
-  let body: string | null = null;
-  if (data) {
-    body = JSON.stringify(data);
-  }
-
   try {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open(options.method || 'GET', `${API_URL}${cleanEndpoint}`);
-      xhr.withCredentials = true;
-      
-      Object.entries(headers).forEach(([key, value]) => {
-        xhr.setRequestHeader(key, value);
-      });
-      
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const data = xhr.response ? JSON.parse(xhr.response) : {};
-            resolve(data);
-          } catch (e) {
-            handleApiError({ message: 'Invalid JSON response', status: xhr.status });
-          }
-        } else {
-          handleApiError({
-            message: xhr.statusText || 'Unknown error',
-            status: xhr.status,
-            data: xhr.response ? JSON.parse(xhr.response) : null
-          });
-        }
-      };
-      
-      xhr.onerror = () => {
-        console.error('XHR Error:', xhr.status, xhr.statusText);
-        handleApiError({
-          message: 'Network Error',
-          status: xhr.status,
-          data: { url: `${API_URL}${cleanEndpoint}` }
-        });
-      };
-      
-      xhr.send(body);
+    const response = await fetch(`${API_URL}${cleanEndpoint}`, {
+      method: options.method || 'GET',
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: 'include',
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result as T;
   } catch (error) {
     handleApiError(error);
   }

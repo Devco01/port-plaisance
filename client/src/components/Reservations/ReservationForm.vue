@@ -9,15 +9,17 @@
           <select
             id="catwayId"
             v-model="formData.catwayId"
+            :disabled="isEditing"
             required
           >
-            <option value="">Sélectionnez un catway</option>
+            <option value="" disabled>Sélectionnez un catway</option>
             <option 
-              v-for="catway in availableCatways" 
+              v-for="catway in props.catways" 
               :key="catway._id" 
-              :value="catway._id"
+              :value="catway.catwayNumber.toString()"
+              :selected="catway.catwayNumber.toString() === props.reservation?.catwayNumber"
             >
-              {{ catway.catwayNumber }} ({{ catway.catwayType }})
+              Catway {{ catway.catwayNumber }}
             </option>
           </select>
         </div>
@@ -72,7 +74,7 @@
           <button type="button" class="cancel-btn" @click="closeModal">
             Annuler
           </button>
-          <button type="submit" class="submit-btn" :disabled="loading || !isValid">
+          <button type="submit" class="submit-btn" :disabled="loading">
             {{ loading ? 'Enregistrement...' : (isEditing ? 'Modifier' : 'Créer') }}
           </button>
         </div>
@@ -82,20 +84,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, watch } from 'vue'
 import catwaysService from '../../services/catways.service'
-import reservationsService from '../../services/reservations.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 const props = defineProps<{
   catways: Array<{
     _id: string
-    catwayNumber: string
-    catwayType: string
+    number: number
+    length: number
+    width: number
+    status: string
+    catwayNumber: number
   }>
   reservation?: {
     _id: string
-    catwayId: string
+    catwayNumber: string
     clientName: string
     boatName: string
     startDate: string
@@ -122,24 +126,6 @@ const today = computed(() => {
   return date.toISOString().split('T')[0]
 })
 
-const isValid = computed(() => {
-  return (
-    formData.value.catwayId &&
-    formData.value.clientName &&
-    formData.value.boatName &&
-    formData.value.startDate &&
-    formData.value.endDate &&
-    new Date(formData.value.startDate) <= new Date(formData.value.endDate)
-  )
-})
-
-const availableCatways = computed(() => {
-  return props.catways.filter(catway => {
-    // TODO: Ajouter la logique pour filtrer les catways déjà réservés
-    return true
-  })
-})
-
 const validateDates = () => {
   if (formData.value.startDate && formData.value.endDate) {
     const start = new Date(formData.value.startDate)
@@ -159,14 +145,14 @@ const closeModal = () => {
 }
 
 const handleSubmit = async () => {
-  if (!isValid.value) return
+  if (!formData.value.catwayId || !formData.value.clientName || !formData.value.boatName || !formData.value.startDate || !formData.value.endDate) return
   
   try {
     loading.value = true
     
     if (isEditing.value && props.reservation) {
       await catwaysService.updateReservation(
-        props.reservation.catwayNumber,
+        formData.value.catwayId,
         props.reservation._id,
         formData.value
       )
@@ -190,7 +176,7 @@ const handleSubmit = async () => {
 // Initialisation du formulaire en mode édition
 if (props.reservation) {
   formData.value = {
-    catwayId: props.reservation.catwayId,
+    catwayId: props.reservation.catwayNumber.toString(),
     clientName: props.reservation.clientName,
     boatName: props.reservation.boatName,
     startDate: props.reservation.startDate.split('T')[0],
@@ -272,12 +258,17 @@ button {
 }
 
 .submit-btn {
-  background-color: #42b983;
+  background-color: #3498db;
   color: white;
+  transition: background-color 0.2s ease;
 }
 
 .submit-btn:disabled {
   background-color: #a8d5c2;
   cursor: not-allowed;
+}
+
+.submit-btn:hover {
+  background-color: #2980b9;
 }
 </style>

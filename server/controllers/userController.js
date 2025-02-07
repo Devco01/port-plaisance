@@ -149,4 +149,10 @@ const userController = {
   }
 };
 
-module.exports = userController;
+module.exports = {
+  getAllUsers: userController.getAllUsers,
+  getUserByEmail: userController.getUserByEmail,
+  createUser: userController.createUser,
+  updateUser: userController.updateUser,
+  deleteUser: userController.deleteUser
+};

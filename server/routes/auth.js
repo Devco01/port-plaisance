@@ -3,6 +3,9 @@ const router = express.Router();
 const { register, login, logout, getCurrentUser } = require('../controllers/authController');
 const { auth } = require('../middleware/auth');
 
+// Log pour déboguer
+console.log('Routes auth chargées');
+
 /**
  * @swagger
  * components:

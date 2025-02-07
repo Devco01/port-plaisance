@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getAllCatways, getCatway, createCatway, updateCatway, deleteCatway } = require('../controllers/catwayController');
 const { auth, admin } = require('../middleware/auth');
-const Catway = require('../models/catway');  // Correction de la casse
+const reservationController = require('../controllers/reservationController');
 
 // Protéger toutes les routes
 router.use(auth);
@@ -124,5 +124,12 @@ router.put('/:id', admin, updateCatway);
  *                   type: object
  */
 router.delete('/:id', admin, deleteCatway);
+
+// Routes Réservations (sous-ressource de catways)
+router.get('/:id/reservations', auth, reservationController.getReservationsByCatway);
+router.get('/:id/reservations/:idReservation', auth, reservationController.getReservationById);
+router.post('/:id/reservations', auth, reservationController.createReservation);
+router.put('/:id/reservations/:idReservation', auth, reservationController.updateReservation);
+router.delete('/:id/reservations/:idReservation', auth, reservationController.deleteReservation);
 
 module.exports = router;

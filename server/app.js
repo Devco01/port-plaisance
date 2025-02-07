@@ -8,14 +8,35 @@ const { checkAndCreateAdmin } = require('./scripts/checkAdmin');
 
 const app = express();
 
-// Middleware
+// Configuration CORS
 app.use(cors({
-    origin: true, // Permet toutes les origines en développement
+    origin: true,  // Accepter l'origine de la requête
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
+
 app.use(express.json());
+
+// Middleware de logging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  console.log('Headers:', req.headers);
+  next();
+});
+
+// Routes
+const authRoutes = require('./routes/auth');
+const usersRoutes = require('./routes/user');
+const catwaysRoutes = require('./routes/catways');
+const reservationsRoutes = require('./routes/reservations');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/catways', catwaysRoutes);
+app.use('/api/reservations', reservationsRoutes);
 
 // Documentation API
 const swaggerOptions = {
@@ -28,7 +49,7 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: 'http://localhost:3001'
+                url: 'http://localhost:3001/api'
             }
         ]
     },
@@ -37,17 +58,6 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
-// Routes
-const authRoutes = require('./routes/auth');
-const usersRoutes = require('./routes/User');
-const catwaysRoutes = require('./routes/catways');
-const reservationsRoutes = require('./routes/reservations');
-
-app.use('/api/auth', authRoutes);
-app.use('/api/users', usersRoutes);
-app.use('/api/catways', catwaysRoutes);
-app.use('/api/catways', reservationsRoutes);
 
 // Connexion MongoDB
 mongoose.connect(process.env.MONGODB_URI)
@@ -66,7 +76,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error('❌ Erreur MongoDB:', err));
 
 // Démarrage du serveur
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Serveur démarré sur le port ${PORT}`);
 });

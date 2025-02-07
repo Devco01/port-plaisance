@@ -30,6 +30,7 @@
         <UserList 
           :users="filteredUsers" 
           :loading="loading"
+          :error="error"
           @refresh="fetchUsers"
         />
       </div>
@@ -59,6 +60,7 @@ const errorHandler = inject<ErrorHandler>('errorHandler')
 const showAddForm = ref(false)
 const selectedUser = ref(null)
 const isAdmin = ref(false)
+const error = ref('')
 
 const filters = ref({
   role: ''
@@ -73,10 +75,10 @@ const fetchUsers = async () => {
   try {
     loading.value = true
     const response = await usersService.getAll()
-    console.log('Response:', response)  // Pour déboguer
-    users.value = response.data.data || []  // Accès aux données imbriquées
+    users.value = response.data || []
   } catch (err: any) {
-    errorHandler?.showError(err)
+    error.value = err.message || 'Erreur lors du chargement des utilisateurs'
+    console.error('Erreur lors du chargement des utilisateurs:', err)
   } finally {
     loading.value = false
   }
@@ -172,7 +174,7 @@ select {
 }
 
 .add-btn {
-  background-color: #42b983;
+  background-color: #3498db;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -182,11 +184,11 @@ select {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .add-btn:hover {
-  background-color: #3aa876;
+  background-color: #2980b9;
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }

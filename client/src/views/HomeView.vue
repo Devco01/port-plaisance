@@ -12,11 +12,11 @@
           <h1>Bienvenue au Port de Russell</h1>
           <p class="subtitle">Gestion des réservations de catways en ligne</p>
           <div class="cta-buttons">
-            <router-link v-if="!isAuthenticated" to="/login" class="cta-button login">
+            <router-link to="/login" class="cta-button login" v-if="!isLoggedIn">
               <i class="fas fa-sign-in-alt"></i>
               Se connecter
             </router-link>
-            <router-link v-else to="/dashboard" class="cta-button dashboard">
+            <router-link to="/dashboard" class="cta-button dashboard" v-else>
               <i class="fas fa-tachometer-alt"></i>
               Tableau de bord
             </router-link>
@@ -63,12 +63,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 
-const isAuthenticated = ref(false)
-
-onMounted(() => {
-  isAuthenticated.value = !!localStorage.getItem('token')
+const isLoggedIn = computed(() => {
+  return !!localStorage.getItem('token')
 })
 </script>
 
@@ -251,5 +249,23 @@ onMounted(() => {
     width: 100%;
     justify-content: center;
   }
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #42b983;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #3aa876;
 }
 </style> 

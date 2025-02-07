@@ -13,40 +13,48 @@ export interface Reservation {
 const reservationsService = {
   getAll: () => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest('/reservations', { token })
+    return apiRequest('/api/reservations', { token })
   },
 
   getReservations: (catwayNumber: string) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`/catways/${catwayNumber}/reservations`, { token })
+    return apiRequest(`/api/catways/${catwayNumber}/reservations`, { token })
   },
   
-  getCurrent: () => {
-    const token = localStorage.getItem('token') || undefined
-    return apiRequest('/reservations/current', { token })
+  getCurrent: async () => {
+    try {
+      const token = localStorage.getItem('token') || undefined;
+      const response = await apiRequest('/api/reservations/current', {
+        token
+      });
+      return response;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des réservations:', error);
+      throw error;
+    }
   },
   
-  create: (reservation: Omit<Reservation, '_id'>) => {
+  create: (catwayNumber: string, reservation: Omit<Reservation, '_id'>) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest('/reservations', {
+    return apiRequest(`/api/catways/${catwayNumber}/reservations`, {
       method: 'POST',
       token,
       data: reservation
     })
   },
   
-  update: (id: string, data: Partial<Reservation>) => {
+  update: (catwayNumber: string, reservationId: string, data: Partial<Reservation>) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`/reservations/${id}`, {
+    return apiRequest(`/api/catways/${catwayNumber}/reservations/${reservationId}`, {
       method: 'PUT',
       token,
       data
     })
   },
   
-  delete: (id: string) => {
+  delete: (catwayNumber: string, reservationId: string) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`/reservations/${id}`, {
+    return apiRequest(`/api/catways/${catwayNumber}/reservations/${reservationId}`, {
       method: 'DELETE',
       token
     })
