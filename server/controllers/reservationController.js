@@ -1,4 +1,5 @@
 const Reservation = require('../models/reservation');
+const mongoose = require('mongoose');
 
 // Créer un objet pour stocker toutes nos fonctions
 const reservationController = {
@@ -7,9 +8,22 @@ const reservationController = {
     try {
       console.log('Début getAllReservations');
       
+      // Vérifier la connexion à MongoDB
+      if (!mongoose.connection.readyState) {
+          throw new Error('MongoDB non connecté');
+      }
+
       console.log('=== Vérification MongoDB ===');
       const count = await Reservation.countDocuments();
       console.log(`Nombre total de réservations dans MongoDB: ${count}`);
+      
+      if (count === 0) {
+        console.error('Aucune réservation trouvée dans MongoDB');
+        return res.json({
+          success: true,
+          data: []
+        });
+      }
       
       // Vérifier une réservation directement dans MongoDB
       const sampleReservation = await Reservation.findOne();
@@ -40,7 +54,8 @@ const reservationController = {
       console.error('Erreur dans getAllReservations:', error);
       res.status(500).json({
         success: false,
-        message: error.message
+        message: error.message,
+        details: 'Erreur lors de la récupération des réservations depuis MongoDB'
       });
     }
   },

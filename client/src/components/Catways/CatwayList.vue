@@ -1,38 +1,21 @@
 <template>
-  <div class="catway-list">
+  <div class="catways-grid">
     <div v-if="loading" class="loading">
       Chargement...
     </div>
     <div v-else-if="error" class="error">
       {{ error }}
     </div>
-    <div v-else>
-      <div v-if="catways.length === 0" class="no-catways">
-        Aucun catway disponible
+    <div v-else class="catway-cards">
+      <div v-if="!catways.length" class="no-data">
+        Aucun catway trouvé
       </div>
-      <div v-else class="catway-grid">
-        <div v-for="catway in catways" :key="catway._id" class="catway-card">
-          <div class="catway-header">
-            <h3>Catway {{ catway.number }}</h3>
-            <div class="status-badge" :class="catway.status">
-              {{ getStatusLabel(catway.status) }}
-            </div>
-          </div>
-          <div class="catway-details">
-            <p><strong>Longueur:</strong> {{ catway.length }}m</p>
-            <p><strong>Largeur:</strong> {{ catway.width }}m</p>
-          </div>
-          <div class="catway-actions">
-            <router-link 
-              :to="`/catways/${catway._id}/reservations`" 
-              class="view-btn"
-            >
-              <i class="fas fa-calendar"></i>
-              Réservations
-            </router-link>
-          </div>
-        </div>
-      </div>
+      <CatwayCard
+        v-for="catway in catways"
+        :key="catway.catwayNumber"
+        :catway="catway"
+        @reservations="$emit('view-reservations', catway)"
+      />
     </div>
   </div>
 </template>
@@ -43,11 +26,10 @@ import catwaysService from '@/services/catways.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 interface Catway {
-  _id: string
-  number: number
-  length: number
-  width: number
-  status: string
+  _id: string;
+  catwayNumber: number;
+  catwayType: 'long' | 'short';
+  catwayState: string;
 }
 
 const props = defineProps<{
@@ -56,7 +38,7 @@ const props = defineProps<{
   error: string
 }>()
 
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh', 'view-reservations'])
 const isAdmin = ref(false)
 const errorHandler = inject<ErrorHandler>('errorHandler')
 

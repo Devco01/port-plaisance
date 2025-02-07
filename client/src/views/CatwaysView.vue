@@ -32,11 +32,10 @@ import catwaysService from '@/services/catways.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 interface Catway {
-  _id: string
-  number: number
-  length: number
-  width: number
-  status: string
+  _id: string;
+  catwayNumber: number;
+  catwayType: 'long' | 'short';
+  catwayState: string;
 }
 
 const catways = ref<Catway[]>([])
@@ -47,16 +46,22 @@ const isAdmin = ref(false)
 const errorHandler = inject<ErrorHandler>('errorHandler')
 
 const fetchCatways = async () => {
+  loading.value = true;
+  error.value = '';
   try {
-    loading.value = true
-    const response = await catwaysService.getAll()
-    catways.value = response.data || []
+    const response = await catwaysService.getAll();
+    console.log('Réponse du serveur:', response);
+    if (response.success) {
+      console.log('Données reçues:', response.data);
+      catways.value = response.data;
+    } else {
+      error.value = 'Erreur lors du chargement des catways';
+    }
   } catch (err: any) {
-    error.value = err.message || 'Erreur lors du chargement des catways'
-    console.error('Erreur lors du chargement des catways:', err)
-    catways.value = []
+    error.value = err.message || 'Erreur lors du chargement des catways';
+    console.error('Erreur détaillée:', err);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
