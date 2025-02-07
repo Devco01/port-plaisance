@@ -4,6 +4,8 @@ const User = require('../models/user');
 // Middleware de protection des routes
 const auth = async (req, res, next) => {
     try {
+        console.log('Request URL:', req.url);
+        console.log('Request method:', req.method);
         console.log('Headers:', req.headers);  // Pour debug
         const token = req.headers.authorization?.split(' ')[1];
         

@@ -1,6 +1,7 @@
 const API_URL = '';  // Doit rester vide car le proxy Vite gère les redirections
 
 console.log('API URL:', API_URL);
+console.log('Current origin:', window.location.origin);
 
 interface RequestOptions extends RequestInit {
   token?: string;
@@ -44,13 +45,16 @@ export const apiRequest = async (endpoint: string, options: RequestOptions = {})
     },
     method: options.method || 'GET',
     body,
-    credentials: 'include' as const
+    credentials: 'same-origin'
   };
 
   console.log('Final request options:', defaultOptions);  // Debug
 
   try {
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    const fullUrl = `${window.location.origin}/api${endpoint}`;
+    console.log('Requesting:', fullUrl);
+    
+    const response = await fetch(fullUrl, {
       ...defaultOptions,
     });
 
