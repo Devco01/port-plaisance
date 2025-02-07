@@ -16,7 +16,11 @@ CMD ["npm", "run", "dev"]
 # Production build stage
 FROM base AS build
 COPY . /app/.
-RUN --mount=type=cache,id=s/4b8b76a0-67f7-4ba6-be4f-4c9bc8ce7c82-node_modules/cache,target=/app/node_modules/.cache npm run install:prod
+# Installation sans cache et avec retry
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --no-cache && \
+    npm run build || \
+    (rm -rf node_modules && npm ci --no-cache && npm run build)
 RUN echo "=== Vérification des modèles ===" && ls -R server/models/
 
 # Build stage
@@ -24,7 +28,8 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY package*.json ./
-RUN npm ci --production
+RUN npm ci --omit=dev \
+    && npm cache clean --force
 
 # Production stage
 FROM node:18-alpine

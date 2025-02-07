@@ -1,14 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser } = require('../controllers/userController');
 const { auth, admin } = require('../middleware/auth');
-const {
-    getAllUsers,
-    getUserByEmail,
-    createUser,
-    updateUser,
-    deleteUser
-} = require('../controllers/userController');
-const User = require('../models/user');  // Correction de la casse
+
+// Vérifier que toutes les fonctions existent
+console.log('Controllers:', { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser });
 
 /**
  * @swagger

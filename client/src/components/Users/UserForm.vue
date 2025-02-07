@@ -1,8 +1,10 @@
 ﻿<template>
-  <div class="modal-overlay" @click.self="closeModal">
-    <div class="modal-content">
-      <h2>{{ isEditing ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}</h2>
-      
+  <div class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 class="title">{{ isEdit ? 'Modifier' : 'Ajouter' }} un utilisateur</h2>
+        <button class="close-btn" @click="$emit('close')">&times;</button>
+      </div>
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="username">Nom d'utilisateur</label>
@@ -22,20 +24,20 @@
             id="email"
             v-model="formData.email"
             required
-            :disabled="isEditing"
+            :disabled="isEdit"
             placeholder="email@exemple.com"
           />
         </div>
 
         <div class="form-group">
           <label for="password">
-            {{ isEditing ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe' }}
+            {{ isEdit ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe' }}
           </label>
           <input
             type="password"
             id="password"
             v-model="formData.password"
-            :required="!isEditing"
+            :required="!isEdit"
             placeholder="Mot de passe"
             minlength="6"
           />
@@ -57,13 +59,17 @@
           {{ error }}
         </div>
 
-        <div class="form-actions">
-          <button type="button" class="cancel-btn" @click="closeModal">
-            Annuler
-          </button>
-          <button type="submit" class="submit-btn" :disabled="loading">
-            {{ loading ? 'Enregistrement...' : (isEditing ? 'Modifier' : 'Créer') }}
-          </button>
+        <div class="field is-grouped">
+          <div class="control">
+            <button type="submit" class="button is-primary">
+              {{ isEdit ? 'Modifier' : 'Ajouter' }}
+            </button>
+          </div>
+          <div class="control">
+            <button type="button" class="button" @click="$emit('close')">
+              Annuler
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -71,21 +77,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import usersService from '../../services/users.service'
 
-const props = defineProps<{
-  user?: {
-    _id: string
-    username: string
-    email: string
-    role: string
+const props = defineProps({
+  user: {
+    type: Object,
+    default: () => ({})
+  },
+  isEdit: {
+    type: Boolean,
+    default: false
   }
-}>()
+})
 
-const emit = defineEmits(['close', 'created', 'updated'])
+const emit = defineEmits(['close', 'submit'])
 
-const isEditing = computed(() => !!props.user)
+const isEdit = computed(() => props.isEdit)
 const loading = ref(false)
 const error = ref('')
 
@@ -96,9 +104,14 @@ const formData = ref({
   role: 'user'
 })
 
-const closeModal = () => {
-  emit('close')
-}
+onMounted(() => {
+  if (props.isEdit && props.user) {
+    formData.value = {
+      ...formData.value,
+      ...props.user
+    }
+  }
+})
 
 const handleSubmit = async () => {
   try {
@@ -106,33 +119,21 @@ const handleSubmit = async () => {
     error.value = ''
     
     const payload = { ...formData.value }
-    if (isEditing.value && !payload.password) {
+    if (isEdit.value && !payload.password) {
       delete payload.password
     }
     
-    if (isEditing.value && props.user) {
+    if (isEdit.value && props.user) {
       await usersService.update(props.user.email, payload)
-      emit('updated')
     } else {
       await usersService.create(payload)
-      emit('created')
     }
     
-    closeModal()
+    emit('submit', formData.value)
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Une erreur est survenue'
   } finally {
     loading.value = false
-  }
-}
-
-// Initialisation du formulaire en mode édition
-if (props.user) {
-  formData.value = {
-    username: props.user.username,
-    email: props.user.email,
-    password: '',
-    role: props.user.role
   }
 }
 </script>
@@ -142,27 +143,42 @@ if (props.user) {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
 }
 
-.modal-content {
+.modal-container {
   background: white;
   padding: 2rem;
   border-radius: 8px;
   width: 100%;
   max-width: 500px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
 }
 
-h2 {
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
-  color: #2c3e50;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #666;
+}
+
+.close-btn:hover {
+  color: #333;
 }
 
 .form-group {
@@ -172,20 +188,49 @@ h2 {
 label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #666;
+  font-weight: 500;
 }
 
 input, select {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
 }
 
-input:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
+.field.is-grouped {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.button.is-primary {
+  background-color: #3498db;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.button.is-primary:hover {
+  background-color: #2980b9;
+}
+
+.button:not(.is-primary) {
+  background-color: #6c757d;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.button:not(.is-primary):hover {
+  background-color: #5a6268;
 }
 
 .error-message {
@@ -194,33 +239,8 @@ input:disabled {
   font-size: 0.9rem;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.cancel-btn {
-  background-color: #95a5a6;
-  color: white;
-}
-
-.submit-btn {
-  background-color: #42b983;
-  color: white;
-}
-
-.submit-btn:disabled {
-  background-color: #a8d5c2;
-  cursor: not-allowed;
+h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
 }
 </style>

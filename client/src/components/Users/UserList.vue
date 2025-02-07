@@ -35,7 +35,10 @@
               </span>
             </td>
             <td v-if="isAdmin" class="actions">
-              <button @click="editUser(user)" class="edit-btn">
+              <button 
+                @click="openEditModal(user)" 
+                class="edit-btn"
+              >
                 <i class="fas fa-edit"></i>
                 Modifier
               </button>
@@ -52,6 +55,15 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Modal de modification -->
+    <UserForm 
+      v-if="showEditModal" 
+      :user="selectedUser" 
+      :is-edit="true"
+      @close="closeEditModal"
+      @submit="handleEditUser"
+    />
   </div>
 </template>
 
@@ -59,6 +71,7 @@
 import { ref, onMounted, inject } from 'vue'
 import usersService from '@/services/users.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
+import UserForm from './UserForm.vue'
 
 const props = defineProps<{
   users: Array<{
@@ -70,10 +83,13 @@ const props = defineProps<{
   error: string
 }>()
 
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh', 'edit'])
 const isAdmin = ref(false)
 const currentUserEmail = ref('')
+const usersList = ref(props.users)
 const errorHandler = inject<ErrorHandler>('errorHandler')
+const showEditModal = ref(false)
+const selectedUser = ref(null)
 
 const deleteUser = async (email: string) => {
   if (email === currentUserEmail.value) return
@@ -88,14 +104,41 @@ const deleteUser = async (email: string) => {
   }
 }
 
-const editUser = (user: any) => {
-  emit('edit', user)
+const openEditModal = (user) => {
+  selectedUser.value = user
+  showEditModal.value = true
+}
+
+const closeEditModal = () => {
+  showEditModal.value = false
+  selectedUser.value = null
+}
+
+const handleEditUser = async (userData) => {
+  try {
+    await usersService.update(selectedUser.value.email, userData)
+    await loadUsers()
+    closeEditModal()
+  } catch (error) {
+    console.error('Erreur lors de la modification:', error)
+  }
+}
+
+const loadUsers = async () => {
+  try {
+    const response = await usersService.getAll()
+    usersList.value = response.data
+    emit('refresh')
+  } catch (error) {
+    console.error('Erreur lors du chargement des utilisateurs:', error)
+  }
 }
 
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   isAdmin.value = user.role === 'admin'
   currentUserEmail.value = user.email
+  loadUsers()
 })
 </script>
 
@@ -152,6 +195,7 @@ th {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: 0.875rem;
   transition: all 0.2s ease;
 }
 

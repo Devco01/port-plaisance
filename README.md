@@ -1,103 +1,46 @@
-# API Port de Plaisance Russell
+# Port de Plaisance Russell - Application de Gestion
 
 Application web de gestion des réservations de catways pour le port de plaisance de Russell.
 
-## Description
+## 🚀 Fonctionnalités
 
-Cette API permet la gestion des catways (petits appontements pour amarrer un bateau) et leurs réservations. Elle inclut :
-- Une interface d'administration
-- Une API REST sécurisée
-- Une documentation interactive
+- Authentification sécurisée des utilisateurs
+- Gestion complète des catways (création, modification, suppression)
+- Gestion des réservations de catways
+- Gestion des utilisateurs avec différents rôles (admin, user)
+- Interface utilisateur intuitive et responsive
+- Documentation API Swagger intégrée
 
-## Installation
+## 🛠️ Technologies Utilisées
 
-1. Cloner le repository
-```bash
-git clone https://github.com/Devco01/port-plaisance
-cd port-plaisance
-```
+### Backend
+- Node.js avec Express
+- MongoDB avec Mongoose
+- JWT pour l'authentification
+- Swagger pour la documentation API
 
-2. Installer les dépendances
-```bash
-# Backend
-cd server
-npm install
+### Frontend
+- Vue.js 3 avec Composition API
+- Vite comme bundler
+- TypeScript
+- Tailwind CSS pour le style
 
-# Frontend
-cd client
-npm install
-```
 
-3. Configurer MongoDB
-```bash
-# Vérifier que MongoDB est installé et lancé
-# L'application utilise l'URI par défaut : mongodb://localhost:27017/port-plaisance
-```
-
-4. Lancer l'application
-```bash
-# Backend (depuis /server)
-npm run dev
-# L'API sera disponible sur http://localhost:5000
-
-# Frontend (depuis /client)
-npm run dev
-# L'interface sera disponible sur http://localhost:5173
-```
-
-## Documentation API
-
-La documentation de l'API est accessible depuis la page d'accueil ou directement à l'adresse :
-`http://localhost:5000/api-docs`
-
-## Identifiants de test
+## 🔐 Compte de démonstration
 
 ```
-Email : admin@portplaisance.fr
-Mot de passe : PortAdmin2024!
+Email: admin@portplaisance.fr
+Mot de passe: PortAdmin2024!
 ```
 
-## Auteur
+## 📱 Pages de l'application
 
-Devco01
+- **/** - Page d'accueil avec connexion et accès à la documentation
+- **/dashboard** - Tableau de bord avec les réservations en cours
+- **/catways** - Gestion des catways
+- **/reservations** - Gestion des réservations
+- **/users** - Gestion des utilisateurs
 
-## Architecture
+## 🚀 Déploiement
 
-### Gestion des erreurs
-
-L'application utilise un système centralisé de gestion des erreurs via le composant `ErrorHandler.vue`.
-Les erreurs sont affichées dans une notification en haut à droite de l'écran.
-
-- En développement : affiche les détails complets de l'erreur
-- En production : affiche uniquement le message d'erreur
-
-### API
-
-Toutes les requêtes API sont préfixées par `/api` et gérées par :
-
-- En développement : proxy Vite vers `http://localhost:5000`
-- En production : rewrites Vercel vers l'API de production
-
-## Configuration
-
-### Développement
-- Créer un fichier `.env.local` avec :
-```
-VITE_API_URL=http://localhost:5000/api
-```
-
-### Production
-- L'API est proxifiée via Vercel
-- Les requêtes `/api/*` sont redirigées vers l'API de production
-- Pas besoin de configuration CORS côté client
-
-## Développement
-```
-npm install
-npm run dev
-```
-
-## Production
-```
-npm run build
-```
+L'application est déployée sur [https://port-plaisance-phi.vercel.app/]

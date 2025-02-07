@@ -41,9 +41,10 @@ interface Catway {
 
 const catways = ref<Catway[]>([])
 const loading = ref(true)
-const errorHandler = inject<ErrorHandler>('errorHandler')
+const error = ref('')
 const showAddModal = ref(false)
 const isAdmin = ref(false)
+const errorHandler = inject<ErrorHandler>('errorHandler')
 
 const fetchCatways = async () => {
   try {
@@ -51,7 +52,8 @@ const fetchCatways = async () => {
     const response = await catwaysService.getAll()
     catways.value = response.data || []
   } catch (err: any) {
-    errorHandler?.showError(err)
+    error.value = err.message || 'Erreur lors du chargement des catways'
+    console.error('Erreur lors du chargement des catways:', err)
     catways.value = []
   } finally {
     loading.value = false

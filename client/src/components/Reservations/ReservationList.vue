@@ -1,11 +1,11 @@
 ﻿<template>
   <div class="reservations-list">
-    <div v-if="loading" class="loading">
-      <div class="loading-spinner"></div>
-      Chargement des réservations...
+    <div v-if="props.loading" class="loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      Chargement...
     </div>
 
-    <div v-else-if="reservations.length === 0" class="empty">
+    <div v-else-if="!props.reservations.length" class="empty">
       <i class="fas fa-inbox"></i>
       Aucune réservation trouvée
     </div>
@@ -23,7 +23,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="reservation in reservations" :key="reservation._id">
+          <tr v-for="reservation in props.reservations" :key="reservation._id">
             <td>
               <span class="badge catway">{{ reservation.catwayNumber }}</span>
             </td>
@@ -55,7 +55,6 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue'
 import catwaysService from '../../services/catways.service'
-import reservationsService from '../../services/reservations.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 interface Reservation {
@@ -71,9 +70,10 @@ interface Reservation {
 const props = defineProps<{
   reservations: Reservation[]
   loading: boolean
+  error: string
 }>()
 
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh', 'edit'])
 const errorHandler = inject<ErrorHandler>('errorHandler')
 
 const formatDate = (dateString: string) => {
@@ -84,7 +84,10 @@ const deleteReservation = async (id: string) => {
   if (!confirm('Voulez-vous vraiment supprimer cette réservation ?')) return
   
   try {
-    await reservationsService.delete(id)
+    const reservation = props.reservations.find(r => r._id === id)
+    if (!reservation) return
+    
+    await catwaysService.deleteReservation(reservation.catwayNumber, id)
     emit('refresh')
   } catch (err: any) {
     errorHandler?.showError(err)
@@ -92,8 +95,7 @@ const deleteReservation = async (id: string) => {
 }
 
 const editReservation = (reservation: Reservation) => {
-  // TODO: Implémenter l'édition
-  console.log('Édition de la réservation:', reservation)
+  emit('edit', reservation)
 }
 </script>
 

@@ -63,9 +63,9 @@ app.use('/api/*', (req, res) => {
 // Middleware de gestion d'erreurs
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-    console.log(`Serveur démarré sur le port ${PORT}`);
+    console.log(`🚀 Serveur démarré sur le port ${PORT}`);
     console.log(`Documentation API disponible sur http://localhost:${PORT}/api-docs`);
     console.log(`Page d'accueil disponible sur http://localhost:${PORT}`);
 });

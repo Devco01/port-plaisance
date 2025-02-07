@@ -2,6 +2,7 @@ import { apiRequest } from '@/middleware/api.middleware';
 
 export interface LoginResponse {
   success: boolean
+  error?: string
   data: {
     token: string
     user: {
@@ -15,23 +16,23 @@ export interface LoginResponse {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const data = await apiRequest('/auth/login', {
+    const response = await apiRequest<LoginResponse>('/api/auth/login', {
       method: 'POST',
       data: { email, password }
     });
 
-    if (data.success) {
+    if (response.success) {
       // Nettoyage préventif
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
       // Stockage des nouvelles données
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       
-      return data;
+      return response;
     } else {
-      throw new Error(data.error || 'Erreur de connexion');
+      throw new Error(response.error || 'Erreur de connexion');
     }
   } catch (error: any) {
     console.error('Erreur de connexion:', error);
@@ -59,7 +60,7 @@ export const getCurrentUser = async () => {
       throw new Error('Non authentifié');
     }
 
-    const data = await apiRequest('/auth/me', {
+    const data = await apiRequest('/api/auth/me', {
       token
     });
     

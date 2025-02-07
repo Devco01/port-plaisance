@@ -1,24 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');
-const {
-    getAllReservations,
-    getReservationById,
-    createReservation,
-    updateReservation,
-    deleteReservation,
-    getCurrentReservations,
-    getCatwayReservations,
-    getReservation
-} = require('../controllers/reservationController');
-const Reservation = require('../models/reservation');  // Correction de la casse
+const reservationController = require('../controllers/reservationController');
 
 // Protéger toutes les routes
 router.use(auth);
 
 /**
  * @swagger
- * /api/reservations:
+ * /reservations:
  *   get:
  *     summary: Récupère toutes les réservations
  *     tags: [Réservations]
@@ -27,19 +17,8 @@ router.use(auth);
  *     responses:
  *       200:
  *         description: Liste de toutes les réservations
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Reservation'
  */
-router.get('/', getAllReservations);
+// Route redirigée vers /catways/:id/reservations
 
 /**
  * @swagger
@@ -64,11 +43,11 @@ router.get('/', getAllReservations);
  *                   items:
  *                     $ref: '#/components/schemas/Reservation'
  */
-router.get('/current', getCurrentReservations);
+// Route redirigée vers /catways/:id/reservations avec filtre de date
 
 /**
  * @swagger
- * /api/catways/{id}/reservations:
+ * /catways/{id}/reservations:
  *   get:
  *     summary: Récupère les réservations d'un catway
  *     tags: [Réservations]
@@ -96,7 +75,7 @@ router.get('/current', getCurrentReservations);
  *                   items:
  *                     $ref: '#/components/schemas/Reservation'
  */
-router.get('/catways/:id/reservations', getCatwayReservations);
+router.get('/catways/:id/reservations', reservationController.getReservationsByCatway);
 
 /**
  * @swagger
@@ -132,41 +111,11 @@ router.get('/catways/:id/reservations', getCatwayReservations);
  *                 data:
  *                   $ref: '#/components/schemas/Reservation'
  */
-router.get('/catways/:id/reservations/:idReservation', getReservation);
+router.get('/catways/:id/reservations/:idReservation', reservationController.getReservationById);
 
 /**
  * @swagger
- * /api/reservations/{id}:
- *   get:
- *     summary: Récupère une réservation par son ID
- *     tags: [Réservations]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID de la réservation
- *     responses:
- *       200:
- *         description: Détails de la réservation
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   $ref: '#/components/schemas/Reservation'
- */
-router.get('/:id', getReservationById);
-
-/**
- * @swagger
- * /api/reservations:
+ * /api/catways/{id}/reservations:
  *   post:
  *     summary: Crée une nouvelle réservation
  *     tags: [Réservations]
@@ -191,11 +140,11 @@ router.get('/:id', getReservationById);
  *                 data:
  *                   $ref: '#/components/schemas/Reservation'
  */
-router.post('/', createReservation);
+// Route redirigée vers /catways/:id/reservations
 
 /**
  * @swagger
- * /api/reservations/{id}:
+ * /api/catways/{id}/reservations/{idReservation}:
  *   put:
  *     summary: Modifie une réservation existante
  *     tags: [Réservations]
@@ -227,11 +176,11 @@ router.post('/', createReservation);
  *                 data:
  *                   $ref: '#/components/schemas/Reservation'
  */
-router.put('/:id', updateReservation);
+// Route redirigée vers /catways/:id/reservations/:idReservation
 
 /**
  * @swagger
- * /api/reservations/{id}:
+ * /api/catways/{id}/reservations/{idReservation}:
  *   delete:
  *     summary: Supprime une réservation
  *     tags: [Réservations]
@@ -257,6 +206,9 @@ router.put('/:id', updateReservation);
  *                 data:
  *                   type: object
  */
-router.delete('/:id', deleteReservation);
+// Route redirigée vers /catways/:id/reservations/:idReservation
+
+// Route pour obtenir les réservations courantes
+router.get('/current', reservationController.getCurrentReservations);
 
 module.exports = router; 

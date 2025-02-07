@@ -43,14 +43,17 @@
           :loading="loading"
           :error="error"
           @refresh="fetchReservations"
+          @edit="handleEdit"
         />
       </div>
 
       <ReservationForm
         v-if="showAddForm"
+        :reservation="selectedReservation"
         :catways="catways"
-        @close="showAddForm = false"
+        @close="closeForm"
         @created="handleReservationCreated"
+        @updated="handleReservationUpdated"
       />
     </div>
   </PageLayout>
@@ -62,7 +65,6 @@ import { PageLayout } from '@/components/Layout'
 import ReservationList from '@/components/Reservations/ReservationList.vue'
 import ReservationForm from '@/components/Reservations/ReservationForm.vue'
 import catwaysService from '@/services/catways.service'
-import reservationsService from '@/services/reservations.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 const reservations = ref([])
@@ -70,6 +72,8 @@ const catways = ref([])
 const loading = ref(true)
 const errorHandler = inject<ErrorHandler>('errorHandler')
 const showAddForm = ref(false)
+const error = ref('')
+const selectedReservation = ref(null)
 
 const filters = ref({
   date: '',
@@ -79,7 +83,8 @@ const filters = ref({
 const fetchCatways = async () => {
   try {
     const response = await catwaysService.getAll()
-    catways.value = response.data || []
+    console.log('Catways response:', response)  // Temporaire pour déboguer
+    catways.value = Array.isArray(response.data) ? response.data : []
   } catch (error) {
     console.error('Erreur lors du chargement des catways:', error)
   }
@@ -87,12 +92,9 @@ const fetchCatways = async () => {
 
 const fetchReservations = async () => {
   try {
-    loading.value = true
-    errorHandler?.showLoading()
-
     if (filters.value.catwayNumber) {
-      const response = await reservationsService.getReservations(filters.value.catwayNumber)
-      const allReservations = response.data.data || []
+      const response = await catwaysService.getReservations(filters.value.catwayNumber)
+      const allReservations = response.data || []
       reservations.value = filters.value.date 
         ? allReservations.filter(res => {
             const filterDate = new Date(filters.value.date)
@@ -102,8 +104,19 @@ const fetchReservations = async () => {
           })
         : allReservations
     } else {
-      const response = await reservationsService.getAll()
-      const allReservations = response.data.data || []
+      // Pour toutes les réservations, nous devons d'abord obtenir tous les catways
+      const catwaysResponse = await catwaysService.getAll()
+      const allCatways = catwaysResponse.data || []
+      
+      // Puis obtenir toutes les réservations pour chaque catway
+      const allReservationsPromises = allCatways.map(catway => 
+        catwaysService.getReservations(catway.number.toString())
+      )
+      const reservationsResponses = await Promise.all(allReservationsPromises)
+      
+      // Fusionner toutes les réservations
+      const allReservations = reservationsResponses.flatMap(response => response.data || [])
+      
       reservations.value = filters.value.date
         ? allReservations.filter(res => {
             const filterDate = new Date(filters.value.date)
@@ -114,7 +127,8 @@ const fetchReservations = async () => {
         : allReservations
     }
   } catch (err: any) {
-    errorHandler?.showError(err)
+    error.value = err.message || 'Erreur lors du chargement des réservations'
+    console.error('Erreur lors du chargement des réservations:', err)
   } finally {
     loading.value = false
   }
@@ -122,6 +136,21 @@ const fetchReservations = async () => {
 
 const handleReservationCreated = () => {
   showAddForm.value = false
+  fetchReservations()
+}
+
+const handleEdit = (reservation: Reservation) => {
+  selectedReservation.value = reservation
+  showAddForm.value = true
+}
+
+const closeForm = () => {
+  showAddForm.value = false
+  selectedReservation.value = null
+}
+
+const handleReservationUpdated = () => {
+  closeForm()
   fetchReservations()
 }
 
@@ -178,7 +207,7 @@ h1 {
 }
 
 .add-btn {
-  background-color: #42b983;
+  background-color: #3498db;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -188,11 +217,11 @@ h1 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .add-btn:hover {
-  background-color: #3aa876;
+  background-color: #2980b9;
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }

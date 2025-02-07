@@ -2,6 +2,9 @@
   <div class="min-h-screen bg-gray-100">
     <Navbar />
     <main class="main-content">
+      <div v-if="error" class="error-message">
+        {{ error }}
+      </div>
       <slot></slot>
     </main>
     <ErrorHandler ref="errorHandler" />
@@ -14,6 +17,7 @@ import ErrorHandler from '../ErrorHandler.vue'
 import { ref, onMounted, provide } from 'vue'
 
 const errorHandler = ref()
+const error = ref('')
 
 provide('errorHandler', errorHandler)
 

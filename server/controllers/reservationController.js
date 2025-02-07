@@ -61,8 +61,8 @@ const reservationController = {
     }
   },
 
-  // Obtenir une réservation spécifique
-  getReservation: async (req, res) => {
+  // Obtenir une réservation par ID
+  getReservationById: async (req, res) => {
     try {
       const reservation = await Reservation.findOne({
         catwayNumber: req.params.id,
@@ -70,34 +70,20 @@ const reservationController = {
       });
       
       if (!reservation) {
-        return res.status(404).json({ success: false, error: 'Réservation non trouvée' });
-      }
-      
-      res.json({ success: true, data: reservation });
-    } catch (error) {
-      res.status(500).json({ success: false, error: error.message });
-    }
-  },
-
-  // Obtenir une réservation par ID
-  getReservationById: async (req, res) => {
-    try {
-      const reservation = await Reservation.findById(req.params.id);
-      if (!reservation) {
         return res.status(404).json({
           success: false,
-          message: 'Réservation non trouvée'
+          error: 'Réservation non trouvée'
         });
       }
+      
       res.json({
         success: true,
         data: reservation
       });
     } catch (error) {
-      res.status(500).json({ 
-        success: false, 
-        message: 'Erreur lors de la récupération de la réservation',
-        error: error.message
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la récupération de la réservation'
       });
     }
   },
@@ -105,47 +91,83 @@ const reservationController = {
   // Créer une réservation
   createReservation: async (req, res) => {
     try {
-      const reservation = await Reservation.create({
+      const newReservation = await Reservation.create({
         ...req.body,
-        user: req.user._id
+        catwayNumber: req.params.id,
+        userId: req.user._id
       });
-      res.status(201).json({ success: true, data: reservation });
+      
+      res.status(201).json({
+        success: true,
+        data: newReservation
+      });
     } catch (error) {
-      res.status(400).json({ success: false, error: error.message });
+      res.status(400).json({
+        success: false,
+        error: 'Erreur lors de la création de la réservation'
+      });
     }
   },
 
   // Modifier une réservation
   updateReservation: async (req, res) => {
     try {
-      const reservation = await Reservation.findByIdAndUpdate(
-        req.params.id,
+      const reservation = await Reservation.findOneAndUpdate(
+        {
+          catwayNumber: req.params.id,
+          _id: req.params.idReservation
+        },
         req.body,
         { new: true, runValidators: true }
       );
+
       if (!reservation) {
-        return res.status(404).json({ success: false, error: 'Réservation non trouvée' });
+        return res.status(404).json({
+          success: false,
+          error: 'Réservation non trouvée'
+        });
       }
-      res.json({ success: true, data: reservation });
+
+      res.json({
+        success: true,
+        data: reservation
+      });
     } catch (error) {
-      res.status(400).json({ success: false, error: error.message });
+      res.status(400).json({
+        success: false,
+        error: 'Erreur lors de la mise à jour de la réservation'
+      });
     }
   },
 
   // Supprimer une réservation
   deleteReservation: async (req, res) => {
     try {
-      const reservation = await Reservation.findByIdAndDelete(req.params.id);
+      const reservation = await Reservation.findOneAndDelete({
+        catwayNumber: req.params.id,
+        _id: req.params.idReservation
+      });
+
       if (!reservation) {
-        return res.status(404).json({ success: false, error: 'Réservation non trouvée' });
+        return res.status(404).json({
+          success: false,
+          error: 'Réservation non trouvée'
+        });
       }
-      res.json({ success: true, data: {} });
+
+      res.json({
+        success: true,
+        data: {}
+      });
     } catch (error) {
-      res.status(500).json({ success: false, error: error.message });
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la suppression de la réservation'
+      });
     }
   },
 
-  // Réservations courantes
+  // Obtenir les réservations courantes
   getCurrentReservations: async (req, res) => {
     try {
       const currentDate = new Date();
@@ -153,6 +175,22 @@ const reservationController = {
         startDate: { $lte: currentDate },
         endDate: { $gte: currentDate }
       });
+
+      res.json({
+        success: true,
+        data: reservations
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la récupération des réservations courantes'
+      });
+    }
+  },
+
+  getReservationsByCatway: async (req, res) => {
+    try {
+      const reservations = await Reservation.find({ catwayNumber: req.params.id });
       res.json({
         success: true,
         data: reservations

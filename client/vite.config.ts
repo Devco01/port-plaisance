@@ -15,7 +15,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false
       }
@@ -29,6 +29,13 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: true,
     minify: 'esbuild',
-    target: 'esnext'
+    target: 'esnext',
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      }
+    }
   }
 })
+
+console.log('Vite config - API URL:', process.env.VITE_API_URL);

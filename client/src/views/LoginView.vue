@@ -64,6 +64,7 @@ import { login } from '@/services/auth.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 const router = useRouter()
+const error = ref('')
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
@@ -75,7 +76,8 @@ const handleSubmit = async () => {
     await login(email.value, password.value)
     router.push('/dashboard')
   } catch (err: any) {
-    errorHandler?.showError(err)
+    error.value = err.message || 'Erreur de connexion'
+    console.error('Erreur de connexion:', err)
   } finally {
     loading.value = false
   }

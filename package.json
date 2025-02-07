@@ -5,7 +5,7 @@
   "main": "server/app.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "vite",
+    "dev": "concurrently \"npm run server\" \"npm run client\" --names \"SERVER,CLIENT\" --prefix-colors \"blue,green\"",
     "test": "cd server && npm test",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
