@@ -9,7 +9,10 @@ const User = require('../models/user');
 // Fonction pour connecter à MongoDB
 const connectDB = async () => {
   try {
+    console.log('Connexion à MongoDB...');
+    console.log('URI:', process.env.MONGODB_URI);
     await mongoose.connect(process.env.MONGODB_URI);
+    console.log('Base de données:', mongoose.connection.db.databaseName);
     console.log('MongoDB connecté');
   } catch (err) {
     console.error('Erreur de connexion MongoDB:', err);

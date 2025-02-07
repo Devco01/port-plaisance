@@ -6,9 +6,11 @@ const connectDB = async () => {
             process.env.MONGODB_URI?.substring(0, 20) + '...');
         const conn = await mongoose.connect(process.env.MONGODB_URI, {
             useNewUrlParser: true,
-            useUnifiedTopology: true
+            useUnifiedTopology: true,
+            dbName: 'port-de-plaisance'
         });
-        console.log(`MongoDB Connected successfully to ${conn.connection.host}`);
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        console.log(`Database: ${conn.connection.db.databaseName}`);
         
         // Vérifier que la connexion est active
         if (mongoose.connection.readyState === 1) {
@@ -18,7 +20,7 @@ const connectDB = async () => {
                 mongoose.connection.readyState);
         }
     } catch (error) {
-        console.error('MongoDB connection error:', error);
+        console.error(`Error: ${error.message}`);
         process.exit(1);
     }
 };
