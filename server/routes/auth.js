@@ -1,13 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const { register, login, logout, getCurrentUser } = require('../controllers/authController');
-const { auth } = require('../middleware/auth');
+const { auth, debugMiddleware } = require('../middleware/auth');
 const User = require('../models/user');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-// Log pour déboguer
-console.log('Routes auth chargées');
+// Log pour déboguer les routes
+console.log('Initialisation des routes auth avec les endpoints :', [
+  '/login (POST)',
+  '/logout (GET)',
+  '/register (POST)',
+  '/me (GET)',
+  '/check-users (GET)',
+  '/test-db (GET)',
+  '/test-password-public (POST)'
+]);
 
 /**
  * @swagger
@@ -160,10 +168,10 @@ router.get('/test-db', async (req, res) => {
 });
 
 // Route de test pour vérifier le mot de passe directement
-router.post('/test-password-public', async (req, res) => {
+router.post('/debug-auth', debugMiddleware, async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Test password for:', email);
+    console.log('Debug auth for:', email);
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -203,6 +211,14 @@ router.post('/test-password-public', async (req, res) => {
       stack: error.stack
     });
   }
+});
+
+// Route de test simple
+router.get('/test-simple', (req, res) => {
+  res.json({
+    message: 'Test route works',
+    timestamp: new Date().toISOString()
+  });
 });
 
 module.exports = router;
