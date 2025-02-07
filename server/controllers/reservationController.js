@@ -1,38 +1,34 @@
 const Reservation = require('../models/reservation');
-const Catway = require('../models/catway');
 
 // Créer un objet pour stocker toutes nos fonctions
 const reservationController = {
   // Obtenir toutes les réservations
   getAllReservations: async (req, res) => {
     try {
-      // Récupérer tous les catways
-      const catways = await Catway.find();
+      // Récupérer toutes les réservations
+      const reservations = await Reservation.find().populate('catway');
       
-      console.log('Catways trouvés:', catways);
+      // Formater les réservations
+      const formattedReservations = reservations.map(res => {
+        const resObj = res.toObject();
+        return {
+          _id: resObj._id,
+          clientName: resObj.clientName,
+          boatName: resObj.boatName,
+          startDate: resObj.startDate,
+          endDate: resObj.endDate,
+          status: resObj.status,
+          catway: {
+            number: resObj.catway?.number || 'N/A'
+          }
+        };
+      });
       
-      // Récupérer toutes les réservations pour tous les catways
-      const allReservations = await Promise.all(
-        catways.map(async (catway) => {
-          const reservations = await Reservation.find({ catway: catway._id });
-          console.log(`Réservations pour catway ${catway.catwayNumber}:`, reservations);
-          return reservations.map(res => ({
-            ...res.toObject(),
-            catway: {
-              number: catway.catwayNumber?.toString() || 'N/A'
-            }
-          }));
-        })
-      );
-      
-      // Aplatir le tableau de réservations
-      const flattenedReservations = allReservations.flat();
-      
-      console.log('Réservations formatées:', flattenedReservations);
+      console.log('Réservations formatées:', formattedReservations);
       
       res.json({
         success: true,
-        data: flattenedReservations
+        data: formattedReservations
       });
     } catch (error) {
       console.error('Erreur dans getAllReservations:', error);

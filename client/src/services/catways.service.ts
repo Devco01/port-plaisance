@@ -11,12 +11,13 @@ export interface Catway {
 export interface Reservation {
   _id: string
   catway: {
-    number: string
+    number: string | 'N/A'
   }
   clientName: string
   boatName: string
   startDate: string
   endDate: string
+  status?: string
 }
 
 const catwaysService = {
