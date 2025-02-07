@@ -4,9 +4,11 @@ const User = require('../models/user');
 // Middleware de protection des routes
 const auth = async (req, res, next) => {
     try {
+        console.log('Headers:', req.headers);  // Pour debug
         const token = req.headers.authorization?.split(' ')[1];
         
         if (!token) {
+            console.log('No token provided');
             return res.status(401).json({
                 success: false,
                 message: 'Accès non autorisé : token manquant'
@@ -29,6 +31,7 @@ const auth = async (req, res, next) => {
             req.user = user;
             next();
         } catch (error) {
+            console.log('Auth error:', error);
             return res.status(401).json({
                 success: false,
                 message: 'Token invalide'
