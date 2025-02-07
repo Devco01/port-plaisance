@@ -6,8 +6,9 @@ WORKDIR /app
 # Copier les fichiers de dépendances
 COPY package*.json ./
 
-# Installer les dépendances avec un cache correct
-RUN npm ci
+# Installer les dépendances
+RUN --mount=type=cache,target=/root/.npm,id=railway-npm-cache \
+    npm install
 
 # Copier le reste des fichiers
 COPY . .
