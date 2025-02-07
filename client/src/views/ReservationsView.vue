@@ -76,6 +76,7 @@ const formatReservationData = (reservations: Array<any>): Reservation[] => {
   }
   
   return reservations.map(res => {
+    console.log('Données brutes de réservation:', res); // Debug
     if (!res) {
       console.error('Réservation invalide:', res);
       return null;
@@ -84,9 +85,7 @@ const formatReservationData = (reservations: Array<any>): Reservation[] => {
     return {
       _id: res._id,
       catway: {
-        number: typeof res.catway?.number === 'number' ? 
-          res.catway.number.toString() : 
-          (res.catway?.number || 'N/A')
+        number: res.catway?.catwayNumber?.toString() || 'N/A'
       },
       clientName: res.clientName || 'Non spécifié',
       boatName: res.boatName || 'Non spécifié',
