@@ -15,8 +15,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'https://port-plaisance-api-production-73a9.up.railway.app',
+        target: 'https://port-plaisance-api-production-73a9.up.railway.app/api',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   },
