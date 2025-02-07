@@ -55,7 +55,15 @@ const fetchCatways = async () => {
 
     if (response.success) {
       console.log('Catways chargés:', response.data);
-      catways.value = response.data;
+      catways.value = Array.isArray(response.data) 
+        ? response.data.map(catway => {
+          console.log('Traitement du catway:', catway)
+          return {
+            ...catway,
+            number: catway.catwayNumber
+          }
+        })
+        : []
     } else {
       error.value = 'Erreur lors du chargement des catways';
     }

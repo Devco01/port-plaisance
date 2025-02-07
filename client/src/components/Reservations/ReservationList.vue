@@ -23,7 +23,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="reservation in props.reservations" :key="reservation._id">
+          <tr v-for="reservation in sortedReservations" :key="reservation._id">
             <td>
               <span class="badge catway">{{ reservation.catway?.number || 'N/A' }}</span>
             </td>
@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, computed } from 'vue'
 import catwaysService from '../../services/catways.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
@@ -81,6 +81,12 @@ const errorHandler = inject<ErrorHandler>('errorHandler')
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('fr-FR')
 }
+
+const sortedReservations = computed(() => {
+  return [...props.reservations].sort((a, b) => 
+    a.catway.number - b.catway.number
+  );
+});
 
 const deleteReservation = async (id: string) => {
   if (!confirm('Voulez-vous vraiment supprimer cette réservation ?')) return

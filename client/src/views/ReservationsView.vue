@@ -91,7 +91,7 @@ const formatReservationData = (reservations: Array<any>): Reservation[] => {
     try {
       return {
         _id: res._id,
-        catwayNumber: parseInt(res.catwayNumber) || 0,
+        catwayNumber: parseInt(res.catwayNumber.toString()),
         clientName: res.clientName || 'Non spécifié',
         boatName: res.boatName || 'Non spécifié',
         startDate: new Date(res.startDate),
