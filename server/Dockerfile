@@ -1,21 +1,32 @@
-FROM node:18-alpine
+# Étape de build
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copier package.json et package-lock.json du serveur
+# Copier les fichiers de dépendances
 COPY package*.json ./
 
-# Installer les dépendances du serveur
-RUN npm install --production=false
+# Installer les dépendances avec un cache correct
+RUN --mount=type=cache,id=npm,target=/root/.npm \
+    npm ci
 
-# Copier tous les fichiers du serveur
+# Copier le reste des fichiers
 COPY . .
 
-# Vérifier les modèles
-RUN sh -c 'echo "=== Vérification des modèles ===" && ls -R models/'
+# Étape de production
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+# Copier les fichiers nécessaires depuis l'étape de build
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/*.js ./
 
 # Exposer le port
-EXPOSE 5000
+EXPOSE 3001
 
-# Démarrer l'application
+# Commande de démarrage
 CMD ["npm", "start"] 
