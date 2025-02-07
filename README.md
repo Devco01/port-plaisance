@@ -27,10 +27,13 @@ Application web de gestion des réservations de catways pour le port de plaisanc
 
 
 ## 🔐 Compte de démonstration
-
+Email:
 ```
-Email: admin@portplaisance.fr
-Mot de passe: PortAdmin2024!
+admin@portplaisance.fr
+```
+Mot de passe:
+```
+PortAdmin2024!
 ```
 
 ## 📱 Pages de l'application
@@ -43,4 +46,4 @@ Mot de passe: PortAdmin2024!
 
 ## 🚀 Déploiement
 
-L'application est déployée sur [https://port-plaisance-k4q3anh15-devco01s-projects.vercel.app/]
+L'application est déployée sur [https://port-plaisance-hqiduf52s-devco01s-projects.vercel.app/]
