@@ -8,9 +8,14 @@ const reservationController = {
       // Récupérer toutes les réservations
       const reservations = await Reservation.find().populate('catway');
       
+      console.log('Réservations brutes:', reservations);
+      
       // Formater les réservations
       const formattedReservations = reservations.map(res => {
         const resObj = res.toObject();
+        // S'assurer que le numéro du catway est correctement formaté
+        const catwayNumber = resObj.catway?.catwayNumber || resObj.catwayNumber;
+        
         return {
           _id: resObj._id,
           clientName: resObj.clientName,
@@ -19,7 +24,7 @@ const reservationController = {
           endDate: resObj.endDate,
           status: resObj.status,
           catway: {
-            number: resObj.catway?.number || 'N/A'
+            number: catwayNumber ? catwayNumber.toString() : 'N/A'
           }
         };
       });
