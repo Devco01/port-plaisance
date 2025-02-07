@@ -17,8 +17,17 @@ export interface Reservation {
 
 const catwaysService = {
   getAll: () => {
-    const token = localStorage.getItem('token') || undefined
+    const token = localStorage.getItem('token') || undefined;
+    console.log('Appel getAll avec token:', token);
     return apiRequest('/api/catways', { token })
+      .then(response => {
+        console.log('Réponse API catways:', response);
+        return response;
+      })
+      .catch(error => {
+        console.error('Erreur API catways:', error);
+        throw error;
+      });
   },
 
   getCatway: (id: string) => {

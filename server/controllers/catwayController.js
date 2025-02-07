@@ -1,19 +1,31 @@
 const Catway = require('../models/catway');
+const mongoose = require('mongoose');
 
 // Obtenir tous les catways
 exports.getAllCatways = async (req, res) => {
     try {
         console.log('GET /catways appelé');
+        // Vérifier la connexion à MongoDB
+        if (!mongoose.connection.readyState) {
+            throw new Error('MongoDB non connecté');
+        }
+
         const catways = await Catway.find();
         console.log('=== Données MongoDB ===');
         console.log('Nombre de catways trouvés:', catways.length);
         console.log('Premier catway:', JSON.stringify(catways[0], null, 2));
-        console.log('======================');
+
+        if (!catways.length) {
+            console.error('Aucun catway trouvé dans MongoDB');
+            return res.json({ 
+                success: true, 
+                data: [] 
+            });
+        }
 
         // Formater les catways avec les bonnes propriétés
         const formattedCatways = catways.map(catway => ({
             _id: catway._id,
-            number: catway.catwayNumber,
             catwayNumber: catway.catwayNumber,
             catwayType: catway.catwayType,
             catwayState: catway.catwayState
@@ -23,7 +35,7 @@ exports.getAllCatways = async (req, res) => {
 
         // Trier par numéro
         const sortedCatways = formattedCatways.sort((a, b) => 
-            parseInt(a.number) - parseInt(b.number)
+            a.catwayNumber - b.catwayNumber
         );
 
         res.json({ 
@@ -32,7 +44,11 @@ exports.getAllCatways = async (req, res) => {
         });
     } catch (error) {
         console.error('Erreur getAllCatways:', error);
-        res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({ 
+            success: false, 
+            error: error.message,
+            details: 'Erreur lors de la récupération des catways depuis MongoDB'
+        });
     }
 };
 

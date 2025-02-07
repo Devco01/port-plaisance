@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Catway = require('../models/catway');
 const Reservation = require('../models/reservation');
+const User = require('../models/user');
 
 // Fonction pour connecter à MongoDB
 const connectDB = async () => {
@@ -19,55 +20,54 @@ const connectDB = async () => {
 // Fonction pour importer les catways
 const importCatways = async () => {
   try {
+    console.log('Début de l\'import des catways...');
     const catwaysData = JSON.parse(
       fs.readFileSync(path.join(__dirname, '../data/catways.json'), 'utf-8')
     );
 
-    console.log('=== Vérification des données catways ===');
-    console.log('Nombre de catways dans le fichier JSON:', catwaysData.length);
-    console.log('Premier catway dans le JSON:', catwaysData[0]);
-    console.log('Dernier catway dans le JSON:', catwaysData[catwaysData.length - 1]);
+    // Vérifier que la collection existe
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    const catwayCollection = collections.find(c => c.name === 'catways');
+    
+    if (catwayCollection) {
+      console.log('Suppression de la collection catways...');
+      await mongoose.connection.db.dropCollection('catways');
+    }
 
     // Conversion des données au nouveau format
-    const formattedCatways = catwaysData.map(catway => {
-      if (!catway.catwayNumber) {
-        console.error('Catway sans numéro:', catway);
-        return null;
-      }
-      return {
-        catwayNumber: catway.catwayNumber,
-        catwayType: catway.catwayType || 'short',
-        catwayState: catway.catwayState || 'bon état'
-      };
-    }).filter(Boolean);
+    const formattedCatways = catwaysData.map(catway => ({
+      catwayNumber: catway.catwayNumber,
+      catwayType: catway.catwayType || 'short',
+      catwayState: catway.catwayState || 'bon état'
+    }));
 
-    console.log('=== Données formatées ===');
-    console.log('Nombre de catways après formatage:', formattedCatways.length);
-    console.log('Données des catways à importer:', formattedCatways);
-
-    // Suppression des données existantes
-    const existingCount = await Catway.countDocuments();
-    console.log('Nombre de catways existants avant suppression:', existingCount);
-    await Catway.deleteMany({});
+    console.log(`Tentative d'import de ${formattedCatways.length} catways...`);
     
     // Import des nouvelles données
     const result = await Catway.insertMany(formattedCatways);
-    console.log(`✅ ${result.length} catways importés sur ${catwaysData.length} attendus`);
-    
-    // Vérification finale
-    const finalCount = await Catway.countDocuments();
-    console.log('Nombre final de catways dans MongoDB:', finalCount);
+    console.log(`✅ ${result.length} catways importés avec succès`);
     
     return result;
   } catch (err) {
     console.error('❌ Erreur lors de l\'import des catways:', err);
-    console.error('Détails de l\'erreur:', err.stack);
     throw err;
   }
 };
 
+// Fonction pour importer l'utilisateur admin
+const importAdmin = async () => {
+  await User.deleteMany({});
+  const admin = await User.create({
+    email: 'admin@portplaisance.fr',
+    username: 'admin',
+    password: 'PortAdmin2024!',
+    role: 'admin'
+  });
+  return admin;
+};
+
 // Fonction pour importer les réservations
-const importReservations = async (catways) => {
+const importReservations = async (catways, admin) => {
   try {
     const reservationsData = JSON.parse(
       fs.readFileSync(path.join(__dirname, '../data/reservations.json'), 'utf-8')
@@ -102,7 +102,8 @@ const importReservations = async (catways) => {
         boatName: reservation.boatName,
         startDate: new Date(reservation.startDate),
         endDate: new Date(reservation.endDate),
-        status: 'confirmed'
+        status: 'confirmed',
+        user: admin._id
       }))
       .filter(reservation => {
         if (!reservation.catway) {
@@ -132,8 +133,9 @@ const importReservations = async (catways) => {
 const importAllData = async () => {
   try {
     await connectDB();
+    const admin = await importAdmin();
     const catways = await importCatways();
-    await importReservations(catways);
+    await importReservations(catways, admin);
     console.log('Import terminé avec succès');
     process.exit(0);
   } catch (err) {
