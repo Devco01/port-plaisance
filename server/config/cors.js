@@ -2,8 +2,10 @@
   origin: (origin, callback) => {
     const allowedOrigins = [
       'http://localhost:3000',
-      /^https:\/\/port-plaisance-[a-z0-9]+-devco01s-projects\.vercel\.app$/
+      /^https:\/\/port-plaisance.*\.vercel\.app$/
     ];
+    
+    console.log('Request origin:', origin);
     
     // Permettre les requêtes sans origine (ex: Postman)
     if (!origin) {
@@ -18,6 +20,8 @@
       return allowedOrigin === origin;
     });
     
+    console.log('Origin allowed:', isAllowed);
+    
     if (isAllowed) {
       callback(null, true);
     } else {
@@ -26,7 +30,9 @@
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  sameSite: 'none',
+  secure: true
 };
 
 module.exports = corsOptions;
