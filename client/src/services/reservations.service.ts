@@ -13,22 +13,22 @@ export interface Reservation {
 const reservationsService = {
   getAll: () => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest('reservations', { token })
+    return apiRequest('/reservations', { token })
   },
 
   getReservations: (catwayNumber: string) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`catways/${catwayNumber}/reservations`, { token })
+    return apiRequest(`/catways/${catwayNumber}/reservations`, { token })
   },
   
   getCurrent: () => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest('reservations/current', { token })
+    return apiRequest('/reservations/current', { token })
   },
   
   create: (reservation: Omit<Reservation, '_id'>) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest('reservations', {
+    return apiRequest('/reservations', {
       method: 'POST',
       token,
       data: reservation
@@ -37,7 +37,7 @@ const reservationsService = {
   
   update: (id: string, data: Partial<Reservation>) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`reservations/${id}`, {
+    return apiRequest(`/reservations/${id}`, {
       method: 'PUT',
       token,
       data
@@ -46,7 +46,7 @@ const reservationsService = {
   
   delete: (id: string) => {
     const token = localStorage.getItem('token') || undefined
-    return apiRequest(`reservations/${id}`, {
+    return apiRequest(`/reservations/${id}`, {
       method: 'DELETE',
       token
     })
