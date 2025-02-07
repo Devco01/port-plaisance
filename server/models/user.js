@@ -48,10 +48,21 @@ if (mongoose.models.User) {
         console.log('Comparing passwords');
         console.log('Candidate password length:', candidatePassword?.length);
         console.log('Stored hash length:', this.password?.length);
+        console.log('User data:', {
+            email: this.email,
+            role: this.role,
+            passwordHash: this.password.substring(0, 10) + '...'
+        });
         try {
-            return await bcrypt.compare(candidatePassword, this.password);
+            const isMatch = await bcrypt.compare(candidatePassword, this.password);
+            console.log('Password comparison result:', isMatch);
+            return isMatch;
         } catch (error) {
             console.error('Password comparison error:', error);
+            console.error('Full error:', {
+                message: error.message,
+                stack: error.stack
+            });
             return false;
         }
     };
