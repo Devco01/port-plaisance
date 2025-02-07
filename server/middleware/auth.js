@@ -7,7 +7,9 @@ const auth = async (req, res, next) => {
         console.log('Request URL:', req.url);
         console.log('Request method:', req.method);
         console.log('Headers:', req.headers);  // Pour debug
-        const token = req.headers.authorization?.split(' ')[1];
+        // Nettoyage du token
+        const authHeader = req.headers.authorization || '';
+        const token = authHeader.replace('Bearer ', '').trim();
         
         if (!token) {
             console.log('No token provided');

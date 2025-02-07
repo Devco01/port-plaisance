@@ -66,9 +66,10 @@ import ReservationList from '@/components/Reservations/ReservationList.vue'
 import ReservationForm from '@/components/Reservations/ReservationForm.vue'
 import catwaysService from '@/services/catways.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
+import type { Reservation } from '@/services/catways.service'
 
 // Fonction pour formater les données des réservations
-const formatReservationData = (reservations: any[]) => {
+const formatReservationData = (reservations: Array<any>): Reservation[] => {
   return reservations.map(res => ({
     _id: res._id,
     catway: {
@@ -82,13 +83,13 @@ const formatReservationData = (reservations: any[]) => {
   }))
 }
 
-const reservations = ref([])
+const reservations = ref<Reservation[]>([])
 const catways = ref([])
 const loading = ref(true)
 const errorHandler = inject<ErrorHandler>('errorHandler')
 const showAddForm = ref(false)
 const error = ref('')
-const selectedReservation = ref(null)
+const selectedReservation = ref<Reservation | null>(null)
 
 const filters = ref({
   date: '',
@@ -114,6 +115,7 @@ const fetchReservations = async () => {
   try {
     if (filters.value.catwayNumber) {
       const response = await catwaysService.getReservations(filters.value.catwayNumber)
+      console.log('Response brute des réservations:', response.data)
       const allReservations = response.data || []
       const filteredReservations = filters.value.date 
         ? allReservations.filter(res => {
@@ -123,6 +125,8 @@ const fetchReservations = async () => {
             return startDate <= filterDate && endDate >= filterDate
           })
         : allReservations
+      console.log('Réservations avant formatage:', filteredReservations)
+      console.log('Réservations après formatage:', formatReservationData(filteredReservations))
       reservations.value = formatReservationData(filteredReservations)
     } else {
       // Pour toutes les réservations, nous devons d'abord obtenir tous les catways
@@ -161,7 +165,7 @@ const handleReservationCreated = () => {
   fetchReservations()
 }
 
-const handleEdit = (reservation: Reservation) => {
+const handleEdit = (reservation: Reservation): void => {
   selectedReservation.value = reservation
   showAddForm.value = true
 }
