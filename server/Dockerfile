@@ -5,11 +5,8 @@ WORKDIR /app
 # Copier les fichiers de dépendances
 COPY package*.json ./
 
-# Installation des dépendances en mode production
-RUN npm set progress=false && \
-    npm config set cache /tmp/empty-cache && \
-    npm install --production && \
-    rm -rf /tmp/empty-cache
+# Installation simple des dépendances
+RUN npm install --omit=dev
 
 # Copier le reste des fichiers
 COPY . .
