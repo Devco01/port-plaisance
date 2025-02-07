@@ -67,6 +67,19 @@ import ReservationForm from '@/components/Reservations/ReservationForm.vue'
 import catwaysService from '@/services/catways.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
+// Fonction pour formater les données des réservations
+const formatReservationData = (reservations: any[]) => {
+  return reservations.map(res => ({
+    _id: res._id,
+    catwayNumber: res.catway?.number?.toString() || 'N/A',
+    clientName: res.clientName || 'Non spécifié',
+    boatName: res.boatName || 'Non spécifié',
+    startDate: res.startDate,
+    endDate: res.endDate,
+    status: res.status
+  }))
+}
+
 const reservations = ref([])
 const catways = ref([])
 const loading = ref(true)
@@ -95,7 +108,7 @@ const fetchReservations = async () => {
     if (filters.value.catwayNumber) {
       const response = await catwaysService.getReservations(filters.value.catwayNumber)
       const allReservations = response.data || []
-      reservations.value = filters.value.date 
+      const filteredReservations = filters.value.date 
         ? allReservations.filter(res => {
             const filterDate = new Date(filters.value.date)
             const startDate = new Date(res.startDate)
@@ -103,6 +116,7 @@ const fetchReservations = async () => {
             return startDate <= filterDate && endDate >= filterDate
           })
         : allReservations
+      reservations.value = formatReservationData(filteredReservations)
     } else {
       // Pour toutes les réservations, nous devons d'abord obtenir tous les catways
       const catwaysResponse = await catwaysService.getAll()
@@ -117,7 +131,7 @@ const fetchReservations = async () => {
       // Fusionner toutes les réservations
       const allReservations = reservationsResponses.flatMap(response => response.data || [])
       
-      reservations.value = filters.value.date
+      const filteredReservations = filters.value.date
         ? allReservations.filter(res => {
             const filterDate = new Date(filters.value.date)
             const startDate = new Date(res.startDate)
@@ -125,6 +139,7 @@ const fetchReservations = async () => {
             return startDate <= filterDate && endDate >= filterDate
           })
         : allReservations
+      reservations.value = formatReservationData(filteredReservations)
     }
   } catch (err: any) {
     error.value = err.message || 'Erreur lors du chargement des réservations'
