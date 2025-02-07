@@ -11,9 +11,6 @@ RUN npm install --omit=dev
 # Copier le reste des fichiers
 COPY . .
 
-# Initialiser la base de données
-RUN npm run init-db
-
 # Exposer le port
 EXPOSE 3001
 
