@@ -1,5 +1,5 @@
 # Étape de build
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -7,17 +7,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Installer les dépendances
-RUN npm install -g npm@latest && \
-    # Nettoyer le cache npm
-    npm cache clean --force && \
-    # Installer les dépendances
-    npm install
+RUN npm install
 
 # Copier le reste des fichiers
 COPY . .
 
 # Étape de production
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
