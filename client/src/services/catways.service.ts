@@ -21,10 +21,11 @@ const catwaysService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       mode: 'cors',
-      credentials: 'include'
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -34,10 +35,11 @@ const catwaysService = {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       mode: 'cors',
-      credentials: 'include'
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -49,11 +51,12 @@ const catwaysService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       body: JSON.stringify(catway),
       mode: 'cors',
-      credentials: 'include'
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -64,11 +67,12 @@ const catwaysService = {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       body: JSON.stringify(data),
       mode: 'cors',
-      credentials: 'include'
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -79,10 +83,11 @@ const catwaysService = {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       mode: 'cors',
-      credentials: 'include'
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -94,10 +99,11 @@ const catwaysService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       mode: 'cors',
-      credentials: 'include'
+      credentials: 'same-origin'
     })
     return response.json()
   },
@@ -109,11 +115,12 @@ const catwaysService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       body: JSON.stringify(reservation),
       mode: 'cors',
-      credentials: 'include'
+      credentials: 'same-origin'
     })
     return response.json()
   }

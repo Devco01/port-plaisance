@@ -13,15 +13,16 @@ export interface LoginResponse {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       body: JSON.stringify({ email, password }),
       mode: 'cors',
-      credentials: 'include'
+      credentials: 'same-origin'
     });
 
     const data = await response.json();
@@ -65,14 +66,15 @@ export const getCurrentUser = async () => {
       throw new Error('Non authentifié');
     }
 
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
       mode: 'cors',
-      credentials: 'include'
+      credentials: 'same-origin'
     });
 
     const data = await response.json();

@@ -17,7 +17,12 @@ export default defineConfig({
       '/api': {
         target: 'https://port-plaisance-api-production-73a9.up.railway.app/api',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            proxyReq.setHeader('Origin', 'https://port-plaisance-lbczcqhln-devco01s-projects.vercel.app');
+          });
+        }
       }
     } : undefined
   },
