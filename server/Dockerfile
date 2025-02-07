@@ -7,7 +7,10 @@ WORKDIR /app
 COPY package*.json ./
 
 # Installer les dépendances
-RUN --mount=type=cache,target=/root/.npm,id=railway-npm-cache \
+RUN npm install -g npm@latest && \
+    # Nettoyer le cache npm
+    npm cache clean --force && \
+    # Installer les dépendances
     npm install
 
 # Copier le reste des fichiers
