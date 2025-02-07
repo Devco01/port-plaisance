@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const reservationSchema = new mongoose.Schema({
-    catwayNumber: {
-        type: String,
-        required: [true, 'Le numéro de catway est requis']
-    },
     clientName: {
         type: String,
         required: [true, 'Le nom du client est requis']
@@ -20,6 +16,11 @@ const reservationSchema = new mongoose.Schema({
     endDate: {
         type: Date,
         required: [true, 'La date de fin est requise']
+    },
+    catway: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Catway',
+        required: true
     },
     status: {
         type: String,
