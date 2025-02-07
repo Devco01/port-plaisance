@@ -23,25 +23,45 @@ const importCatways = async () => {
       fs.readFileSync(path.join(__dirname, '../data/catways.json'), 'utf-8')
     );
 
-    // Conversion des données au nouveau format
-    const formattedCatways = catwaysData.map(catway => ({
-      catwayNumber: catway.catwayNumber,
-      catwayType: catway.catwayType,
-      catwayState: catway.catwayState
-    }));
+    console.log('=== Vérification des données catways ===');
+    console.log('Nombre de catways dans le fichier JSON:', catwaysData.length);
+    console.log('Premier catway dans le JSON:', catwaysData[0]);
+    console.log('Dernier catway dans le JSON:', catwaysData[catwaysData.length - 1]);
 
+    // Conversion des données au nouveau format
+    const formattedCatways = catwaysData.map(catway => {
+      if (!catway.catwayNumber) {
+        console.error('Catway sans numéro:', catway);
+        return null;
+      }
+      return {
+        catwayNumber: catway.catwayNumber,
+        catwayType: catway.catwayType || 'short',
+        catwayState: catway.catwayState || 'bon état'
+      };
+    }).filter(Boolean);
+
+    console.log('=== Données formatées ===');
+    console.log('Nombre de catways après formatage:', formattedCatways.length);
     console.log('Données des catways à importer:', formattedCatways);
 
     // Suppression des données existantes
+    const existingCount = await Catway.countDocuments();
+    console.log('Nombre de catways existants avant suppression:', existingCount);
     await Catway.deleteMany({});
     
     // Import des nouvelles données
     const result = await Catway.insertMany(formattedCatways);
-    console.log(`✅ ${result.length} catways importés`);
+    console.log(`✅ ${result.length} catways importés sur ${catwaysData.length} attendus`);
+    
+    // Vérification finale
+    const finalCount = await Catway.countDocuments();
+    console.log('Nombre final de catways dans MongoDB:', finalCount);
     
     return result;
   } catch (err) {
     console.error('❌ Erreur lors de l\'import des catways:', err);
+    console.error('Détails de l\'erreur:', err.stack);
     throw err;
   }
 };
@@ -53,14 +73,15 @@ const importReservations = async (catways) => {
       fs.readFileSync(path.join(__dirname, '../data/reservations.json'), 'utf-8')
     );
 
-    console.log('Catways disponibles:', catways.map(c => ({
-      id: c._id,
-      number: c.catwayNumber
-    })));
+    console.log('=== Import des réservations ===');
+    console.log('Données à importer:', reservationsData);
 
     // Création d'un Map pour la correspondance des numéros de catway
     const catwayMap = new Map(
-      catways.map(catway => [catway.catwayNumber.toString(), catway._id])
+      catways.map(catway => {
+        console.log('Mapping catway:', catway.catwayNumber, '→', catway._id);
+        return [catway.catwayNumber.toString(), catway._id];
+      })
     );
 
     console.log('Map des catways:', Object.fromEntries(catwayMap));
@@ -74,22 +95,22 @@ const importReservations = async (catways) => {
         }
         return true;
       })
-      .map(reservation => {
-        const catwayId = catwayMap.get(reservation.catwayNumber.toString());
-        if (!catwayId) {
-          console.log('Catway non trouvé pour la réservation:', reservation);
+      .map(reservation => ({
+        catway: catwayMap.get(reservation.catwayNumber.toString()),
+        catwayNumber: reservation.catwayNumber,
+        clientName: reservation.clientName,
+        boatName: reservation.boatName,
+        startDate: new Date(reservation.startDate),
+        endDate: new Date(reservation.endDate),
+        status: 'confirmed'
+      }))
+      .filter(reservation => {
+        if (!reservation.catway) {
+          console.log('Réservation sans catway:', reservation);
+          return false;
         }
-        return {
-          catwayId: catwayMap.get(reservation.catwayNumber.toString()),
-          catwayNumber: reservation.catwayNumber,
-          clientName: reservation.clientName,
-          boatName: reservation.boatName,
-          startDate: new Date(reservation.startDate),
-          endDate: new Date(reservation.endDate),
-          status: 'confirmed'
-        };
-      })
-      .filter(reservation => reservation.catwayId);
+        return true;
+      });
 
     console.log('Réservations formatées:', formattedReservations);
 
@@ -98,7 +119,9 @@ const importReservations = async (catways) => {
     
     // Import des nouvelles données
     const result = await Reservation.insertMany(formattedReservations);
-    console.log('Réservations importées:', result);
+    console.log(`✅ ${result.length} réservations importées:`, result);
+
+    return result;
   } catch (err) {
     console.error('❌ Erreur lors de l\'import des réservations:', err);
     throw err;

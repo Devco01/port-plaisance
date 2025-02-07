@@ -17,34 +17,20 @@ const reservationController = {
         JSON.stringify(sampleReservation, null, 2));
       console.log('==========================');
       
-      // Récupérer toutes les réservations avec les informations des catways
-      const reservations = await Reservation.find()
-        .populate({
-          path: 'catway',
-          select: 'catwayNumber catwayType catwayState'
-        })
-        .lean()  // Pour de meilleures performances
-        .exec();
+      // Récupérer toutes les réservations
+      const reservations = await Reservation.find().lean();
       
-      console.log('Réservations trouvées:', JSON.stringify(reservations, null, 2));
+      console.log('Nombre de réservations trouvées:', reservations.length);
       
-      // Formater les réservations
+      // Formater les réservations selon la structure du fichier JSON
       const formattedReservations = reservations.map(res => ({
         _id: res._id,
+        catwayNumber: res.catwayNumber,
         clientName: res.clientName,
         boatName: res.boatName,
         startDate: res.startDate,
-        endDate: res.endDate,
-        catwayNumber: res.catwayNumber,
-        // Informations additionnelles du catway
-        catway: {
-          type: res.catway?.catwayType,
-          state: res.catway?.catwayState
-        }
+        endDate: res.endDate
       }));
-      
-      console.log('Réservations formatées pour le client:', 
-        JSON.stringify(formattedReservations, null, 2));
       
       res.json({
         success: true,
