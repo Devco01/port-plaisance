@@ -10,13 +10,43 @@
     <div v-else-if="!props.catways || props.catways.length === 0" class="no-data">
       Aucun catway trouvé
     </div>
-    <div v-else class="catway-grid">
-      <CatwayCard
-        v-for="catway in props.catways"
-        :key="catway._id"
-        :catway="catway"
-        @reservations="$emit('view-reservations', catway)"
-      />
+    <div v-else class="table-container">
+      <table class="catways-table">
+        <thead>
+          <tr>
+            <th>Numéro</th>
+            <th>Type</th>
+            <th>État</th>
+            <th>Dimensions</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="catway in props.catways" :key="catway._id">
+            <td>{{ catway.catwayNumber }}</td>
+            <td>
+              {{ catway.catwayType === 'long' ? 'Long (12m)' : 'Court (8m)' }}
+            </td>
+            <td>
+              <span class="status" :class="catway.catwayState === 'bon état' ? 'good' : 'warning'">
+                {{ catway.catwayState }}
+              </span>
+            </td>
+            <td>
+              {{ catway.catwayType === 'long' ? '12m x 4m' : '8m x 3m' }}
+            </td>
+            <td>
+              <button 
+                @click="$emit('view-reservations', catway)" 
+                class="btn-reservations"
+              >
+                <i class="fas fa-calendar-alt"></i>
+                Voir les réservations
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -45,11 +75,33 @@ defineEmits(['view-reservations'])
   padding: 1rem;
 }
 
-.catway-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.catways-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.catways-table th,
+.catways-table td {
   padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.catways-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.catways-table tr:hover {
+  background-color: #f8f9fa;
 }
 
 .loading, .error, .no-data {
@@ -66,80 +118,38 @@ defineEmits(['view-reservations'])
   margin-right: 0.5rem;
 }
 
-.catway-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.catway-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.catway-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.catway-header h3 {
-  margin: 0;
-  color: #2c3e50;
-}
-
-.status-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+.status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
   font-size: 0.875rem;
 }
 
-.status-badge.available {
+.status.good {
   background-color: #e8f5e9;
   color: #2e7d32;
 }
 
-.status-badge.occupied {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.status-badge.maintenance {
+.status.warning {
   background-color: #fff3e0;
   color: #ef6c00;
 }
 
-.catway-details {
-  margin-bottom: 1rem;
-}
-
-.catway-details p {
-  margin: 0.5rem 0;
-  color: #666;
-}
-
-.catway-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.view-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+.btn-reservations {
   padding: 0.5rem 1rem;
   background-color: #3498db;
   color: white;
   border: none;
   border-radius: 4px;
-  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.875rem;
+  transition: background-color 0.2s ease;
 }
 
-.view-btn:hover {
+.btn-reservations:hover {
   background-color: #2980b9;
 }
 </style> 
