@@ -144,4 +144,3 @@ const confirmDelete = async () => {
   background-color: #3aa876;
 }
 </style> 
-</style> 
