@@ -1,20 +1,14 @@
 <template>
   <div class="catways-list">
     <div class="header">
-      <div class="filters">
-        <div class="filter-group">
-          <label>Filtrer par état:</label>
-          <select v-model="filterState">
-            <option value="">Tous les états</option>
-            <option value="bon état">Bon état</option>
-            <option value="maintenance">En maintenance</option>
-          </select>
-        </div>
-      </div>
       <router-link to="/reservations" class="btn-reservations">
         <i class="fas fa-calendar-alt"></i>
         Réservations
       </router-link>
+      <button v-if="isAdmin" @click="$emit('add-catway')" class="btn-add">
+        <i class="fas fa-plus"></i>
+        Nouveau catway
+      </button>
     </div>
 
     <div v-if="props.loading" class="loading">
@@ -35,16 +29,40 @@
             <th>Catway</th>
             <th>Type</th>
             <th class="text-center">État</th>
+            <th v-if="isAdmin" class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="catway in filteredCatways" :key="catway._id">
-            <td>{{ catway.catwayNumber }}</td>
+            <td>
+              <router-link 
+                :to="`/catways/${catway.catwayNumber}`" 
+                class="catway-link"
+              >
+                {{ catway.catwayNumber }}
+              </router-link>
+            </td>
             <td>{{ catway.catwayType === 'long' ? 'Long' : 'Court' }}</td>
             <td class="text-center">
               <span class="status" :class="catway.catwayState === 'bon état' ? 'good' : 'warning'">
                 {{ catway.catwayState }}
               </span>
+            </td>
+            <td v-if="isAdmin" class="text-right">
+              <button 
+                @click="$emit('edit-catway', catway)" 
+                class="btn-icon"
+                title="Modifier"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button 
+                @click="$emit('delete-catway', catway)" 
+                class="btn-icon delete"
+                title="Supprimer"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -67,14 +85,12 @@ const props = defineProps<{
   catways: Catway[]
   loading: boolean
   error: string
+  isAdmin: boolean
 }>()
 
-const filterState = ref('')
+defineEmits(['add-catway', 'edit-catway', 'delete-catway'])
 
-const filteredCatways = computed(() => {
-  if (!filterState.value) return props.catways
-  return props.catways.filter(c => c.catwayState.includes(filterState.value))
-})
+const filteredCatways = computed(() => props.catways)
 </script>
 
 <style scoped>
@@ -89,28 +105,6 @@ const filteredCatways = computed(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
-}
-
-.filters {
-  flex: 1;
-}
-
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.filter-group label {
-  font-weight: 500;
-  color: #2c3e50;
-}
-
-.filter-group select {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
 }
 
 .btn-reservations {
@@ -191,6 +185,53 @@ const filteredCatways = computed(() => {
 .status.warning {
   background-color: #fff3e0;
   color: #ef6c00;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.btn-add {
+  padding: 0.5rem 1rem;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-add:hover {
+  background-color: #3aa876;
+}
+
+.btn-icon {
+  padding: 0.25rem;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.btn-icon:hover {
+  color: #3498db;
+}
+
+.btn-icon.delete:hover {
+  color: #e74c3c;
+}
+
+.catway-link {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.catway-link:hover {
+  text-decoration: underline;
 }
 </style> 
  
