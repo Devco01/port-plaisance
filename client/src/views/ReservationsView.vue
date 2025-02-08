@@ -81,7 +81,7 @@ import ReservationForm from '@/components/Reservations/ReservationForm.vue'
 import catwaysService from '@/services/catways.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 import type { Reservation } from '@/services/catways.service'
-import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import ConfirmDialog from '@/components/Common/ConfirmDialog.vue'
 
 // Fonction pour formater les données des réservations
 const formatReservationData = (reservations: Array<any>): Reservation[] => {
