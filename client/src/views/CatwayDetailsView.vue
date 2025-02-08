@@ -13,7 +13,7 @@
             Supprimer
           </button>
         </div>
-      </div>
+      </div> 
 
       <div v-if="loading" class="loading">
         <i class="fas fa-spinner fa-spin"></i>
