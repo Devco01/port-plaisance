@@ -8,6 +8,7 @@
       {{ props.error }}
     </div>
     <div v-else-if="!props.catways || props.catways.length === 0" class="no-data">
+      <i class="fas fa-inbox"></i>
       Aucun catway trouvé
     </div>
     <div v-else class="table-container">
@@ -17,7 +18,6 @@
             <th>Numéro</th>
             <th>Type</th>
             <th>État</th>
-            <th>Dimensions</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -25,24 +25,21 @@
           <tr v-for="catway in props.catways" :key="catway._id">
             <td>{{ catway.catwayNumber }}</td>
             <td>
-              {{ catway.catwayType === 'long' ? 'Long (12m)' : 'Court (8m)' }}
+              {{ catway.catwayType === 'long' ? 'Long' : 'Court' }}
             </td>
             <td>
               <span class="status" :class="catway.catwayState === 'bon état' ? 'good' : 'warning'">
                 {{ catway.catwayState }}
               </span>
             </td>
-            <td>
-              {{ catway.catwayType === 'long' ? '12m x 4m' : '8m x 3m' }}
-            </td>
-            <td>
-              <button 
-                @click="$emit('view-reservations', catway)" 
-                class="btn-reservations"
+            <td class="actions">
+              <router-link 
+                :to="`/catways/${catway.catwayNumber}/reservations`" 
+                class="btn-action"
               >
                 <i class="fas fa-calendar-alt"></i>
-                Voir les réservations
-              </button>
+                Réservations
+              </router-link>
             </td>
           </tr>
         </tbody>
@@ -108,6 +105,10 @@ defineEmits(['view-reservations'])
   text-align: center;
   padding: 2rem;
   color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .error {
@@ -135,7 +136,12 @@ defineEmits(['view-reservations'])
   color: #ef6c00;
 }
 
-.btn-reservations {
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-action {
   padding: 0.5rem 1rem;
   background-color: #3498db;
   color: white;
@@ -146,10 +152,11 @@ defineEmits(['view-reservations'])
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
+  text-decoration: none;
   transition: background-color 0.2s ease;
 }
 
-.btn-reservations:hover {
+.btn-action:hover {
   background-color: #2980b9;
 }
 </style> 
