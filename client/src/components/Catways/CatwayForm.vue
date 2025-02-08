@@ -53,7 +53,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { catwaysService } from '../../services/catways.service'
+import catwaysService from '@/services/catways.service'
 
 const props = defineProps<{
   catway?: {

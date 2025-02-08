@@ -8,6 +8,7 @@ import DashboardView from '../views/DashboardView.vue'
 import CatwaysView from '../views/CatwaysView.vue'
 import ReservationsView from '../views/ReservationsView.vue'
 import UsersView from '../views/UsersView.vue'
+import CatwayDetailsView from '../views/CatwayDetailsView.vue'
 
 // Définition des routes selon le cahier des charges
 const routes: RouteRecordRaw[] = [
@@ -52,6 +53,12 @@ const routes: RouteRecordRaw[] = [
     name: 'users',
     component: UsersView,
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/catways/:id',
+    name: 'CatwayDetails',
+    component: CatwayDetailsView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/api-docs',
