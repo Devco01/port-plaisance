@@ -1,15 +1,19 @@
 <template>
   <div class="catways-list">
     <div v-if="loading" class="loading">
+      <i class="fas fa-spinner fa-spin"></i>
       Chargement...
     </div>
     <div v-else-if="error" class="error">
       {{ error }}
     </div>
+    <div v-else-if="!catways || catways.length === 0" class="no-data">
+      Aucun catway trouvé
+    </div>
     <div v-else class="catway-grid">
       <CatwayCard
         v-for="catway in catways"
-        :key="catway.catwayNumber"
+        :key="catway._id"
         :catway="catway"
         @reservations="$emit('view-reservations', catway)"
       />
@@ -21,6 +25,7 @@
 import { ref, onMounted, inject } from 'vue'
 import catwaysService from '@/services/catways.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
+import CatwayCard from './CatwayCard.vue'
 
 interface Catway {
   _id: string;
@@ -81,7 +86,7 @@ const updateStatus = async (id: string, status: string) => {
   padding: 1rem;
 }
 
-.loading, .error {
+.loading, .error, .no-data {
   text-align: center;
   padding: 2rem;
   color: #666;
@@ -91,16 +96,14 @@ const updateStatus = async (id: string, status: string) => {
   color: #e74c3c;
 }
 
+.loading i {
+  margin-right: 0.5rem;
+}
+
 .catway-cards {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-}
-
-.no-data {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
 }
 
 .catway-card {
