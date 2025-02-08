@@ -6,36 +6,6 @@
       </div>
 
       <div class="content-card">
-        <div class="filters">
-          <div class="filter-group">
-            <label for="dateFilter">Filtrer par date</label>
-            <input 
-              type="date" 
-              id="dateFilter"
-              v-model="filters.date"
-              @change="applyFilters"
-            />
-          </div>
-          
-          <div class="filter-group">
-            <label for="catwayFilter">Filtrer par catway</label>
-            <select 
-              id="catwayFilter"
-              v-model="filters.catwayNumber"
-              @change="applyFilters"
-            >
-              <option value="">Tous les catways</option>
-              <option 
-                v-for="catway in catways" 
-                :key="catway.catwayNumber" 
-                :value="catway.catwayNumber"
-              >
-                {{ catway.catwayNumber }}
-              </option>
-            </select>
-          </div>
-        </div>
-
         <div class="add-button-container">
           <button @click="showAddForm = true" class="btn-action btn-add">
             <i class="fas fa-plus"></i>
@@ -47,7 +17,6 @@
           :reservations="reservations" 
           :loading="loading"
           :error="error"
-          @refresh="fetchReservations"
           @edit-reservation="handleEdit"
           @delete-reservation="handleDelete"
         />
@@ -85,19 +54,10 @@ import ConfirmDialog from '@/components/Common/ConfirmDialog.vue'
 
 // Fonction pour formater les données des réservations
 const formatReservationData = (reservations: Array<any>): Reservation[] => {
-  console.log('=== DÉBUT FORMATAGE RÉSERVATIONS ===');
-  console.log('Données brutes:', reservations);
-
-  if (!Array.isArray(reservations)) {
-    console.error('Les réservations ne sont pas un tableau:', reservations);
-    return [];
-  }
+  if (!Array.isArray(reservations)) return [];
 
   const formatted = reservations.map(res => {
-    if (!res || typeof res.catwayNumber === 'undefined') {
-      console.error('Réservation invalide:', res);
-      return null;
-    }
+    if (!res || typeof res.catwayNumber === 'undefined') return null;
 
     try {
       return {
@@ -109,12 +69,10 @@ const formatReservationData = (reservations: Array<any>): Reservation[] => {
         endDate: new Date(res.endDate)
       };
     } catch (error) {
-      console.error('Erreur lors du formatage:', error);
       return null;
     }
   }).filter(Boolean);
 
-  console.log('Réservations formatées:', formatted);
   return formatted;
 }
 
@@ -128,33 +86,15 @@ const selectedReservation = ref<Reservation | null>(null)
 const showDeleteConfirm = ref(false)
 const reservationToDelete = ref(null)
 
-const filters = ref({
-  date: '',
-  catwayNumber: ''
-})
-
 const fetchCatways = async () => {
   try {
     const response = await catwaysService.getAll()
-    console.log('=== CATWAYS LOGS ===');
-    console.log('Réponse brute du serveur:', response)
-    console.log('Données des catways:', response.data)
-    console.log('Premier catway:', response.data[0])
-    console.log('==================');
-
     catways.value = Array.isArray(response.data) 
-      ? response.data.map(catway => {
-        console.log('Traitement du catway:', catway)
-        return {
+      ? response.data.map(catway => ({
           ...catway,
           number: catway.catwayNumber.toString()
-        }
-      })
+        }))
       : []
-    console.log('=== RÉSULTAT FINAL CATWAYS ===');
-    console.log('Nombre de catways:', catways.value.length)
-    console.log('Structure d\'un catway:', catways.value[0])
-    console.log('============================');
   } catch (error) {
     console.error('Erreur lors du chargement des catways:', error)
   }
@@ -162,43 +102,11 @@ const fetchCatways = async () => {
 
 const fetchReservations = async () => {
   try {
-    console.log('=== DEBUG fetchReservations ===');
-    if (filters.value.catwayNumber) {
-      const response = await catwaysService.getReservations(filters.value.catwayNumber)
-      console.log('Réponse pour catway spécifique:', response);
-      const allReservations = response.data || []
-      const filteredReservations = filters.value.date 
-        ? allReservations.filter(res => {
-            const filterDate = new Date(filters.value.date)
-            const startDate = new Date(res.startDate)
-            const endDate = new Date(res.endDate)
-            return startDate <= filterDate && endDate >= filterDate
-          })
-        : allReservations
-      reservations.value = formatReservationData(filteredReservations)
-    } else {
-      const response = await catwaysService.getAllReservations()
-      console.log('Réponse getAllReservations:', response);
-      const allReservations = response.data || []
-      console.log('Structure d\'une réservation:', 
-        allReservations[0] ? JSON.stringify(allReservations[0], null, 2) : 'Aucune réservation'
-      );
-      
-      const filteredReservations = filters.value.date
-        ? allReservations.filter(res => {
-            const filterDate = new Date(filters.value.date)
-            const startDate = new Date(res.startDate)
-            const endDate = new Date(res.endDate)
-            return startDate <= filterDate && endDate >= filterDate
-          })
-        : allReservations
-      console.log('Réservations avant formatage:', filteredReservations);
-      reservations.value = formatReservationData(filteredReservations)
-      console.log('Réservations après formatage:', reservations.value);
-    }
+    const response = await catwaysService.getAllReservations()
+    const allReservations = response.data || []
+    reservations.value = formatReservationData(allReservations)
   } catch (err: any) {
     error.value = err.message || 'Erreur lors du chargement des réservations'
-    console.error('Erreur complète:', err);
   } finally {
     loading.value = false
   }
@@ -229,10 +137,6 @@ const closeForm = () => {
 
 const handleReservationUpdated = () => {
   closeForm()
-  fetchReservations()
-}
-
-const applyFilters = () => {
   fetchReservations()
 }
 
@@ -292,20 +196,6 @@ h1 {
   font-weight: 600;
 }
 
-.filters {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 1rem;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .btn-action {
   padding: 0.4rem 0.8rem;
   border: none;
@@ -330,18 +220,6 @@ h1 {
   font-size: 0.9rem;
 }
 
-label {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-input, select {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
 @media (max-width: 768px) {
   .reservations {
     padding: 1rem;
@@ -355,10 +233,6 @@ input, select {
   
   .content-card {
     padding: 1rem;
-  }
-  
-  .filters {
-    flex-direction: column;
   }
 }
 
