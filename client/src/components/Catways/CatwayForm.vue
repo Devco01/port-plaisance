@@ -114,11 +114,19 @@ onMounted(async () => {
   try {
     const response = await catwaysService.getAll()
     if (response.success) {
-      // Créer un tableau de 1 à 20 (ou autre nombre max de catways)
+      // Créer un tableau de 1 à 20
       const allNumbers = Array.from({length: 20}, (_, i) => i + 1)
       // Filtrer les numéros déjà utilisés
-      const usedNumbers = response.data.map((c: any) => parseInt(c.catwayNumber))
-      availableNumbers.value = allNumbers.filter(n => !usedNumbers.includes(n))
+      const usedNumbers = response.data
+        .map((c: any) => typeof c.catwayNumber === 'string' 
+          ? parseInt(c.catwayNumber) 
+          : c.catwayNumber)
+        .filter((n: number) => !isNaN(n))
+      
+      // Trier les numéros disponibles
+      availableNumbers.value = allNumbers
+        .filter(n => !usedNumbers.includes(n))
+        .sort((a, b) => a - b)
     }
   } catch (error) {
     console.error('Erreur lors du chargement des numéros:', error)
