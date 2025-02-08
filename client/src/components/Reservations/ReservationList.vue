@@ -59,12 +59,11 @@ import { computed } from 'vue'
 
 interface Reservation {
   _id: string
-  catwayNumber: number
+  catwayNumber: string | number
   clientName: string
   boatName: string
   startDate: string
   endDate: string
-  status: string
 }
 
 const props = defineProps<{
@@ -82,7 +81,7 @@ const formatDate = (dateString: string) => {
 
 const sortedReservations = computed(() => {
   return [...props.reservations].sort((a, b) => 
-    a.catwayNumber - b.catwayNumber
+    Number(a.catwayNumber) - Number(b.catwayNumber)
   )
 })
 </script>
