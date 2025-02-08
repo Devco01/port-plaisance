@@ -121,11 +121,11 @@ const handleEdit = (reservation: any) => {
   // S'assurer que la structure de la réservation est correcte
   selectedReservation.value = {
     _id: reservation._id,
-    catwayNumber: reservation.catwayNumber.toString(), // Convertir en string si nécessaire
+    catwayNumber: reservation.catwayNumber.toString(),
     clientName: reservation.clientName,
     boatName: reservation.boatName,
-    startDate: reservation.startDate,
-    endDate: reservation.endDate
+    startDate: new Date(reservation.startDate).toISOString().split('T')[0],
+    endDate: new Date(reservation.endDate).toISOString().split('T')[0]
   }
   showAddForm.value = true
 }

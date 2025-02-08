@@ -6,21 +6,16 @@
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="catwayNumber">Numéro du catway</label>
-          <select
+          <input
+            type="number"
             id="catwayNumber"
             v-model="formData.catwayNumber"
             required
             :disabled="isEditing"
-          >
-            <option value="">Sélectionner un numéro</option>
-            <option 
-              v-for="number in availableNumbers" 
-              :key="number" 
-              :value="number"
-            >
-              {{ number }}
-            </option>
-          </select>
+            min="1"
+            max="20"
+            placeholder="Entrez un numéro (1-20)"
+          />
         </div>
 
         <div class="form-group">
@@ -59,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import catwaysService from '@/services/catways.service'
 
 const props = defineProps<{
@@ -81,8 +76,6 @@ const formData = ref({
   catwayType: 'long' as 'long' | 'short',
   catwayState: ''
 })
-
-const availableNumbers = ref<number[]>([])
 
 const closeModal = () => {
   emit('close')
@@ -109,29 +102,6 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
-
-onMounted(async () => {
-  try {
-    const response = await catwaysService.getAll()
-    if (response.success) {
-      // Créer un tableau de 1 à 20
-      const allNumbers = Array.from({length: 20}, (_, i) => i + 1)
-      // Filtrer les numéros déjà utilisés
-      const usedNumbers = response.data
-        .map((c: any) => typeof c.catwayNumber === 'string' 
-          ? parseInt(c.catwayNumber) 
-          : c.catwayNumber)
-        .filter((n: number) => !isNaN(n))
-      
-      // Trier les numéros disponibles
-      availableNumbers.value = allNumbers
-        .filter(n => !usedNumbers.includes(n))
-        .sort((a, b) => a - b)
-    }
-  } catch (error) {
-    console.error('Erreur lors du chargement des numéros:', error)
-  }
-})
 
 // Initialisation en mode édition
 if (props.catway) {
