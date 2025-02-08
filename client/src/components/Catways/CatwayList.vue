@@ -1,15 +1,19 @@
 <template>
   <div class="catways-list">
-    <div v-if="loading" class="loading">
+    <div v-if="props.loading" class="loading">
+      <i class="fas fa-spinner fa-spin"></i>
       Chargement...
     </div>
-    <div v-else-if="error" class="error">
-      {{ error }}
+    <div v-else-if="props.error" class="error">
+      {{ props.error }}
+    </div>
+    <div v-else-if="!props.catways || props.catways.length === 0" class="no-data">
+      Aucun catway trouvé
     </div>
     <div v-else class="catway-grid">
       <CatwayCard
-        v-for="catway in catways"
-        :key="catway.catwayNumber"
+        v-for="catway in props.catways"
+        :key="catway._id"
         :catway="catway"
         @reservations="$emit('view-reservations', catway)"
       />
@@ -18,9 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
-import catwaysService from '@/services/catways.service'
-import type { ErrorHandler } from '@/components/ErrorHandler.vue'
+import CatwayCard from './CatwayCard.vue'
 
 interface Catway {
   _id: string;
@@ -35,38 +37,7 @@ const props = defineProps<{
   error: string
 }>()
 
-const emit = defineEmits(['refresh', 'view-reservations'])
-const isAdmin = ref(false)
-const errorHandler = inject<ErrorHandler>('errorHandler')
-
-const getStatusLabel = (status: string) => {
-  const labels = {
-    available: 'Disponible',
-    occupied: 'Occupé',
-    maintenance: 'En maintenance'
-  }
-  return labels[status as keyof typeof labels] || status
-}
-
-const deleteCatway = async (id: string) => {
-  if (!confirm('Voulez-vous vraiment supprimer ce catway ?')) return
-  
-  try {
-    await catwaysService.delete(id)
-    emit('refresh')
-  } catch (err: any) {
-    errorHandler?.showError(err)
-  }
-}
-
-const updateStatus = async (id: string, status: string) => {
-  try {
-    await catwaysService.update(id, { status })
-    emit('refresh')
-  } catch (err: any) {
-    errorHandler?.showError(err)
-  }
-}
+defineEmits(['view-reservations'])
 </script>
 
 <style scoped>
@@ -81,7 +52,7 @@ const updateStatus = async (id: string, status: string) => {
   padding: 1rem;
 }
 
-.loading, .error {
+.loading, .error, .no-data {
   text-align: center;
   padding: 2rem;
   color: #666;
@@ -91,16 +62,14 @@ const updateStatus = async (id: string, status: string) => {
   color: #e74c3c;
 }
 
+.loading i {
+  margin-right: 0.5rem;
+}
+
 .catway-cards {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-}
-
-.no-data {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
 }
 
 .catway-card {
