@@ -3,9 +3,9 @@
     <div class="catways-view">
       <div class="header">
         <h1>Gestion des Catways</h1>
-        <button v-if="isAdmin" @click="showForm = true" class="btn-add">
+        <button v-if="isAdmin" @click="showForm = true" class="btn-action btn-add">
           <i class="fas fa-plus"></i>
-          Nouveau catway
+          Ajouter
         </button>
       </div>
 
@@ -14,7 +14,6 @@
         :loading="loading"
         :error="error"
         :isAdmin="isAdmin"
-        @add-catway="showForm = true"
         @edit-catway="handleEdit"
         @delete-catway="handleDelete"
       />
@@ -127,20 +126,22 @@ const confirmDelete = async () => {
   margin-bottom: 2rem;
 }
 
-.btn-add {
-  padding: 0.5rem 1rem;
-  background-color: #42b983;
-  color: white;
+.btn-action {
+  padding: 0.4rem 0.8rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  display: flex;
+  font-size: 0.8rem;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: 0.4rem;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 500;
+  background-color: #3498db;
 }
 
-.btn-add:hover {
-  background-color: #3aa876;
+.btn-action:hover {
+  background-color: #2980b9;
 }
 </style> 

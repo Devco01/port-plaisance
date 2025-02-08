@@ -5,10 +5,6 @@
         <i class="fas fa-calendar-alt"></i>
         Réservations
       </router-link>
-      <button v-if="isAdmin" @click="$emit('add-catway')" class="btn-add">
-        <i class="fas fa-plus"></i>
-        Nouveau catway
-      </button>
     </div>
 
     <div v-if="props.loading" class="loading">
@@ -48,20 +44,14 @@
                 {{ catway.catwayState }}
               </span>
             </td>
-            <td v-if="isAdmin" class="text-right">
-              <button 
-                @click="$emit('edit-catway', catway)" 
-                class="btn-icon"
-                title="Modifier"
-              >
+            <td v-if="isAdmin" class="actions">
+              <button @click="$emit('edit-catway', catway)" class="btn-action btn-edit">
                 <i class="fas fa-edit"></i>
+                Modifier
               </button>
-              <button 
-                @click="$emit('delete-catway', catway)" 
-                class="btn-icon delete"
-                title="Supprimer"
-              >
+              <button @click="$emit('delete-catway', catway)" class="btn-action btn-delete">
                 <i class="fas fa-trash"></i>
+                Supprimer
               </button>
             </td>
           </tr>
@@ -88,7 +78,7 @@ const props = defineProps<{
   isAdmin: boolean
 }>()
 
-defineEmits(['add-catway', 'edit-catway', 'delete-catway'])
+defineEmits(['edit-catway', 'delete-catway'])
 
 const filteredCatways = computed(() => props.catways)
 </script>
@@ -191,38 +181,32 @@ const filteredCatways = computed(() => props.catways)
   text-align: right !important;
 }
 
-.btn-add {
-  padding: 0.5rem 1rem;
-  background-color: #42b983;
-  color: white;
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.btn-action {
+  padding: 0.4rem 0.8rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  display: flex;
+  font-size: 0.8rem;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: 0.4rem;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
-.btn-add:hover {
-  background-color: #3aa876;
+.btn-edit {
+  background-color: #3498db;
 }
 
-.btn-icon {
-  padding: 0.25rem;
-  background: none;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.btn-icon:hover {
-  color: #3498db;
-}
-
-.btn-icon.delete:hover {
-  color: #e74c3c;
+.btn-delete {
+  background-color: #e74c3c;
 }
 
 .catway-link {
