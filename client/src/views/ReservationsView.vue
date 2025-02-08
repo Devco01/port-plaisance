@@ -3,12 +3,6 @@
     <div class="reservations">
       <div class="page-header">
         <h1>Gestion des Réservations</h1>
-        <div class="actions">
-          <button @click="showAddForm = true" class="add-btn">
-            <i class="fas fa-plus"></i>
-            Nouvelle Réservation
-          </button>
-        </div>
       </div>
 
       <div class="content-card">
@@ -42,12 +36,20 @@
           </div>
         </div>
 
+        <div class="add-button-container">
+          <button @click="showAddForm = true" class="btn-action btn-add">
+            <i class="fas fa-plus"></i>
+            Nouvelle Réservation
+          </button>
+        </div>
+
         <ReservationList 
           :reservations="reservations" 
           :loading="loading"
           :error="error"
           @refresh="fetchReservations"
-          @edit="handleEdit"
+          @edit-reservation="handleEdit"
+          @delete-reservation="handleDelete"
         />
       </div>
 
@@ -58,6 +60,14 @@
         @close="closeForm"
         @created="handleReservationCreated"
         @updated="handleReservationUpdated"
+      />
+
+      <ConfirmDialog
+        v-if="showDeleteConfirm"
+        title="Supprimer la réservation"
+        message="Êtes-vous sûr de vouloir supprimer cette réservation ?"
+        @confirm="confirmDelete"
+        @cancel="showDeleteConfirm = false"
       />
     </div>
   </PageLayout>
@@ -71,6 +81,7 @@ import ReservationForm from '@/components/Reservations/ReservationForm.vue'
 import catwaysService from '@/services/catways.service'
 import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 import type { Reservation } from '@/services/catways.service'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 // Fonction pour formater les données des réservations
 const formatReservationData = (reservations: Array<any>): Reservation[] => {
@@ -114,6 +125,8 @@ const errorHandler = inject<ErrorHandler>('errorHandler')
 const showAddForm = ref(false)
 const error = ref('')
 const selectedReservation = ref<Reservation | null>(null)
+const showDeleteConfirm = ref(false)
+const reservationToDelete = ref(null)
 
 const filters = ref({
   date: '',
@@ -215,6 +228,28 @@ const applyFilters = () => {
   fetchReservations()
 }
 
+const handleDelete = (reservation: Reservation) => {
+  reservationToDelete.value = reservation
+  showDeleteConfirm.value = true
+}
+
+const confirmDelete = async () => {
+  if (!reservationToDelete.value) return
+  
+  try {
+    await catwaysService.deleteReservation(
+      reservationToDelete.value.catwayNumber,
+      reservationToDelete.value._id
+    )
+    fetchReservations()
+  } catch (err: any) {
+    error.value = err.message
+  } finally {
+    showDeleteConfirm.value = false
+    reservationToDelete.value = null
+  }
+}
+
 onMounted(() => {
   fetchCatways()
   fetchReservations()
@@ -263,24 +298,28 @@ h1 {
   gap: 0.5rem;
 }
 
-.add-btn {
-  background-color: #3498db;
-  color: white;
+.btn-action {
+  padding: 0.4rem 0.8rem;
   border: none;
-  padding: 0.75rem 1.5rem;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 1rem;
-  display: flex;
+  font-size: 0.8rem;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s ease;
+  gap: 0.4rem;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 500;
+  background-color: #3498db;
 }
 
-.add-btn:hover {
+.btn-action:hover {
   background-color: #2980b9;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-add {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
 }
 
 label {
@@ -313,5 +352,11 @@ input, select {
   .filters {
     flex-direction: column;
   }
+}
+
+.add-button-container {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-end;
 }
 </style> 

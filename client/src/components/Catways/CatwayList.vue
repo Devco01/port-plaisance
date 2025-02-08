@@ -7,6 +7,13 @@
       </router-link>
     </div>
 
+    <div class="add-button-container" v-if="isAdmin">
+      <button @click="$emit('add-catway')" class="btn-action btn-add">
+        <i class="fas fa-plus"></i>
+        Nouveau Catway
+      </button>
+    </div>
+
     <div v-if="props.loading" class="loading">
       <i class="fas fa-spinner fa-spin"></i>
       Chargement...
@@ -78,7 +85,7 @@ const props = defineProps<{
   isAdmin: boolean
 }>()
 
-defineEmits(['edit-catway', 'delete-catway'])
+defineEmits(['edit-catway', 'delete-catway', 'add-catway'])
 
 const filteredCatways = computed(() => props.catways)
 </script>
@@ -216,6 +223,17 @@ const filteredCatways = computed(() => props.catways)
 
 .catway-link:hover {
   text-decoration: underline;
+}
+
+.add-button-container {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-add {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
 }
 </style> 
  

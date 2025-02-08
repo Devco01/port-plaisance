@@ -38,11 +38,11 @@
               <span class="date">{{ formatDate(reservation.endDate) }}</span>
             </td>
             <td class="actions">
-              <button @click="editReservation(reservation)" class="edit-btn">
+              <button @click="$emit('edit-reservation', reservation)" class="btn-action btn-edit">
                 <i class="fas fa-edit"></i>
                 Modifier
               </button>
-              <button @click="deleteReservation(reservation._id)" class="delete-btn">
+              <button @click="$emit('delete-reservation', reservation)" class="btn-action btn-delete">
                 <i class="fas fa-trash"></i>
                 Supprimer
               </button>
@@ -55,9 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, inject, computed } from 'vue'
-import catwaysService from '../../services/catways.service'
-import type { ErrorHandler } from '@/components/ErrorHandler.vue'
+import { computed } from 'vue'
 
 interface Reservation {
   _id: string
@@ -75,8 +73,8 @@ const props = defineProps<{
   error: string
 }>()
 
-const emit = defineEmits(['refresh', 'edit'])
-const errorHandler = inject<ErrorHandler>('errorHandler')
+// Simplifier les émissions d'événements
+defineEmits(['edit-reservation', 'delete-reservation'])
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('fr-FR')
@@ -85,26 +83,8 @@ const formatDate = (dateString: string) => {
 const sortedReservations = computed(() => {
   return [...props.reservations].sort((a, b) => 
     a.catwayNumber - b.catwayNumber
-  );
-});
-
-const deleteReservation = async (id: string) => {
-  if (!confirm('Voulez-vous vraiment supprimer cette réservation ?')) return
-  
-  try {
-    const reservation = props.reservations.find(r => r._id === id)
-    if (!reservation) return
-    
-    await catwaysService.deleteReservation(reservation.catwayNumber, id)
-    emit('refresh')
-  } catch (err: any) {
-    errorHandler?.showError(err)
-  }
-}
-
-const editReservation = (reservation: Reservation) => {
-  emit('edit', reservation)
-}
+  )
+})
 </script>
 
 <style scoped>
@@ -136,35 +116,29 @@ th {
 .actions {
   display: flex;
   gap: 0.5rem;
+  white-space: nowrap;
 }
 
-.edit-btn, .delete-btn {
-  padding: 0.5rem 1rem;
+.btn-action {
+  padding: 0.4rem 0.8rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  display: flex;
+  font-size: 0.8rem;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
+  gap: 0.4rem;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
-.edit-btn {
+.btn-edit {
   background-color: #3498db;
-  color: white;
 }
 
-.delete-btn {
+.btn-delete {
   background-color: #e74c3c;
-  color: white;
-}
-
-.edit-btn:hover {
-  background-color: #2980b9;
-}
-
-.delete-btn:hover {
-  background-color: #c0392b;
 }
 
 .loading, .empty {
@@ -222,7 +196,7 @@ th {
     flex-direction: column;
   }
   
-  .edit-btn, .delete-btn {
+  .btn-edit, .btn-delete {
     width: 100%;
     justify-content: center;
   }
