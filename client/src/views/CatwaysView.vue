@@ -3,10 +3,6 @@
     <div class="catways-view">
       <div class="header">
         <h1>Gestion des Catways</h1>
-        <button v-if="isAdmin" @click="showForm = true" class="btn-action btn-add">
-          <i class="fas fa-plus"></i>
-          Ajouter
-        </button>
       </div>
 
       <CatwayList 
@@ -14,6 +10,7 @@
         :loading="loading"
         :error="error"
         :isAdmin="isAdmin"
+        @add-catway="showForm = true"
         @edit-catway="handleEdit"
         @delete-catway="handleDelete"
       />

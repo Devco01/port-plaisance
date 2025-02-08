@@ -8,7 +8,7 @@
     </div>
 
     <div class="add-button-container" v-if="isAdmin">
-      <button @click="$emit('add-catway')" class="btn-action btn-add">
+      <button @click="$emit('add-catway')" class="btn-action">
         <i class="fas fa-plus"></i>
         Nouveau Catway
       </button>
@@ -195,17 +195,22 @@ const filteredCatways = computed(() => props.catways)
 }
 
 .btn-action {
-  padding: 0.4rem 0.8rem;
+  padding: 0.6rem 1.2rem;
+  background-color: #3498db;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  color: white;
   text-transform: uppercase;
   font-weight: 500;
+}
+
+.btn-action:hover {
+  background-color: #2980b9;
 }
 
 .btn-edit {
@@ -229,11 +234,6 @@ const filteredCatways = computed(() => props.catways)
   margin-bottom: 1rem;
   display: flex;
   justify-content: flex-end;
-}
-
-.btn-add {
-  padding: 0.6rem 1.2rem;
-  font-size: 0.9rem;
 }
 </style> 
  

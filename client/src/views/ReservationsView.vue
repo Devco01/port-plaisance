@@ -209,8 +209,16 @@ const handleReservationCreated = () => {
   fetchReservations()
 }
 
-const handleEdit = (reservation: Reservation): void => {
-  selectedReservation.value = reservation
+const handleEdit = (reservation: any) => {
+  // S'assurer que la structure de la réservation est correcte
+  selectedReservation.value = {
+    _id: reservation._id,
+    catwayNumber: reservation.catwayNumber.toString(), // Convertir en string si nécessaire
+    clientName: reservation.clientName,
+    boatName: reservation.boatName,
+    startDate: reservation.startDate,
+    endDate: reservation.endDate
+  }
   showAddForm.value = true
 }
 
