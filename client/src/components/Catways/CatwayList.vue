@@ -1,15 +1,12 @@
 <template>
-  <div class="catways-grid">
+  <div class="catways-list">
     <div v-if="loading" class="loading">
       Chargement...
     </div>
     <div v-else-if="error" class="error">
       {{ error }}
     </div>
-    <div v-else class="catway-cards">
-      <div v-if="!catways.length" class="no-data">
-        Aucun catway trouvé
-      </div>
+    <div v-else class="catway-grid">
       <CatwayCard
         v-for="catway in catways"
         :key="catway.catwayNumber"
@@ -73,11 +70,18 @@ const updateStatus = async (id: string, status: string) => {
 </script>
 
 <style scoped>
-.catway-list {
+.catways-list {
   padding: 1rem;
 }
 
-.loading, .error, .no-catways {
+.catway-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.loading, .error {
   text-align: center;
   padding: 2rem;
   color: #666;
@@ -87,10 +91,16 @@ const updateStatus = async (id: string, status: string) => {
   color: #e74c3c;
 }
 
-.catway-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+.catway-cards {
+  display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
 }
 
 .catway-card {

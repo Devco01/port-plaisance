@@ -25,7 +25,9 @@
         <tbody>
           <tr v-for="reservation in sortedReservations" :key="reservation._id">
             <td>
-              <span class="badge catway">{{ reservation.catway?.number || 'N/A' }}</span>
+              <span class="badge catway">
+                {{ reservation.catwayNumber }}
+              </span>
             </td>
             <td>{{ reservation.clientName }}</td>
             <td>{{ reservation.boatName }}</td>
@@ -59,9 +61,7 @@ import type { ErrorHandler } from '@/components/ErrorHandler.vue'
 
 interface Reservation {
   _id: string
-  catway: {
-    number: number
-  }
+  catwayNumber: number
   clientName: string
   boatName: string
   startDate: string
@@ -84,7 +84,7 @@ const formatDate = (dateString: string) => {
 
 const sortedReservations = computed(() => {
   return [...props.reservations].sort((a, b) => 
-    a.catway.number - b.catway.number
+    a.catwayNumber - b.catwayNumber
   );
 });
 
@@ -95,7 +95,7 @@ const deleteReservation = async (id: string) => {
     const reservation = props.reservations.find(r => r._id === id)
     if (!reservation) return
     
-    await catwaysService.deleteReservation(reservation.catway.number, id)
+    await catwaysService.deleteReservation(reservation.catwayNumber, id)
     emit('refresh')
   } catch (err: any) {
     errorHandler?.showError(err)
