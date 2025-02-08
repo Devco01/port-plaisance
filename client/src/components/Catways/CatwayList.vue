@@ -202,3 +202,4 @@ defineEmits(['view-reservations'])
   font-size: 0.875rem;
 }
 </style> 
+ 
