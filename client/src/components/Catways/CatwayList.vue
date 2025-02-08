@@ -1,14 +1,20 @@
 <template>
   <div class="catways-list">
-    <div class="filters">
-      <div class="filter-group">
-        <label>Filtrer par état:</label>
-        <select v-model="filterState">
-          <option value="">Tous les états</option>
-          <option value="bon état">Bon état</option>
-          <option value="maintenance">En maintenance</option>
-        </select>
+    <div class="header">
+      <div class="filters">
+        <div class="filter-group">
+          <label>Filtrer par état:</label>
+          <select v-model="filterState">
+            <option value="">Tous les états</option>
+            <option value="bon état">Bon état</option>
+            <option value="maintenance">En maintenance</option>
+          </select>
+        </div>
       </div>
+      <router-link to="/reservations" class="btn-reservations">
+        <i class="fas fa-calendar-alt"></i>
+        Réservations
+      </router-link>
     </div>
 
     <div v-if="props.loading" class="loading">
@@ -28,24 +34,17 @@
           <tr>
             <th>Catway</th>
             <th>Type</th>
-            <th>État</th>
-            <th>Actions</th>
+            <th class="text-center">État</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="catway in filteredCatways" :key="catway._id">
             <td>{{ catway.catwayNumber }}</td>
             <td>{{ catway.catwayType === 'long' ? 'Long' : 'Court' }}</td>
-            <td>
+            <td class="text-center">
               <span class="status" :class="catway.catwayState === 'bon état' ? 'good' : 'warning'">
                 {{ catway.catwayState }}
               </span>
-            </td>
-            <td>
-              <button @click="$emit('view-reservations', catway)" class="btn-action">
-                <i class="fas fa-calendar-alt"></i>
-                Réservations
-              </button>
             </td>
           </tr>
         </tbody>
@@ -56,7 +55,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
 
 interface Catway {
   _id: string;
@@ -71,19 +69,12 @@ const props = defineProps<{
   error: string
 }>()
 
-const router = useRouter()
 const filterState = ref('')
 
 const filteredCatways = computed(() => {
   if (!filterState.value) return props.catways
   return props.catways.filter(c => c.catwayState.includes(filterState.value))
 })
-
-const goToReservations = (catway: Catway) => {
-  router.push(`/catways/${catway.catwayNumber}/reservations`)
-}
-
-defineEmits(['view-reservations'])
 </script>
 
 <style scoped>
@@ -93,8 +84,15 @@ defineEmits(['view-reservations'])
   margin: 0 auto;
 }
 
-.filters {
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
+}
+
+.filters {
+  flex: 1;
 }
 
 .filter-group {
@@ -113,6 +111,25 @@ defineEmits(['view-reservations'])
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: white;
+}
+
+.btn-reservations {
+  padding: 0.5rem 1rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.btn-reservations:hover {
+  background-color: #2980b9;
 }
 
 .table-responsive {
@@ -135,19 +152,14 @@ defineEmits(['view-reservations'])
   border-bottom: 1px solid #eee;
 }
 
+.text-center {
+  text-align: center !important;
+}
+
 .table th {
   background-color: #f8f9fa;
   font-weight: 600;
   color: #2c3e50;
-}
-
-.table tbody tr {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.table tbody tr:hover {
-  background-color: #f8f9fa;
 }
 
 .loading, .error, .no-data {
@@ -179,27 +191,6 @@ defineEmits(['view-reservations'])
 .status.warning {
   background-color: #fff3e0;
   color: #ef6c00;
-}
-
-.btn-action {
-  padding: 0.25rem 0.75rem;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.btn-action:hover {
-  background-color: #2980b9;
-}
-
-.btn-action i {
-  font-size: 0.875rem;
 }
 </style> 
  
