@@ -9,7 +9,7 @@ Application web de gestion des réservations de catways pour le port de plaisanc
 - Gestion des réservations de catways
 - Gestion des utilisateurs avec différents rôles (admin, user)
 - Interface utilisateur intuitive et responsive
-- Documentation API Swagger intégrée
+- Documentation API Swagger intégrée 
 
 ## 🛠️ Technologies Utilisées
 
