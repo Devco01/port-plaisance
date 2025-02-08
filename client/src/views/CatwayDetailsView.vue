@@ -43,11 +43,11 @@
       </div>
     </div>
 
-    <EditCatwayModal 
+    <CatwayForm
       v-if="showEditModal"
       :catway="catway"
       @close="showEditModal = false"
-      @save="handleEdit"
+      @updated="handleEdit"
     />
 
     <ConfirmDialog
@@ -64,7 +64,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { PageLayout } from '@/components/Layout'
-import EditCatwayModal from '@/components/Catways/EditCatwayModal.vue'
+import CatwayForm from '@/components/Catways/CatwayForm.vue'
 import ConfirmDialog from '@/components/Common/ConfirmDialog.vue'
 import catwaysService from '@/services/catways.service'
 
@@ -83,7 +83,7 @@ onMounted(async () => {
   isAdmin.value = user.role === 'admin'
   
   try {
-    const response = await catwaysService.getOne(catwayNumber)
+    const response = await catwaysService.getOne(catwayNumber as string)
     if (response.success) {
       catway.value = response.data
     }
@@ -94,13 +94,14 @@ onMounted(async () => {
   }
 })
 
-const handleEdit = async (updatedCatway: any) => {
+const handleEdit = async () => {
+  showEditModal.value = false
+  // Recharger les données
   try {
-    await catwaysService.update(catwayNumber, updatedCatway)
-    showEditModal.value = false
-    // Recharger les données
-    const response = await catwaysService.getOne(catwayNumber)
-    catway.value = response.data
+    const response = await catwaysService.getOne(catwayNumber as string)
+    if (response.success) {
+      catway.value = response.data
+    }
   } catch (err: any) {
     error.value = err.message
   }
@@ -112,7 +113,7 @@ const handleDelete = () => {
 
 const confirmDelete = async () => {
   try {
-    await catwaysService.delete(catwayNumber)
+    await catwaysService.delete(catwayNumber as string)
     router.push('/catways')
   } catch (err: any) {
     error.value = err.message
@@ -212,5 +213,15 @@ const confirmDelete = async () => {
 .status.warning {
   background-color: #fff3e0;
   color: #ef6c00;
+}
+
+.loading, .error, .no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.error {
+  color: #e74c3c;
 }
 </style> 
