@@ -127,6 +127,31 @@ const catwaysService = {
       console.error('Erreur getAllReservations:', error);
       throw error;
     }
+  },
+
+  // Récupérer un catway spécifique
+  getOne: async (id: string) => {
+    try {
+      const response = await apiRequest(`/api/catways/${id}`)
+      return response
+    } catch (error) {
+      console.error('Erreur getOne catway:', error)
+      throw error
+    }
+  },
+
+  // Mettre à jour l'état d'un catway
+  update: async (id: string, state: string) => {
+    try {
+      const response = await apiRequest(`/api/catways/${id}`, {
+        method: 'PUT',
+        data: { catwayState: state }
+      })
+      return response
+    } catch (error) {
+      console.error('Erreur update catway:', error)
+      throw error
+    }
   }
 }
 
