@@ -6,14 +6,21 @@
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="catwayNumber">Numéro du catway</label>
-          <input
-            type="text"
+          <select
             id="catwayNumber"
             v-model="formData.catwayNumber"
             required
             :disabled="isEditing"
-            placeholder="Ex: A1"
-          />
+          >
+            <option value="">Sélectionner un numéro</option>
+            <option 
+              v-for="number in availableNumbers" 
+              :key="number" 
+              :value="number"
+            >
+              {{ number }}
+            </option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -52,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import catwaysService from '@/services/catways.service'
 
 const props = defineProps<{
@@ -74,6 +81,8 @@ const formData = ref({
   catwayType: 'long' as 'long' | 'short',
   catwayState: ''
 })
+
+const availableNumbers = ref<number[]>([])
 
 const closeModal = () => {
   emit('close')
@@ -100,6 +109,21 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
+
+onMounted(async () => {
+  try {
+    const response = await catwaysService.getAll()
+    if (response.success) {
+      // Créer un tableau de 1 à 20 (ou autre nombre max de catways)
+      const allNumbers = Array.from({length: 20}, (_, i) => i + 1)
+      // Filtrer les numéros déjà utilisés
+      const usedNumbers = response.data.map((c: any) => parseInt(c.catwayNumber))
+      availableNumbers.value = allNumbers.filter(n => !usedNumbers.includes(n))
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des numéros:', error)
+  }
+})
 
 // Initialisation en mode édition
 if (props.catway) {
